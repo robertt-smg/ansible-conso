@@ -1,0 +1,13 @@
+---
+- hosts: localhost
+  connection: local
+  become: true
+
+  tasks:
+    - import_tasks: full-distro.yml
+    - import_tasks: sshd.yml
+    - import_tasks: sudoers.yml
+    - import_tasks: bootstrap.yml
+    - import_tasks: users.yml
+    - import_tasks: cleanup.yml
+    - import_tasks: version.yml

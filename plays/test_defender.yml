@@ -1,0 +1,14 @@
+- hosts: all
+  #become: true
+  become_method: runas
+  become_user: Administrator
+  gather_facts: false
+
+  vars_files:
+  - main/vars.yml
+
+  tasks:
+
+  - name: Install defender exceptions
+    include_tasks: win-tasks/defender.yml
+    when: defender_list is defined and defender_list

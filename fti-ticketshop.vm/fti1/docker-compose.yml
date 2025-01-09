@@ -1,0 +1,67 @@
+version: '3'
+services:
+  
+  la-cuna-icu.vm:
+    security_opt:
+      - label=disable
+    
+    image: registry.gitlab.com/la-cuna-icu/podman-images/ubuntu-test-vm:24.04
+    container_name: fti1-ticketshop
+    hostname: fti1
+    domainname: fti-ticketshop.vm
+    cap_add:
+        - NET_ADMIN
+        - SYS_ADMIN
+        - CAP_MKNOD
+    
+    restart: unless-stopped
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Berlin
+      - SUDO_ACCESS=true
+      - PASSWORD_ACCESS=true
+      - SERVERNAME=fti1
+      - DOMAIN=fti-ticketshop.vm
+    
+    devices:
+    - /dev/fuse:/dev/fuse
+
+    ports:
+    - "127.0.0.8:22:22"
+    - "127.0.0.8:80:80"
+    - "127.0.0.8:443:443"
+    - "127.0.0.8:2443:2443"
+    - "127.0.0.8:2480:2480"
+    - "127.0.0.8:31222:31222"
+
+    volumes:
+    # Podman with a leaked Podman socket from the host
+    -  /run/podman:/run/podman
+    ## need to map DNS from WSL for podman pull to work
+    - /etc/resolv.conf:/etc/resolv.conf
+    - docker-008:/var/lib/docker
+    - swap-008:/swap
+    - signal-008:/signal
+    - ./tmp/:/tmp/local/
+
+    # need to call entrypoint, otherwise failes for unknown reason
+    entrypoint: /bin/bash
+    command: /docker-entrypoint.sh    
+
+    privileged: true
+
+    networks:
+      salt-vm:
+        ipv4_address: 192.168.11.8
+
+networks:
+  salt-vm:
+     external: true
+
+volumes:
+  signal-008:
+  docker-008:
+  swap-008:
+  
+  

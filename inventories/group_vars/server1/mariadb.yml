@@ -1,0 +1,11 @@
+mariadb_server1:
+    server:
+      id: 2233
+    cpu: 4096
+    memory: 8192
+
+## percona db server
+## -------------------------
+nomad_mariadb:
+  enabled: true
+  job_name: "mariadb-server"

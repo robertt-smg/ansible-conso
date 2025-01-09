@@ -1,0 +1,89 @@
+
+x-project:
+  name: passbolt-test-vm
+
+services:
+  db:
+  #  image: mariadb:11.5
+  #  image: gitlab.fti-group.com:5005/ticketshop/docker/mariadb:11.3.2
+    #image: registry.gitlab.com/la-cuna-icu/podman-images/percona:8.0.36-28-centos
+    #image: registry.gitlab.com/la-cuna-icu/podman-images/percona:8.0.39-30-debian-12-r3
+    image: registry.gitlab.com/la-cuna-icu/podman-images/mariadb:11.6.2-noble
+
+    #restart: unless-stopped
+    environment:
+      MARIADB_RANDOM_ROOT_PASSWORD: "true"
+      MARIADB_ROOT_PASSWORD: "70548508275f86e7f0"
+      MARIADB_DATABASE: "passbolt"
+      MARIADB_USER: "passbolt"
+      MARIADB_PASSWORD: "P4ssb0lt"
+    networks:
+      salt-vm:
+        ipv4_address: 192.168.11.211
+
+    volumes: ## MySQL / MariaDB does not work with windows map directories - crashes, we need to use volume
+     - database_volume:/var/lib/mariadb
+
+  passbolt:
+    #image: passbolt/passbolt:latest-ce
+    #image: gitlab.fti-group.com:5005/ticketshop/docker/passbolt:4.9.0-1-ce
+    image: passbolt:latest
+    hostname: passbolt.test.la-cuna.icu
+
+    #restart: unless-stopped
+    depends_on:
+      - db
+    environment:
+      APP_FULL_BASE_URL: "https://passbolt.{{ cerbot.domain }}"
+      APP_DEFAULT_TIMEZONE: "Europe/Berlin"
+      APP_BASE: /passbolt
+      DATASOURCES_DEFAULT_HOST: "db"
+
+      #DATASOURCES_DEFAULT_HOST: "192.168.33.1"
+      #DATASOURCES_DEFAULT_PASSWORD: "yrT1a5Cr7kNGS5nHLJEA"
+
+      DATASOURCES_DEFAULT_USERNAME: "passbolt"
+      DATASOURCES_DEFAULT_PASSWORD: "P4ssb0lt"
+      DATASOURCES_DEFAULT_DATABASE: "passbolt"
+
+      EMAIL_TRANSPORT_DEFAULT_HOST: "192.168.178.170" #"webmail.fti.de"
+      EMAIL_DEFAULT_FROM_ADDRESS: "robert.thurnreiter@fti.de"
+      EMAIL_DEFAULT_FROM: "robert.thurnreiter@fti.de"
+      PASSBOLT_EMAIL_VALIDATE_MX: "true"
+      PASSBOLT_GPG_SERVER_KEY_FINGERPRINT: "91083DBFFC1F20E84EEA94C275B4A775EB418005"
+      PASSBOLT_SECURITY_SMTP_SETTINGS_ENDPOINTS_DISABLED: "true"
+      PASSBOLT_SECURITY_PROXIES_ACTIVE: "true"
+      PASSBOLT_SSL_FORCE: "true"
+
+      EMAIL_ADMIN_USER: "robert.thurnreiter@fti.de"
+      EMAIL_ADMIN_NAME: "robert.thurnreiter@fti.de"
+      EMAIL_ADMIN_LASTNAME: "robert.thurnreiter@fti.de"
+
+    volumes:
+      - ./data/gpg:/gpg
+      - ./data/jwt:/jwt
+      - ./data/:/data
+
+      - ${CERT_DIR}/test.la-cuna.icu:/etc/ssl/certs/
+
+      - ./nginx/sites-enabled:/etc/nginx/sites-enabled/
+      - ./nginx/snippets:/etc/nginx/snippets/
+      - ./log/nginx:/var/log/nginx
+
+    ports:
+      - 127.0.0.212:80:80
+      - 127.0.0.212:443:2443
+      - 127.0.0.212:4444:4444
+
+    networks:
+      salt-vm:
+        ipv4_address: 192.168.11.212
+
+networks:
+  salt-vm:
+     external: true
+
+volumes:
+  database_volume:
+  gpg_volume:
+  jwt_volume:

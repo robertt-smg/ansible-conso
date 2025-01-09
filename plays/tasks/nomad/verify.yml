@@ -1,0 +1,34 @@
+- name: Check if Nomad service is running
+  ansible.builtin.systemd:
+    name: nomad
+    state: started
+  register: nomad_service_status
+  ignore_errors: true
+
+- name: Wait for Nomad service to become active
+  ansible.builtin.command: nomad status
+  register: nomad_status
+  retries: 5 # Number of retries
+  delay: 30 # Delay between retries in seconds
+  until: nomad_status.rc == 0 # Check for successful return code
+  when: nomad_service_status is changed
+
+- name: Wait for nomad server to become available
+  uri:
+    url: "{{ nomad_server_url }}/v1/status/leader"
+    return_content: yes
+    validate_certs: no 
+  register: nomad_server_status
+  until: nomad_server_status.status == 200
+  retries: 240
+  delay: 10
+
+- name: Display Nomad service status
+  debug:
+    msg: "Nomad service is running."
+  when: nomad_service_status is defined and nomad_service_status.status is not none and nomad_service_status.status.ActiveState == 'active'
+
+- name: Display Nomad service not running message
+  fail:
+    msg: "Nomad service is not running."
+  when: nomad_service_status is defined and nomad_service_status.status is not none and nomad_service_status.status.ActiveState != 'active'

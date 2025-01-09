@@ -1,0 +1,5 @@
+- hosts: Linux
+  tasks:
+    - name: Install Python
+      raw: |
+        yum install -y python3 python3-PyMySQL python3-pip python3-cryptography # For CentOS/RHEL

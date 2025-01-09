@@ -1,0 +1,6 @@
+- name: Set IMAGE_BUILD to current date/time, os and version
+  set_fact:
+    IMAGE_BUILD: "{{ ansible_date_time.iso8601 }}, OS: {{ ansible_distribution }}, Version: {{ ansible_distribution_version }}"
+
+- name: Write IMAGE_BUILD to version.txt
+  shell: echo "{{ IMAGE_BUILD }}" | tee /version.txt

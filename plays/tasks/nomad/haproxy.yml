@@ -1,0 +1,153 @@
+---
+- name: Ensure job directory exists
+  file:
+    path: "{{ nomad_data_dir }}/jobs/{{ nomad_haproxy.job_name }}"
+    state: directory
+    owner: nomad
+    group: nomad
+    mode: "0777"
+    recurse: yes
+
+- name: Ensure certs directory exists
+  file:
+    path: "{{ nomad_data_dir }}/jobs/certs/live"
+    state: directory
+    owner: nomad
+    group: nomad
+    mode: "0777"
+    recurse: yes
+
+- name: Manage HAProxy configuration file
+  template:
+    src: nomad-files/haproxy/{{nomad_haproxy.cfg_template}}.cfg.j2
+    dest: "{{ nomad_data_dir }}/jobs/{{ nomad_haproxy.job_name }}/haproxy.cfg"
+    owner: root
+    group: root
+    mode: "0644"
+  vars:
+    job_name: "{{ nomad_haproxy.job_name }}"
+    public_ip: "{{ nomad_advertise_address }}"
+    job_dir: "{{ nomad_data_dir }}/jobs/{{ nomad_haproxy.job_name }}"
+    domain_list: "{{ nomad_haproxy.domain_list }}"
+    cookie_domain: "{{ nomad_haproxy.cookie_domain }}"
+    maxconn: "{{ nomad_haproxy.haproxy.maxconn }}"
+
+- name: Manage HAProxy configuration file
+  template:
+    src: nomad-files/haproxy/{{nomad_haproxy.cfg_template}}.cfg.j2
+    dest: "{{ nomad_data_dir }}/jobs/{{ nomad_haproxy.job_name }}/haproxy.cfg"
+    owner: root
+    group: root
+    mode: "0644"
+  vars:
+    job_name: "{{ nomad_haproxy.job_name }}"
+    public_ip: "{{ nomad_advertise_address }}"
+    job_dir: "{{ nomad_data_dir }}/jobs/{{ nomad_haproxy.job_name }}"
+    domain_list: "{{ nomad_haproxy.domain_list }}"
+    cookie_domain: "{{ nomad_haproxy.cookie_domain }}"
+    maxconn: "{{ nomad_haproxy.haproxy.maxconn }}"
+
+- name: Manage 200welcome.http
+  copy:
+    src: nomad-files/haproxy/200welcome.http
+    dest: "{{ nomad_data_dir }}/jobs/{{ nomad_haproxy.job_name }}/200welcome.http"
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Manage server.pem
+  copy:
+    src: nomad-files/haproxy/server.pem
+    dest: "{{ nomad_data_dir }}/jobs/certs/live/server.pem"
+    owner: root
+    group: root
+    mode: "0644"
+    force: no
+
+- name: Manage certbot scripts
+  copy:
+    src: nomad-files/certbot/scripts/
+    dest: "{{ nomad_data_dir }}/jobs/{{ nomad_haproxy.job_name }}_certbot/scripts/"
+    owner: root
+    group: root
+    mode: "0774"
+
+- name: Create log directory
+  file:
+    path: "{{ nomad_log_dir }}/{{ nomad_haproxy.job_name }}"
+    state: directory
+    owner: nomad
+    group: nomad
+    mode: "0777"
+    recurse: yes
+
+- name: Create log directory
+  file:
+    path: "{{ nomad_log_dir }}/{{ nomad_haproxy.job_name }}_certbot"
+    state: directory
+    owner: nomad
+    group: nomad
+    mode: "0777"
+    recurse: yes
+
+
+# the job file is informational, job is posted directly
+- name: Manage Nomad haproxy job file
+  template:
+    src: nomad-files/haproxy/haproxy.nomad.j2
+    dest: "{{ nomad_data_dir }}/jobs/{{ nomad_haproxy.job_name }}.nomad"
+    owner: root
+    group: root
+    mode: "0644"
+  vars:
+    job_name: "{{ nomad_haproxy.job_name }}"
+    hostname: "{{ ansible_hostname  }}"
+    datacenter: "{{ nomad_datacenter }}"
+
+- name: Manage Nomad certbot job file
+  template:
+    src: nomad-files/haproxy/certbot.nomad.j2
+    dest: "{{ nomad_data_dir }}/jobs/{{ nomad_haproxy.job_name }}-certbot.nomad"
+    owner: root
+    group: root
+    mode: "0644"
+  vars:
+    job_name: "{{ nomad_haproxy.job_name }}_certbot"
+    hostname: "{{ ansible_hostname  }}"
+    datacenter: "{{ nomad_datacenter }}"
+
+- name: "Manage Nomad haproxy job {{ nomad_haproxy.job_name }}"
+  run_once: true
+  nomad_job:
+    url: "{{ nomad_server_url }}"
+    validate_certs: false
+    management_token: "{{ nomad_acl_management_token }}"
+    state: present
+    namespace: default
+    hcl_spec: "{{ lookup('template', 'nomad-files/haproxy/haproxy.nomad.j2') }}"
+  vars:
+    job_name: "{{ nomad_haproxy.job_name }}"
+    hostname: "{{ ansible_hostname  }}"
+    datacenter: "{{ nomad_datacenter }}"
+
+- name: "Manage Nomad certbot job {{ nomad_haproxy.job_name }}"
+  run_once: true
+  nomad_job:
+    url: "{{ nomad_server_url }}"
+    validate_certs: false
+    management_token: "{{ nomad_acl_management_token }}"
+    state: present
+    namespace: default
+    hcl_spec: "{{ lookup('template', 'nomad-files/haproxy/certbot.nomad.j2') }}"
+  vars:
+    job_name: "{{ nomad_haproxy.job_name }}_certbot"
+    hostname: "{{ ansible_hostname  }}"
+    datacenter: "{{ nomad_datacenter }}"
+
+- name: Check haProxy server status
+  command: curl http://{{ nomad_advertise_address }}:8080/
+  register: haProxy_status
+  ignore_errors: true
+  until: haProxy_status.rc == 0
+  retries: 3
+  delay: 30

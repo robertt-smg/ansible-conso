@@ -1,0 +1,161 @@
+#!/bin/bash
+#set -x
+SCRIPT="$(readlink -f -- $0)"
+SCRIPTPATH="$(dirname $SCRIPT)"
+
+IV="${SCRIPTPATH}/inventories"
+
+# Usage function
+usage() {
+    echo "Usage: $0 [option]"
+    echo "Options:"
+    echo "  -c, --connect                Connect to ansible build VM"
+    echo "  -r, --install-roles          Install ansible galaxy roles from requirements.txt"
+    echo "  -b, -t, --build, --build-tst Build servers in test [ansible-playbook options e.g. --limit server1]"
+    echo "  -p, --build-prd              Build servers in prod [ansible-playbook options e.g. --limit server1]"
+    echo "  <-b | -p > --dump_vars       Dump variables in test [ansible-playbook options e.g. --limit server1]"
+    echo "  <-b | -p > --dump_groups     Dump groups in test [ansible-playbook options e.g. --limit server1]"
+    echo "  <-b | -p > --play <play>     Build differen playbook [ansible-playbook options e.g. --limit server1]"
+    echo "  -w, --win-tst                Build Windows servers in test [ansible-playbook options e.g. --limit server1]"
+    echo "  -v, --start-vm               Start virtual machine <server>"
+    echo "  -h, --help                   Display this help message"
+}
+
+# Install galaxy roles
+install_roles() {
+    echo ${FUNCNAME[0]}
+    ansible-galaxy install -r ${SCRIPTPATH}/requirements.yml --roles-path ${SCRIPTPATH}/roles.external $*
+    ansible-galaxy collection install -r ${SCRIPTPATH}/requirements-collections.yml --collections-path ${SCRIPTPATH}/collections.external $*
+}
+check_ssh_add() {
+    echo ${FUNCNAME[0]}
+    count=$(ssh-add -L | wc -l)
+    if [ "$count" -lt 1 ]; then
+        echo "Alert: No SSH keys found."
+    elif [ "$count" -gt 6 ]; then
+        echo "Warning: Too many SSH keys found ($count > 6). Your host may decline connect as of too many wrong keys if key is at the end of the list ..."
+    fi
+}
+function check_opts_and_run() {
+    echo ${FUNCNAME[0]} $*
+
+    if [ "$1" = "--bootstrap-play" ]; then
+        BOOTSTRAP_PLAY=${1}
+        shift
+    fi
+    if [ "$1" = "--dump_vars" ]; then
+        DEFAULT_PLAY=dump_vars.yml
+        shift
+    fi
+    if [ "$1" = "--dump_groups" ]; then
+        DEFAULT_PLAY=dump_groups.yml
+        shift
+    fi
+    if [ "$1" = "--play" ]; then
+        shift
+        DEFAULT_PLAY=$1
+        shift
+    fi
+    if [ "$1" = "--bootstrap" ]; then
+        INVENTORY="-i ${IV}/${INVENTORY}-bootstrap -i ${IV}/${IVGROUPS} "
+        BOOTSTRAP_PLAY=${DEFAULT_BOOTSTRAP_PLAY:-bootstrap_python.yml}
+        shift
+    else
+        INVENTORY="-i ${IV}/${INVENTORY} -i ${IV}/${IVGROUPS} "
+    fi
+    if [ ! -z "$BOOTSTRAP_PLAY" ]; then
+        ansible-playbook ${INVENTORY} ${SCRIPTPATH}/plays/${BOOTSTRAP_PLAY} $*
+        if [ $? -ne 0 ]; then
+          echo "Ansible playbook ${BOOTSTRAP_PLAY} execution failed. Exiting."
+          exit 1
+        fi
+    fi
+
+    ansible-playbook ${INVENTORY} ${SCRIPTPATH}/plays/${DEFAULT_PLAY} $*
+    if [ $? -ne 0 ]; then
+        echo "Ansible playbook ${DEFAULT_PLAY} execution failed. Exiting."
+        exit 1
+    fi
+}
+# Build a server/s
+build_on_test() {
+    echo ${FUNCNAME[0]}
+    DEFAULT_PLAY="install-linux.yml"
+    IVGROUPS=groups
+    
+    check_ssh_add
+
+    INVENTORY="tst"
+    check_opts_and_run $*
+}
+# Build a server/s
+build_on_win_test() {
+    echo ${FUNCNAME[0]}
+
+    DEFAULT_PLAY="install-windows.yml"
+    DEFAULT_BOOTSTRAP_PLAY="bootstrap_win.yml"
+    IVGROUPS="groups-win"
+    check_ssh_add
+
+    INVENTORY="win-tst"
+    check_opts_and_run $*
+}
+build_on_prod() {
+    echo ${FUNCNAME[0]}
+    DEFAULT_PLAY="install-linux.yml"
+    BOOTSTRAP_PLAY="bootstrap_win.yml"
+    IVGROUPS=groups
+    check_ssh_add
+
+    INVENTORY="prd"
+    check_opts_and_run $*
+}
+function connect_builder() {
+    echo ${FUNCNAME[0]}
+    . $SCRIPTPATH/ansible-vm-connect.sh
+}
+function start_vm() {
+    echo ${FUNCNAME[0]}
+
+    if [ -d $SCRIPTPATH/la-cuna-icu.vm/$1 ]; then
+        bash $SCRIPTPATH/la-cuna-icu.vm/$1/up.sh
+    else
+        echo "VM for server $1 not found ($SCRIPTPATH/la-cuna-icu.vm/$1) ..."
+    fi
+}
+# Main script logic
+if [ "$#" -eq 0 ]; then
+    usage
+    exit 1
+fi
+opt="$1"
+shift
+
+case "$opt" in
+    -c|--connect)
+        connect_builder
+        ;;
+    -r|--install-roles)
+        install_roles $*
+        ;;
+    -t|-b|--build|--build-tst)
+        build_on_test $*
+        ;;
+    -p|--build-prd)
+        build_on_prod $*
+        ;;
+    -w|-b|--win-tst)
+        build_on_win_test $*
+        ;;
+    -v|--start-vm)
+        start_vm $*
+        ;;
+    -h|--help)
+        usage
+        ;;
+    *)
+        echo "Invalid option"
+        usage
+        exit 1
+        ;;
+esac

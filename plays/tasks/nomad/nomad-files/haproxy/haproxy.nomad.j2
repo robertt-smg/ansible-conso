@@ -1,0 +1,119 @@
+########################################################################
+# File managed by ansible
+# Your changes will be overwritten.
+########################################################################
+#
+# For more information on the "job" stanza, please see
+# the online documentation at:
+#
+#     https://www.nomadproject.io/docs/job-specification/job.html
+#
+job "{{ job_name }}" {
+  datacenters = ["{{ datacenter }}"]
+  type        = "service"
+  constraint {
+    attribute = "${attr.kernel.name}"
+    value     = "linux"
+  }
+  update {
+    max_parallel      = 1
+    min_healthy_time  = "10s"
+    healthy_deadline  = "5m"
+    progress_deadline = "12m"
+    auto_revert       = false
+    canary            = 0
+  }
+
+  group "{{ job_name }}" {
+    count = 1
+    network {
+      
+      port "haproxy" { static = "8080" }
+      port "hastatus" { static = "8690" }
+      port "haproxy_ssl" { static = "443" }
+      port "haadmin" { static = "9999" }
+      mode = "host"
+    }
+    restart {
+      # The number of attempts to run the job within the specified interval.
+      attempts = 10
+      interval = "5m"
+
+      # The "delay" parameter specifies the duration to wait before restarting
+      # a task after it has failed.
+      delay = "30s"
+
+      # The "mode" parameter controls what happens when a task has restarted
+      # "attempts" times within the interval. "delay" mode delays the next
+      # restart until the next interval. "fail" mode does not restart the task
+      # if "attempts" has been hit within the interval.
+      mode = "delay"
+    }
+    task "{{ job_name }}" {
+      service {
+        tags = ["leader", "haProxy"]
+
+        port = "haproxy"
+
+        provider = "nomad"
+
+        meta {
+          meta = "haProxy service"
+        }
+        check {
+          type     = "http"
+          name     = "haproxy http check"
+          path     = "/?status"
+          port     = "haproxy"
+          interval = "60s"
+          timeout  = "30s"
+          
+          check_restart {
+            limit = 3
+            grace = "90s"
+            ignore_warnings = false
+          }
+        }
+      }
+      {% if nomad_config_driver_is_docker is defined and nomad_config_driver_is_docker %}
+      driver = "docker"
+      {% else %}
+      driver = "podman"
+      {% endif %}
+      config {
+        {% set image_version= "haproxy:3.0" %}
+        {% include "nomad-files/gitlab_registry.j2" %}
+
+        ports = ["haproxy", "haproxy_ssl", "hastatus", "haadmin" ]
+        cap_add = [
+          "NET_BIND_SERVICE",
+        ]
+
+        volumes = [
+          # Use absolute paths to mount arbitrary paths on the host
+          "{{ nomad_log_dir }}/{{ job_name }}:/var/log/haproxy",
+          "{{ nomad_data_dir }}/jobs/{{ job_name }}:/usr/local/etc/haproxy",
+          "{{ nomad_data_dir }}/jobs/certs/live:/usr/local/etc/haproxy/certs"
+        ]
+        {% if nomad_config_driver_is_docker is defined and nomad_config_driver_is_docker %}
+        volume_driver = "local"
+        {% endif %}
+
+        
+      }
+
+
+      logs {
+        max_files     = 2
+        max_file_size = 15
+      }
+
+      resources {
+        cpu        = 2048
+        memory     = 4096
+        memory_max = 8192
+
+      }
+    }
+  }
+}

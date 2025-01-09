@@ -1,0 +1,85 @@
+# {{ ansible_managed }}
+
+
+
+## BASICS
+{% if mailrelay_opensmtpd_smtpd_conf_bounce_warn_interval != False %}
+# Send a warning if mail remains in queue for more than 5 minutes
+bounce warn-interval {{ mailrelay_opensmtpd_smtpd_conf_bounce_warn_interval }}
+{% endif %}
+# Queue encryption (openssl rand -hex 16)
+queue encryption {{ mailrelay_opensmtpd_conf_queue_encryption }}
+# Maximum mail size
+smtp max-message-size {{ mailrelay_opensmtpd_conf_max_message_size }}
+
+
+
+## TABLES
+table relay_secrets file:/etc/smtpd/tables/relay_secrets
+table monitoring_recipients file:/etc/smtpd/tables/monitoring_recipients
+table monitoring_from file:/etc/smtpd/tables/monitoring_from
+
+
+
+## LISTEN
+# Only listen on loopback and local socket
+listen on lo port 25 hostname {{ mailrelay_opensmtpd_mailname }}
+listen on socket mask-src tag "socket"
+{% if mailrelay_listen_on_interface is defined %}
+listen on {{ mailrelay_listen_on_interface }} port 25 hostname {{ mailrelay_opensmtpd_mailname }}
+{% endif %}
+
+
+{% if mailrelay_to_matrix is defined and mailrelay_to_matrix %}
+## ACTION
+# Relay monitoring mails to matrix
+action "relay_monitoring" \
+    relay \
+    host smtp://127.0.0.1:12325
+{% endif %}
+
+{% if mailrelay_opensmtpd_relays != [] %}
+# List of authenticated sender addresses and according relay hosts
+{% else %}
+# No mailrelay_opensmtpd_relays defined
+{% endif %}
+{% for mailrelay_opensmtpd_relay in mailrelay_opensmtpd_relays %}
+action "relay_{{ mailrelay_opensmtpd_relay['alias'] }}" \
+    relay \
+{% if mailrelay_opensmtpd_relay['tls'] | default(True) %}
+{% if mailrelay_opensmtpd_relay['tls_no_verify'] | default(False) %}
+    tls no-verify \
+{% else %}
+    tls \
+{% endif %}
+{% endif %}
+    host {{ mailrelay_opensmtpd_relay['protocol'] }}://{{ mailrelay_opensmtpd_relay['alias'] }}@{{ mailrelay_opensmtpd_relay['server'] }}:{{ mailrelay_opensmtpd_relay['port'] }} \
+    auth <relay_secrets> \
+    mail-from {{ mailrelay_opensmtpd_relay['mail-from'] }}
+
+{% endfor %}
+
+
+
+## MATCH
+{% if mailrelay_to_matrix is defined and mailrelay_to_matrix %}
+# Forward monitoring mails to matrix
+match from local mail-from <monitoring_from> for rcpt-to <monitoring_recipients> action "relay_monitoring"
+{% endif %}
+
+# Match mail-from and relay
+{% for mailrelay_opensmtpd_relay in mailrelay_opensmtpd_relays %}
+{% for mailrelay_opensmtpd_relay_from in mailrelay_opensmtpd_relay['from'] %}
+match from local mail-from "{{ mailrelay_opensmtpd_relay_from }}" for any action "relay_{{ mailrelay_opensmtpd_relay['alias'] }}"
+{% endfor %}
+
+{% endfor %}
+
+# Catchall to monitoring for all other mails
+{% if mailrelay_to_matrix is defined and mailrelay_to_matrix %}
+match from any for any action "relay_monitoring"
+{% else %}
+{% for mailrelay_opensmtpd_relay in mailrelay_opensmtpd_relays %}
+match from any for any action "relay_{{ mailrelay_opensmtpd_relay['alias'] }}"
+{% endfor %}
+{% endif %}

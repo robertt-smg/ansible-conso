@@ -1,0 +1,47 @@
+---
+# setup environment and install all tools
+
+- name: Install required packages
+  apt:
+    name:
+      - git
+      - netcat-traditional
+      - smbclient
+      - bindfs
+      - net-tools
+      - groff
+      - bison
+      - automake
+      - build-essential
+      - checkinstall
+
+    state: present
+    update_cache: yes
+
+- name: Set timezone to Europe/Berlin
+  command: >
+    ln -snf /usr/share/zoneinfo/Europe/Berlin /etc/localtime
+
+- name: Install ca-certificates, curl, gnupg, lsb-release
+  apt:
+    name:
+      - ca-certificates
+      - curl
+      - gnupg
+      - lsb-release
+    state: present
+
+- name: Create directory for APT keyrings
+  file:
+    path: /etc/apt/keyrings
+    state: directory
+
+- name: Update APT package index
+  apt:
+    update_cache: yes
+
+- name: Copy docker-entrypoint.sh to root directory
+  copy:
+    src: "{{ BASEDIR }}/docker-entrypoint.sh"
+    dest: /
+    mode: "0755"

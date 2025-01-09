@@ -1,0 +1,6 @@
+apt_packages_fti:
+  - certbot
+  - haproxy
+  - busybox
+  - fuse-overlayfs
+  - podman

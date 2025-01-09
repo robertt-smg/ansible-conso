@@ -1,0 +1,6 @@
+users_list_www:
+  - name: www-data
+    authorized_keys:
+    username: www-data
+    shell: /usr/sbin/nologin
+    group: www-data

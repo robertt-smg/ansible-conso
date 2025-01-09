@@ -1,0 +1,9 @@
+## Enable nomad services for this server
+nomad_haproxy:
+  enabled: true
+  job_name: "la-cuna-haproxy"
+  cfg_template: "haproxy-passbolt"
+  haproxy:
+    domain_list: "la-cuna.vm,la-cuna.icu,la-cuna.de"
+    cookie_domain: "{{ ansible_fqdn }}"
+    maxconn: 500

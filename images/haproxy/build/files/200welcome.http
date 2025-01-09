@@ -1,0 +1,15 @@
+HTTP/1.0 200 Found
+Cache-Control: no-cache
+Connection: close
+Content-Type: text/html
+
+<html>
+<head>
+<title>haProxy Welcome Default</title>
+</head>
+<body>
+<h1>haProxy Welcome</h1>
+<p>haProxy working but ...</p>
+<p>No specific backend found in request ...</p>
+</body>
+</html>

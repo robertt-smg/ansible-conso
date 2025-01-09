@@ -1,0 +1,29 @@
+- hosts: all
+  become: true
+  gather_facts: true
+
+  vars_files:
+  - main/vars.yml
+
+  tasks:
+  - name: Print database creation arguments
+    debug:
+      msg:
+        - config_file: "/etc/mysql/conf.d/percona-client.cnf"
+        - login_host: "{{ passbolt.db_server }}"
+        - login_port: "{{ passbolt.db_server_port }}"
+        - login_user: "{{ passbolt.db_server_admin }}"
+        - login_pwd: "{{ passbolt.db_server_admin_password }}"
+        - name: passbolt
+        - state: present
+
+
+  - name: Create database 'passbolt'
+    community.mysql.mysql_db:
+      config_file: "/etc/mysql/conf.d/percona-client.cnf"
+      login_host: "{{ passbolt.db_server }}"
+      login_port: "{{ passbolt.db_server_port }}"
+      login_user: "{{ passbolt.db_server_admin }}"
+      login_password: "{{ passbolt.db_server_admin_password }}"
+      name: passbolt
+      state: present

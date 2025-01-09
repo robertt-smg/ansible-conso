@@ -1,0 +1,8 @@
+- name: Ensure users are present
+  ansible.windows.win_user:
+    name: "{{ item.key }}"
+    password: "{{ item.value.password }}"
+    state: present
+    account_expires: never
+    groups: "{{ item.value.groups | default([]) }}"
+  loop: "{{ winusers_list | dict2items }}"

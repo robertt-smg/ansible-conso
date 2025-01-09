@@ -1,0 +1,11 @@
+---
+- name: restart apache
+  service: name=apache2 state=restarted
+
+- name: include nomad handlers
+  include_tasks: nomad.yml
+  when: nomad_enabled is defined and nomad_enabled
+
+- name: reload systemd
+  systemd:
+    daemon_reload: yes  

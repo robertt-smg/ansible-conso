@@ -1,0 +1,10 @@
+- name: include opensmtpd tasks
+  include_tasks: opensmtpd.yml
+
+#- name: include smtp-to-matrix tasks
+#  include_tasks: smtp-to-matrix.yml
+
+- meta: flush_handlers
+
+- name: include send-test-mail tasks
+  include_tasks: send-test-mail.yml

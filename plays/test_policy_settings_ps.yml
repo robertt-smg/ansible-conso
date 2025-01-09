@@ -1,0 +1,15 @@
+- hosts: all
+  become: true
+  become_method: runas
+  become_user: Administrator
+  gather_facts: true
+
+  vars_files:
+  - main/vars.yml
+
+  tasks:
+  - name: Include tasks setup powershell
+    include_tasks: win-tasks/ps_setup.yml
+
+  - name: Include tasks LGPO
+    include_tasks: win-tasks/policy_settings_ps.yml

@@ -1,0 +1,24 @@
+{% for mailrelay_smtp_to_matrix_user in mailrelay_smtp_to_matrix_users_template %}
+{{ mailrelay_smtp_to_matrix_user }}
+{{ mailrelay_smtp_to_matrix_user }}@{{ internal_private_domain }}
+{{ mailrelay_smtp_to_matrix_user }}@{{ internal_public_domain }}
+{{ mailrelay_smtp_to_matrix_user }}@{{ mailrelay_opensmtpd_mailname }}
+{{ mailrelay_smtp_to_matrix_user }}@{{ company_main_domain }}
+{{ mailrelay_smtp_to_matrix_user }}@{{ inventory_hostname }}
+{{ mailrelay_smtp_to_matrix_user }}@{{ inventory_hostname }}.{{ internal_private_domain }}
+{{ mailrelay_smtp_to_matrix_user }}@{{ inventory_hostname }}.{{ internal_public_domain }}
+{{ mailrelay_smtp_to_matrix_user }}@{{ inventory_hostname }}.{{ mailrelay_opensmtpd_mailname }}
+{{ mailrelay_smtp_to_matrix_user }}@{{ inventory_hostname }}.{{ company_main_domain }}
+{% for wg_mesh_alias in wg_mesh_aliases %}
+{{ mailrelay_smtp_to_matrix_user }}@{{ wg_mesh_alias }}
+{{ mailrelay_smtp_to_matrix_user }}@{{ wg_mesh_alias }}.{{ internal_private_domain }}
+{{ mailrelay_smtp_to_matrix_user }}@{{ wg_mesh_alias }}.{{ internal_public_domain }}
+{{ mailrelay_smtp_to_matrix_user }}@{{ wg_mesh_alias }}.{{ mailrelay_opensmtpd_mailname }}
+{{ mailrelay_smtp_to_matrix_user }}@{{ wg_mesh_alias }}.{{ company_main_domain }}
+{% endfor %}
+
+{% endfor %}
+
+{{ monitoring_email_from }}
+{{ monitoring_email_sender }}
+{{ monitoring_email_address }}

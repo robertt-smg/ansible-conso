@@ -1,0 +1,58 @@
+# See https://github.com/percona/percona-docker/tree/master/percona-server-5.7, for instruction on config overload
+
+# As we overload directory, we copy content here ...
+# START: /etc/percona-server.conf.d/mysqld.cnf
+# Percona Server template configuration
+
+[mysqld]
+#skip-host-cache
+skip-name-resolve
+sql-mode=ALLOW_INVALID_DATES,NO_ENGINE_SUBSTITUTION
+#-set by mysql.cnf - lower_case_table_names=1
+
+[mysqld-8.0]
+#default_authentication_plugin=mysql_native_password
+
+[mysqld]
+
+datadir=/var/lib/mysql
+socket=/var/lib/mysql/mysql.sock
+secure_log_path=/var/log/mysql
+general-log=ON
+general-log-file=/var/log/mysql/error.log
+
+#symbolic_links=1
+pid-file=/var/run/mysqld/mysqld.pid
+
+# END: /etc/percona-server.conf.d/mysqld.cnf
+# START: /etc/percona-server.conf.d/mysqld_safe.cnf
+#
+# The Percona Server 5.7 configuration file.
+#
+# One can use all long options that the program supports.
+# Run program with --help to get a list of available options and with
+# --print-defaults to see which it would actually understand and use.
+#
+# For explanations see
+# http://dev.mysql.com/doc/mysql/en/server-system-variables.html
+
+[mysqld_safe]
+pid-file = /var/run/mysqld/mysqld.pid
+socket   = /var/lib/mysql/mysql.sock
+nice     = 0
+
+# END: /etc/percona-server.conf.d/mysqld_safe.cnf
+
+# Above are docker supplied imports, now override settings as needed
+# OVERLOADED DEFINITION
+
+[mysqld]
+server-id                               = {{ server_id }}
+
+[client]
+protocol=tcp
+host     = {{ mysql_server_ip }}
+user     = root
+password = {{ mysql_server_pass }}
+#default-auth=mysql_native_password
+default-auth=caching_sha2_password

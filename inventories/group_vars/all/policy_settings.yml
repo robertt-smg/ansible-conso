@@ -1,0 +1,1 @@
+policy_settings:  "{{ lookup('community.general.merge_variables', 'policy_settings_', pattern_type='prefix', override='ignore') }}"

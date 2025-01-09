@@ -1,0 +1,63 @@
+- name: install python3 pip packages
+  pip:
+    name: "{{ mailrelay_smtp_to_matrix_pip3_package }}"
+    executable: /usr/bin/pip3
+  with_items:
+    - matrix_client
+    - pyyaml
+    - aiosmtpd
+    - mail-parser
+  loop_control:
+    loop_var: mailrelay_smtp_to_matrix_pip3_package
+
+- name: add smtp-to-matrix group
+  group:
+    name: smtp-to-matrix
+    system: True
+    gid: 159
+
+- name: add smtp-to-matrix user
+  user:
+    name: smtp-to-matrix
+    home: /nonexistent
+    create_home: False
+    shell: /usr/sbin/nologin
+    system: True
+    uid: 159
+
+- name: create config directory for smtp-to-matrix
+  file:
+    state: directory
+    name: "/etc/smtp-to-matrix"
+    owner: smtp-to-matrix
+    group: smtp-to-matrix
+    mode: "0750"
+
+- name: template /usr/local/sbin/smtp-to-matrix.py
+  template:
+    src: templates/usr/local/bin/smtp-to-matrix.py
+    dest: /usr/local/bin/smtp-to-matrix.py
+    owner: smtp-to-matrix
+    group: smtp-to-matrix
+    mode: "0550"
+  notify: restart smtp-to-matrix
+
+- name: template /etc/smtp-to-matrix/config.yml
+  template:
+    src: templates/etc/smtp-to-matrix/config.yml.j2
+    dest: /etc/smtp-to-matrix/config.yml
+    owner: smtp-to-matrix
+    group: smtp-to-matrix
+    mode: "0640"
+  notify: restart smtp-to-matrix
+
+- name: template /etc/systemd/system/smtp-to-matrix.service
+  template:
+    src: templates/etc/systemd/system/smtp-to-matrix.service.j2
+    dest: /etc/systemd/system/smtp-to-matrix.service
+    owner: root
+    group: root
+    mode: "0644"
+  notify:
+    - reload systemd daemon
+    - restart smtp-to-matrix

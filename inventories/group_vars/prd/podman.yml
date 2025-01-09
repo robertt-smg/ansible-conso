@@ -1,0 +1,2 @@
+podman_prd:
+  fuse_overlayfs: false

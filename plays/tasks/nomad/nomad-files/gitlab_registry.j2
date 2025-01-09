@@ -1,0 +1,11 @@
+
+        image = "registry.gitlab.com/la-cuna-icu/podman-images/{{image_version}}"
+
+        image_pull_timeout = "7m"
+
+        auth {
+          username = "{{ nomad_registry_gitlab.username }}"
+          password = "{{ nomad_registry_gitlab.password }}"
+        }
+        force_pull = true
+        

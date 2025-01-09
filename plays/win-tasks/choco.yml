@@ -1,0 +1,20 @@
+- name: Ensure Chocolatey itself is installed, bootstrapping with a specific nupkg url
+  win_chocolatey:
+    name: chocolatey
+
+##- Upgrade all installed packages    
+- name: Upgrade installed packages
+  win_chocolatey:
+    name: all
+    state: latest
+
+- name: Install applications with Chocolatey
+  win_chocolatey:
+    name: "{{ item }}"
+    state: present
+  loop: "{{ chocoapps_list }}"
+
+- name: Ensure that choco install dir is on the global system path
+  ansible.windows.win_path:
+    elements:
+      - '%programData%\chocolatey\bin'

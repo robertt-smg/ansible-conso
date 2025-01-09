@@ -1,0 +1,19 @@
+[server1]
+server1.prd ansible_host=server1.la-cuna.icu ansible_ssh_port=31222 ansible_ssh_user=ansible
+
+[fti1]
+fti1.tst ansible_host=212.227.100.30 ansible_ssh_port=31222 ansible_ssh_user=ansible
+
+[prd:children]
+server1
+fti1
+
+[tulip:children]
+server1
+
+[fti:children]
+fti1
+
+[tst:children]
+tulip
+fti

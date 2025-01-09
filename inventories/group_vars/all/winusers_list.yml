@@ -1,0 +1,1 @@
+winusers_list:  "{{ lookup('community.general.merge_variables', 'winusers_list_', pattern_type='prefix', override='ignore') }}"

@@ -1,0 +1,16 @@
+passbolt_server:
+  db_server: "{{ ansible_hostname }}"
+  db_server_port: "3306"
+  db_server_admin: "root"
+  db_name: "passbolt"
+  db_user: "passbolt"
+  
+  image_version: passbolt:4.9.1-1-ce
+  #app_full_base_url: ...  defined in tst or prd 
+  app_base: /passbolt
+  email_server: "host.containers.internal" 
+  email_from_address: "passbolt@la-cuna.de"
+  
+  external_port: 2443
+  gpg_server_key_fingerprint: "E06E762C634CFE4E084CC20BD4E01BD3AD4EDA5C"
+  api_external_host_ip: "{{ ansible_host }}"

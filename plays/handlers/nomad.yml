@@ -1,0 +1,20 @@
+
+# handlers/main.yml
+
+- name: Wait for Nomad service
+  ansible.builtin.command: nomad status
+  register: nomad_status
+  retries: 5  # Number of retries
+  delay: 10   # Delay between retries in seconds
+  until: nomad_status.rc == 0  # Check for successful return code
+
+# Display status messages
+- name: Display Nomad service status
+  debug:
+    msg: "Nomad service is running."
+  when: nomad_status.rc == 0
+
+- name: Display Nomad service not running message
+  debug:
+    msg: "Nomad service is not running."
+  when: nomad_status.rc != 0

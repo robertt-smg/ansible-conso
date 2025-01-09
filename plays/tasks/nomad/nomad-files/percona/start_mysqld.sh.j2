@@ -1,0 +1,86 @@
+#!/usr/bin/env bash
+echo $0
+set -o pipefail
+
+function prep_term()
+{
+    echo ${FUNCNAME[0]} 
+    unset term_child_pid
+    unset term_kill_needed
+    trap 'handle_term' TERM INT QUIT
+}
+
+function handle_term()
+{
+    echo ${FUNCNAME[0]} 
+
+    if [ "${term_child_pid}" ]; then
+        kill -TERM "${term_child_pid}" 2>/dev/null
+    else
+        term_kill_needed="yes"
+    fi
+}
+
+function wait_term()
+{
+    # term_child_pid=$!
+    term_child=$(ps aux | grep 'mysqld '|grep -v grep | awk '{print $2}')
+    echo ${FUNCNAME[0]} PID $term_child_pid
+
+    echo_time "Caught SIGTERM/SIGINT ..."
+    ps auxww
+    
+    if [ "${term_kill_needed}" ]; then
+        echo_time "Killing $term_child_pid ... "
+        kill -TERM "${term_child_pid}" 2>/dev/null 
+    fi
+    wait ${term_child_pid} 2>/dev/null
+    trap - TERM INT QUIT SIGCHLD
+    wait ${term_child_pid} 2>/dev/null
+}
+function echo_time() {
+    date +"%Y-%m-%d %H:%M:%S $(printf "%s " "$@" | sed 's/%/%%/g')"
+}
+start() {
+    echo ${FUNCNAME[0]} 
+
+    [ -f /etc/my.cnf.d/mysql.cnf ] && log_error=$(awk '/^log_error/ {print $3; exit}' /etc/my.cnf.d/mysql.cnf)
+    [ -f /etc/percona/mysql.cnf ] && log_error=$(awk '/^log_error/ {print $3; exit}' /etc/percona/mysql.cnf)
+
+    [ -s /var/log/mysql/log.err ] && rm /var/log/mysql/log.err
+
+    echo_time "Checking timezone.sql ..."
+    if [ ! -f /docker-entrypoint-initdb.d/timezones.sql ]; then
+        echo_time "Creating timezone.sql ..."
+        echo "USE mysql;" > /docker-entrypoint-initdb.d/timezones.sql 
+        mysql_tzinfo_to_sql /usr/share/zoneinfo >> /docker-entrypoint-initdb.d/timezones.sql
+    fi
+    export TZ="Europe/Berlin"
+
+    echo_time "Starting mysqld ... with logfile $log_error"
+
+    touch /var/log/mysql/error.log
+    chown mysql:mysql /var/log/mysql/error.log
+    tail -f /var/log/mysql/error.log &
+
+    [ -f /opt/bitnami/scripts/mysql/entrypoint.sh ] && echo "Starting /opt/bitnami/scripts/mysql/entrypoint.sh mysqld..." && exec /opt/bitnami/scripts/mysql/entrypoint.sh /opt/bitnami/scripts/mysql/run.sh --verbose --log-error=/var/log/mysql/error.log
+    [ -f /docker-entrypoint.sh ] && echo "Starting docker-entrypoint.sh mysqld ..." && exec /docker-entrypoint.sh mysqld --log-error=/var/log/mysql/error.log  
+    [ -f /entrypoint.sh ] && echo "Starting entrypoint.sh mysqld ..." && exec /entrypoint.sh mysqld --log-error=/var/log/mysql/error.log  
+    [ -f /usr/local/bin/docker-entrypoint.sh ] && echo "Starting /usr/local/bin/docker-entrypoint.sh mysqld ..." && exec /usr/local/bin/docker-entrypoint.sh mysqld --log-error=/var/log/mysql/error.log 
+
+    echo "## Fatal no entrypoint.sh found ..."
+}
+function dump_config() {
+    echo ${FUNCNAME[0]} 
+    
+    echo "## Dump config"
+    mysqld --verbose --help
+    echo "## End config"
+}
+
+#dump_config
+prep_term
+start
+#wait_term
+
+echo "## Terminating ..."

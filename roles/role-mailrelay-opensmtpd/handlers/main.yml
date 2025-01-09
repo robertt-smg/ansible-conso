@@ -1,0 +1,15 @@
+- name: reload systemd daemon
+  systemd:
+    daemon_reload: True
+
+- name: restart opensmtpd
+  systemd:
+    name: opensmtpd
+    state: restarted
+    enabled: True
+
+- name: restart smtp-to-matrix
+  systemd:
+    name: smtp-to-matrix
+    state: restarted
+    enabled: True

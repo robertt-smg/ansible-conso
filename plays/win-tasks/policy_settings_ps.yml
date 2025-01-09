@@ -1,0 +1,27 @@
+
+- name: Set Policy File Entry
+  win_shell: |
+      $UserDir = "$env:windir\system32\GroupPolicy\{{ item.policytype }}\registry.pol"
+      $keyValueName = '{{ item.keyvaluename }}'
+      $sep = [char]92
+      $lastIndex = $keyValueName.LastIndexOf($sep)
+      $RegPath = $keyValueName.Substring(0, $lastIndex)
+      $RegName = $keyValueName.Substring($lastIndex + 1)
+      $RegData = '{{ item.data }}'
+      $RegType = '{{ item.type }}'
+      Write-Host "Setting Key: $RegPath ValueName: $RegName Type: $RegType to Value Data: $RegData "
+      Set-PolicyFileEntry -Path $UserDir -Key $RegPath -ValueName $RegName -Data $RegData -Type $RegType
+  with_items: "{{ policy_settings.cAdministrativeTemplateSetting }}"
+
+- name: Ensure Policy Registry Settings
+  win_dsc:
+        resource_name: "Registry"
+        Ensure: Present
+        key: "{{ item.key }}"
+        ValueName: "{{ item.vname }}"
+        ValueType: "{{ item.vtype }}" 
+        ValueData: "{{ item.vdata }}" 
+  with_items: "{{ policy_settings.registry }}"
+
+- name: Run gpupdate to refresh Group Policy
+  win_command: gpupdate.exe /force

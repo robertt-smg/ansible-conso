@@ -1,0 +1,12 @@
+- hosts: all
+  become: true
+  gather_facts: true
+
+  vars_files:
+  - main/vars.yml
+
+  tasks:
+#- haproxy
+  - name: Include tasks nomad-haproxy if nomad_haproxy.enabled is defined
+    include_tasks: tasks/nomad/haproxy.yml
+    when: nomad_haproxy.enabled is defined and nomad_haproxy.enabled is true

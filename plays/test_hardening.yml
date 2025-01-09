@@ -1,0 +1,19 @@
+- hosts: all
+  become: false
+  become_method: runas
+  become_user: Administrator
+  gather_facts: false
+
+  vars_files:
+  - main/vars.yml
+
+  tasks:
+  - name: Check my username
+    ansible.windows.win_whoami:
+    become: true
+      
+  - name: Include tasks setup powershell
+    include_tasks: win-tasks/ps_setup.yml
+
+  - name: Include tasks for ISM hardening based on CloudSOE project
+    include_tasks: win-tasks/cloudsoe_hardening.yml

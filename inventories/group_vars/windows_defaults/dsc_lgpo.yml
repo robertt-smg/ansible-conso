@@ -1,0 +1,114 @@
+# Search for relevant GP settings here
+  # https://gpsearch.azurewebsites.net/
+  # https://www.microsoft.com/en-us/download/details.aspx?id=104005 
+
+policy_settings_lgpo_cAdministrativeTemplateSetting:
+    cAdministrativeTemplateSetting:
+    - policytype: "Machine"
+      keyvaluename: "Software\\Policies\\Microsoft\\Windows\\Server\\ServerManager\\DoNotOpenAtLogon"
+      data: "1"
+      type: "Dword"
+
+    - policytype: "Machine"
+      keyvaluename: "Software\\Policies\\Microsoft\\Windows\\Server\\InitialConfigurationTasks\\DoNotOpenAtLogon"
+      data: "1"
+      type: "Dword"
+
+    - policytype: "Machine"
+      keyvaluename: "Software\\Policies\\Microsoft\\Windows\\Windows Search\\AllowCortana"
+      data: "0"
+      type: "Dword"
+    
+#Policies\Microsoft\Windows\Windows Search!AllowSearchToUseLocation
+    - policytype: "Machine"
+      keyvaluename: "Software\\Policies\\Microsoft\\Windows\\Windows Search\\AllowSearchToUseLocation"
+      data: "0"
+      type: "Dword"
+
+#HKLM\Software\Policies\Microsoft\Windows\WindowsUpdate\AU!NoAutoUpdate 
+    - policytype: "Machine"
+      keyvaluename: "Software\\Policies\\Microsoft\\Windows\\WindowsUpdate\\AU\\NoAutoUpdate"
+      data: "3"
+      type: "Dword"
+#HKLM\Software\Policies\Microsoft\Windows\WindowsUpdate\AU!AUOptions 
+    - policytype: "Machine"
+      keyvaluename: "Software\\Policies\\Microsoft\\Windows\\WindowsUpdate\\AU\\AUOptions"
+      data: "3"
+      type: "Dword"
+#HKLM\Software\Policies\Microsoft\Windows\WindowsUpdate\AU!AutomaticMaintenanceEnabled 
+    - policytype: "Machine"
+      keyvaluename: "Software\\Policies\\Microsoft\\Windows\\WindowsUpdate\\AU\\AutomaticMaintenanceEnabled"
+      data: "0"
+      type: "Dword"
+
+#HKLM\Software\Policies\Microsoft\Windows\WindowsUpdate\AU!AutoUpdateSchDay 
+    - policytype: "Machine"
+      keyvaluename: "Software\\Policies\\Microsoft\\Windows\\WindowsUpdate\\AU\\AutoUpdateSchDay"
+      data: "0"
+      type: "Dword"
+
+#HKLM\Software\Policies\Microsoft\Windows\WindowsUpdate\AU!ScheduledInstallTime 
+    - policytype: "Machine"
+      
+      keyvaluename: "Software\\Policies\\Microsoft\\Windows\\WindowsUpdate\\AU\\ScheduledInstallTime"
+      data: "9" # 03:00
+      type: "Dword"
+
+#HKLM\Software\Policies\Microsoft\Windows\WindowsUpdate\AU!AllowMUUpdateServiceId 
+    - policytype: "Machine"
+      keyvaluename: "Software\\Policies\\Microsoft\\Windows\\WindowsUpdate\\AU\\AllowMUUpdateService"
+      data: "1" 
+      type: "Dword"
+
+#HKLM\Software\Policies\Microsoft\Windows\WindowsUpdate\AU!ScheduledInstallEveryWeek 
+    - policytype: "Machine"
+      keyvaluename: "Software\\Policies\\Microsoft\\Windows\\WindowsUpdate\\AU\\ScheduledInstallEveryWeek"
+      data: "1" 
+      type: "Dword"
+
+#HKLM\Software\Policies\Microsoft\Windows\WindowsUpdate\AU!ScheduledInstallFirstWeek 
+    - policytype: "Machine"
+      keyvaluename: "Software\\Policies\\Microsoft\\Windows\\WindowsUpdate\\AU\\ScheduledInstallFirstWeek"
+      data: "0" 
+      type: "Dword"
+
+#HKLM\Software\Policies\Microsoft\Windows\WindowsUpdate\AU!ScheduledInstallSecondWeek 
+    - policytype: "Machine"
+      keyvaluename: "Software\\Policies\\Microsoft\\Windows\\WindowsUpdate\\AU\\ScheduledInstallSecondWeek"
+      data: "0" 
+      type: "Dword"
+
+#HKLM\Software\Policies\Microsoft\Windows\WindowsUpdate\AU!ScheduledInstallThirdWeek 
+    - policytype: "Machine"
+      keyvaluename: "Software\\Policies\\Microsoft\\Windows\\WindowsUpdate\\AU\\ScheduledInstallThirdWeek"
+      data: "0" 
+      type: "Dword"
+
+#HKLM\Software\Policies\Microsoft\Windows\WindowsUpdate\AU!ScheduledInstallFourthWeek 
+    - policytype: "Machine"
+      keyvaluename: "Software\\Policies\\Microsoft\\Windows\\WindowsUpdate\\AU\\ScheduledInstallFourthWeek"
+      data: "0" 
+      type: "Dword"
+
+## --------------------------------------------
+    registry:
+# https://www.windowspage.de/tipps/020974.html
+#  HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\ElevateNonAdmins:
+    - key: "HKEY_LOCAL_MACHINE\\SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsUpdate"
+      vname: "ElevateNonAdmins"
+      vtype: "Dword"
+      vdata: "0"
+
+# HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU\NoAutoRebootWithLoggedOnUsers:
+
+    - key: "HKEY_LOCAL_MACHINE\\SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsUpdate\\AU"
+      vname: "NoAutoRebootWithLoggedOnUsers"
+      vtype: "Dword"
+      vdata: "1"
+    
+HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU\ScheduledInstallTime:
+
+    - name: "HKEY_LOCAL_MACHINE\\SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsUpdate\\AU"
+    - vname: "ScheduledInstallTime"
+    - vtype: "Dword"
+    - vdata: "3"

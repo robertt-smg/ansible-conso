@@ -1,0 +1,3 @@
+- name: Include fti  if it is defined
+  include_tasks: tasks/fti/main.yml
+  when: fti_enabled is defined and fti_enabled is true

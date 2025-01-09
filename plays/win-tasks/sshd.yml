@@ -1,0 +1,15 @@
+
+- name: install Win32-OpenSSH with the defaults
+  include_role:
+    name: jborean93.win_openssh
+  vars:
+    opt_openssh_firewall_profiles: "{{ jborean93.win_openssh.openssh_firewall_profiles }}"
+    opt_openssh_url: "{{ jborean93.win_openssh.opt_openssh_url }}"
+    opt_openssh_pubkeys: 
+      - "{{ jborean93.win_openssh.opt_openssh_admin_pubkey }}"
+
+- name: Restart sshd service
+  win_service:
+    name: sshd
+    state: restarted
+        

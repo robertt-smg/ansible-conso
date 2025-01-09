@@ -1,0 +1,23 @@
+policy_settings_registry_windows_update:
+## --------------------------------------------
+    registry:
+# https://www.windowspage.de/tipps/020974.html
+#  HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\ElevateNonAdmins:
+    - key: "HKEY_LOCAL_MACHINE\\SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsUpdate"
+      vname: "ElevateNonAdmins"
+      vtype: "Dword"
+      vdata: "0"
+
+# HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU\NoAutoRebootWithLoggedOnUsers:
+
+    - key: "HKEY_LOCAL_MACHINE\\SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsUpdate\\AU"
+      vname: "NoAutoRebootWithLoggedOnUsers"
+      vtype: "Dword"
+      vdata: "1"
+    
+# HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU\ScheduledInstallTime:
+
+    - key: "HKEY_LOCAL_MACHINE\\SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsUpdate\\AU"
+      vname: "ScheduledInstallTime"
+      vtype: "Dword"
+      vdata: "3"

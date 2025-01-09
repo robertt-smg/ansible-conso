@@ -1,0 +1,72 @@
+- name: Converge
+  hosts: all
+  roles:
+    - role: role-mailrelay-opensmtpd
+  vars:
+
+    # Encryption passphrase for the mail queue files
+    # Generate via:
+    # openssl rand -hex 16
+    # This should be in the password-store!
+    mailrelay_opensmtpd_conf_queue_encryption: bab0dddf70fedbc8b2bd59af0abe308f
+
+    # Hostname for this mailrelay - should not be the servers actual hostname
+    # Commonly just the domain of the company running the server
+    # Will be written into the header of all outgoing emails
+    # Has to be an existing mailserver with MX record
+    mailrelay_opensmtpd_mailname: mailout.example.com
+
+    # Send warning messages on delay mails
+    # Set to False to disable
+    mailrelay_opensmtpd_smtpd_conf_bounce_warn_interval: 300s
+
+    # List of relay information
+    mailrelay_opensmtpd_relays:
+        # Alias for this relay
+      - alias: myrelay
+        # Relay server DNS name or IP
+        server: "mail.example.com"
+        # mail-from email address
+        mail-from: monitoring@example.com
+        # Relay server protocol (Documentation: https://man.openbsd.org/smtpd.conf#host)
+        protocol: "smtp+tls"
+        # Enforce TLS (default: True)
+        tls: True
+        # Do not verify TLS certificates (default: False)
+        tls: True
+        # Relay server port
+        port: "587"
+        # Relay server SMTP login
+        login: opensmtpd@example.com
+        # Relay server SMTP password
+        # This should be in the password-store!
+        password: veryveryveryveryveryverysecret
+        # Linux of sender addresses to apply this relay for
+        from:
+          - root
+          - www-data
+          - opensmtpd@example.com
+
+      - alias: backup
+        server: "mail.beispiel.de"
+        protocol: "smtps"
+        tls: True
+        port: "465"
+        login: backup@beispiel.de
+        password: superduperhyperextremelysecret
+        from:
+          - backuppc
+
+
+
+    # Only for molecule
+    # In playbooks this is in inventory/group_vars/all.yml by default
+    internal_private_domain: exa.io
+    customer_main_domain: example.com
+
+
+
+    mailrelay_smtp_to_matrix_username: "matrix-username" # without @ or :matrix.org !
+    mailrelay_smtp_to_matrix_password: "secret-password"
+    mailrelay_smtp_to_matrix_server: "https://matrix.org"
+    mailrelay_smtp_to_matrix_room_id: "!YOUR_MATRIX_ROOM_ID:matrix.org"

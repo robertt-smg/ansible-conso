@@ -1,0 +1,30 @@
+# vim
+perconacnf_supported_sections:
+- client-server
+- client
+- client-mariadb
+- galera
+- mariadb
+- mysql
+- mysqldump
+- mysqld_safe
+- mysqlhotcopy
+- mysqladmin
+- mysqlcheck
+- mysqlimport
+- mysqlshow
+- mysql_upgrade
+- mysqlbinlog
+- mysqlslap
+- myisampack
+- myisamchk
+- isamchk
+- mysqld
+- mysqld_multi
+- server
+- xtrabackup
+
+#- merge all percona_... variables into one
+
+percona:  "{{ lookup('community.general.merge_variables', 'percona_', pattern_type='prefix', override='ignore') }}"
+

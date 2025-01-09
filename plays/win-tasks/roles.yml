@@ -1,0 +1,140 @@
+- name: Check if NET-Framework-Core is installed
+  ansible.windows.win_feature:
+    name: NET-Framework-Core
+    state: present
+  register: net_framework_core_check
+
+- name: Enable server NET-Framework-Core
+  ansible.windows.win_feature:
+    name:
+      - NET-Framework-Core 
+    state: present
+    include_sub_features: true
+    include_management_tools: true
+  register: win_feature_35
+  when: winserver_roles_enabled.net35 is defined and winserver_roles_enabled.net35 and (net_framework_core_check is not defined or net_framework_core_check != 'installed')
+
+- name: Check if NET-Framework-45-Core is installed
+  ansible.windows.win_feature:
+    name: NET-Framework-45-Core
+    state: present
+  register: net_framework_45_core_check
+
+- name: Enable server NET-Framework-45-Core
+  ansible.windows.win_feature:
+    name:
+      - NET-Framework-45-Core 
+    state: present
+    include_sub_features: true
+    
+  register: win_feature_45
+  when: winserver_roles_enabled.net45 is defined and winserver_roles_enabled.net45 and ( net_framework_core_45_check is not defined or net_framework_core_45_check != 'installed' )
+
+- name: Download and install Microsoft .NET Framework 4.6.1
+  win_shell: |
+    [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.SecurityProtocolType]::Tls12
+    $wc = New-object System.Net.WebClient
+    $wc.DownloadFile('https://download.microsoft.com/download/3/5/9/35980F81-60F4-4DE3-88FC-8F962B97253B/NDP461-KB3102438-Web.exe', 'C:\Windows\temp\NDP461-KB3102438-Web.exe')
+    Start-Process 'C:\Windows\temp\NDP461-KB3102438-Web.exe' -ArgumentList '/q', '/norestart' -Wait
+  args:
+    chdir: 'C:\Windows\temp'
+  when: ( winserver_roles_enabled.net46 is defined and winserver_roles_enabled.net46 )
+
+- name: Check if NET-WCF-TCP-PortSharing45 is installed
+  ansible.windows.win_feature:
+    name: NET-Framework-45-Core
+    state: present
+  register: net_framework_45_port_sharing
+
+- name: Enable server NET-WCF-TCP-PortSharing45
+  ansible.windows.win_feature:
+    name:
+      - NET-WCF-TCP-PortSharing45 
+    state: present
+    include_sub_features: true
+    
+  register: win_feature_port_sharing
+  when: winserver_roles_enabled.port_sharing is defined and winserver_roles_enabled.port_sharing and ( net_framework_port_sharing is not defined or net_framework_port_sharing != 'installed' )
+
+- name: Check if RDS-RD-Server is installed
+  ansible.windows.win_feature:
+    name: RDS-RD-Server
+    state: present
+  register: rds_rd_server_check
+
+- name: Enable server RDS-RD-Server
+  ansible.windows.win_feature:
+    name:
+      - RDS-RD-Server
+    state: present
+    include_sub_features: true
+    include_management_tools: true
+  register: win_feature_rds_rd_server
+  when: winserver_roles_enabled.rdpserver is defined and winserver_roles_enabled.rdpserver and (rds_rd_server_check is not defined or rds_rd_server_check != 'installed')
+
+- name: Check if RDS-Licensing is installed
+  ansible.windows.win_feature:
+    name: RDS-Licensing
+    state: present
+  register: rds_licensing_check
+
+- name: Enable server RDS-Licensing
+  ansible.windows.win_feature:
+    name:
+      - RDS-Licensing
+    state: present
+    include_sub_features: true
+    include_management_tools: true
+  register: win_feature_rds_licensing
+  when: winserver_roles_enabled.rdpserver is defined and winserver_roles_enabled.rdpserver and (rds_licensing_check is not defined or rds_licensing_check != 'installed')
+
+- name: Check if Windows-Defender is installed
+  ansible.windows.win_feature:
+    name: Windows-Defender
+    state: present
+  register: windows_defender_check 
+
+- name: Enable Windows-Defender
+  ansible.windows.win_feature:
+    name:
+      - Windows-Defender
+    state: present
+    include_sub_features: true
+    
+  register: win_feature_windows_defender
+  when: winserver_roles_enabled.defender is defined and winserver_roles_enabled.defender and (windows_defender_check is not defined or windows_defender_check != 'installed')
+
+- name: Check if Reboot is required for RDS-RD-Server
+  set_fact:
+    role_reboot_required: win_feature_rds_rd_server.reboot_required
+  when: win_feature_rds_rd_server.reboot_required
+
+- name: Check if Reboot is required for RDS-Licensing
+  set_fact:
+    role_reboot_required: win_feature_rds_licensing.reboot_required
+  when: win_feature_rds_licensing.reboot_required
+
+- name: Check if Reboot is required for NET-Framework-Core
+  set_fact:
+    role_reboot_required: win_feature_35.reboot_required
+  when: win_feature_35.reboot_required
+
+- name: Check if Reboot is required for win_feature_port_sharing
+  set_fact:
+    role_reboot_required: win_feature_port_sharing.reboot_required
+  when: win_feature_port_sharing.reboot_required
+
+- name: Check if Reboot is required for NET-Framework-45-Core
+  set_fact:
+    role_reboot_required: win_feature_45.reboot_required
+  when: win_feature_45.reboot_required
+
+- name: Check if Reboot is required for Windows-Defender
+  set_fact:
+    role_reboot_required: win_feature_windows_defender.reboot_required
+  when: win_feature_windows_defender.reboot_required
+
+- name: Reboot if installed feature requires it
+  ansible.windows.win_reboot:
+  when: role_reboot_required is defined and role_reboot_required
+

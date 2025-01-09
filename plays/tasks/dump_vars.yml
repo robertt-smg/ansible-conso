@@ -1,0 +1,11 @@
+#- name: Extend base_vars with additional keys
+#  debug:
+#    var: merged_percona
+#
+#- name: Extend base_vars with additional keys
+#  debug:
+#    var: percona
+
+- name: Print all variables
+  debug:
+    var: hostvars[inventory_hostname]

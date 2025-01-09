@@ -1,0 +1,36 @@
+#!/bin/bash
+
+# Start the process in the background
+/usr/local/bin/docker-entrypoint.sh mariadbd &
+
+# Capture the PID of the background process
+PID=$!
+
+# Function to handle signals
+
+cleanup_SIGTERM() {
+    echo "Caught signal SIGTERM, ignoring ..."
+    #kill $PID
+    #exit 0
+}
+cleanup_SIGQUIT() {
+    echo "Caught signal SIGQUIT, ignoring..."
+    #kill $PID
+    #exit 0
+}
+cleanup_SIGSTOP() {
+    echo "Caught signal SIGQUIT, ignoring..."
+    kill $PID SIGTERM
+    exit 0
+}
+
+# Trap SIGTERM and SIGQUIT signals
+trap cleanup_SIGTERM SIGTERM
+trap cleanup_SIGQUIT SIGQUIT
+trap cleanup_SIGSTOP SIGSTOP
+
+# Indefinite loop to echo "Alive" every 30 seconds
+while true; do
+    echo "Alive $(date)"
+    sleep 30
+done

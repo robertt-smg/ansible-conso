@@ -1,0 +1,15 @@
+# {{ ansible_managed }}
+
+[Unit]
+Description=smtp-to-matrix
+After=network-online.target
+
+[Service]
+ExecStart=/usr/local/bin/smtp-to-matrix.py
+PIDFile=/run/smtp-to-matrix.pid
+ExecStop=/bin/kill -s QUIT $MAINPID
+User=smtp-to-matrix
+Group=smtp-to-matrix
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,3 @@
+- name: Display all groups the server is in
+  debug:
+    msg: "The server is in the following groups: {{ group_names }}"

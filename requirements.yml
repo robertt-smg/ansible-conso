@@ -1,0 +1,18 @@
+---
+roles:
+  - name: alvistack.podman
+  - name: torian.nomad
+    src: https://github.com/thr27/ansible-role-nomad.git
+    version: "0.12.2"
+  - name: geerlingguy.apache
+  - name: geerlingguy.firewall
+  - name: geerlingguy.memcached
+  - name: geerlingguy.mysql
+  - name: geerlingguy.php
+  - name: geerlingguy.php-memcached
+  - name: geerlingguy.php-mysql
+  - name: geerlingguy.repo-epel
+  - name: geerlingguy.security
+  - name: geerlingguy.varnish
+  - name: weareinteractive.apt
+  - name: jborean93.win_openssh

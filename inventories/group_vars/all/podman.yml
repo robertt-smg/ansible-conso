@@ -1,0 +1,1 @@
+podman:  "{{ lookup('community.general.merge_variables', 'podman_', pattern_type='prefix', override='ignore') }}"

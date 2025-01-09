@@ -1,0 +1,31 @@
+- hosts: all
+  become: true
+  gather_facts: true
+
+  vars_files:
+  - main/vars.yml
+
+  roles:
+    - arillso.system.groups
+    - arillso.system.users
+    - geerlingguy.security
+    - geerlingguy.firewall
+    - weareinteractive.apt
+
+  pre_tasks:
+  - name: Update apt cache if needed.
+    apt: update_cache=yes cache_valid_time=3600
+
+  handlers:
+  - import_tasks: handlers/handlers.yml
+
+  tasks:
+  - import_tasks: tasks/nomad.yml
+  
+  - import_tasks: tasks/fti.yml
+
+  - name: install mailrelay
+    include_role:
+      name: role-mailrelay-opensmtpd
+      tasks_from: main.yml
+    when: mailrelay_enabled is defined and mailrelay_enabled == true

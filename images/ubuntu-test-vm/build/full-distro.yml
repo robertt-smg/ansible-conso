@@ -1,0 +1,58 @@
+---
+# Expand Docker image into a minimal distro
+    - name: Install Unminimize
+      apt:
+        name:
+          - unminimize
+        state: present
+        update_cache: yes
+
+    - name: Unminimize
+      command: /bin/bash -c 'yes | unminimize'
+
+    - name: Install ubuntu-minimal
+      apt:
+        name: ubuntu-minimal
+        state: present
+        update_cache: yes
+
+    - name: Install essential packages
+      apt:
+        name:
+          - sudo
+          - net-tools
+          - curl
+          - netplan.io
+
+        state: present
+        update_cache: yes
+
+    - name: Install additional packages
+      apt:
+        name:
+          - vim
+          - perl
+          - wget
+          - tar
+          - man
+          - adduser
+          - netstat-nat
+          - net-tools
+          - curl
+          - w3m
+        state: present
+        update_cache: yes
+
+    - name: Install tzdata
+      apt:
+        name: tzdata
+        state: present
+        update_cache: yes
+
+    - name: Install man and file
+      apt:
+        name:
+          - man
+          - file
+        state: present
+        update_cache: yes

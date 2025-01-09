@@ -1,0 +1,141 @@
+- name: Create {{ nomad_percona.job_name }} log directory
+  file:
+    path: "{{ nomad_log_dir }}/{{ nomad_percona.job_name }}"
+    state: directory
+    owner: mysql
+    group: mysql
+    mode: "0777"
+    recurse: yes
+
+- name: Create configuration volume {{ nomad_percona.job_name }}
+  file:
+    path: "{{ nomad_data_dir }}/jobs/{{ nomad_percona.job_name }}"
+    state: directory
+    owner: mysql
+    group: mysql
+    mode: "0777"
+    recurse: yes
+
+- name: Create script volume {{ nomad_percona.job_name }}
+  file:
+    path: "{{ nomad_data_dir }}/jobs/{{ nomad_percona.job_name }}/script"
+    state: directory
+    owner: mysql
+    group: mysql
+    mode: "0777"
+    recurse: yes
+
+- name: Create database volume and dirs {{ nomad_percona.job_name }}
+  file:
+    path: "{{ percona.db_volume }}/{{ item }}"
+    state: directory
+    owner: mysql
+    group: mysql
+    mode: "0775"
+    recurse: yes
+  loop:
+    - mysql
+    - log
+    - tmp
+    - tmp/initdb
+
+- name: Manage percona.cnf configuration file {{ nomad_percona.job_name }}
+  template:
+    src: nomad-files/percona/percona.cnf.j2
+    dest: "{{ nomad_data_dir }}/jobs/{{ nomad_percona.job_name }}/percona.cnf"
+    owner: root
+    group: root
+    mode: "0644"
+  vars:
+    job_name: "{{ nomad_percona.job_name }}"
+    mysql_server_ip: "{{ nomad_advertise_address }}"
+    mysql_server_pass: "{{ percona.server.root_password }}"
+    server_id: "{{ percona.server.id }}"
+  register: percona_cnf_changed
+
+- name: Manage start_mysqld.sh script {{ nomad_percona.job_name }}
+  template:
+    src: nomad-files/percona/start_mysqld.sh.j2
+    dest: "{{ nomad_data_dir }}/jobs/{{ nomad_percona.job_name }}/script/start_mysqld.sh"
+    owner: root
+    group: root
+    mode: "0644"
+  vars:
+    job_name: "{{ nomad_percona.job_name }}"
+    mysql_server_ip: "{{ nomad_advertise_address }}"
+    mysql_server_pass: "{{ percona.server.root_password }}"
+  register: percona_start_changed
+
+- name: Manage percona-client.cnf configuration file {{ nomad_percona.job_name }}
+  template:
+    src: nomad-files/percona/percona-client.cnf.j2
+    dest: /etc/mysql/conf.d/percona-client.cnf
+    owner: root
+    group: root
+    mode: "0644"
+  vars:
+    job_name: "{{ nomad_percona.job_name }}"
+    mysql_server_ip: "{{ nomad_advertise_address }}"
+    mysql_server_pass: "{{ percona.server.root_password }}"
+
+- name: Create mysql.cnf file {{ nomad_percona.job_name }}
+  template:
+    src: nomad-files/percona/mysql.cnf.j2
+    dest: "{{ nomad_data_dir }}/jobs/{{ nomad_percona.job_name }}/mysql.cnf"
+    owner: 1001
+    group: nomad
+    mode: "0775"
+  when: mysql.config.enabled is defined
+
+- name: Install MySQL client / MYSQL admin
+  apt:
+    name: mysql-client
+    state: present
+
+#- name: Manage Nomad job file {{ nomad_percona.job_name }}
+#  template:
+#    src: templates/nomad-files/percona/percona.nomad.j2
+#    dest: "{{ nomad_data_dir }}/jobs/{{ nomad_percona.job_name }}.nomad"
+#    owner: root
+#    group: root
+#    mode: "0644"
+- name: "Manage Nomad job file {{ nomad_percona.job_name }}"
+  run_once: true
+  nomad_job:
+    url: "{{ nomad_server_url }}"
+    validate_certs: false
+    management_token: "{{ nomad_acl_management_token }}"
+    state: present
+    namespace: default
+    hcl_spec: "{{ lookup('template', 'nomad-files/percona/percona.nomad.j2') }}"
+  vars:
+    job_name: "{{ nomad_percona.job_name }}"
+    datacenter: "{{ nomad_datacenter }}"
+    hostname: "{{ ansible_hostname }}"
+    config_dir: "{{ nomad_data_dir }}/jobs/{{ nomad_percona.job_name }}"
+  register: percona_nomad_file_changed
+
+- name: Check Percona DB server status
+  command: mysqladmin --protocol tcp status
+  register: mysql_status
+  ignore_errors: true
+  until: mysql_status.rc == 0
+  retries: 12
+  delay: 30
+
+- name: Set state and comment based on MySQL status
+  set_fact:
+    STATE: "{{ 'no' if mysql_status.rc == 0 else 'yes' }}"
+    COMMENT: "{{ 'percona DB server is up' if mysql_status.rc == 0 else 'percona DB server is stopped' }}"
+
+- name: Output the state and comment
+  debug:
+    msg: "changed={{ STATE }} comment='{{ COMMENT }}'"
+
+#- name: Run Nomad job {{ nomad_percona.job_name }}
+#  command: nomad job run {{ nomad_data_dir }}/jobs/{{ nomad_percona.job_name }}.nomad
+#  async: 240
+#  poll: 0
+#  register: percona_nomad_job_run
+#  when: percona_nomad_file_changed is changed
+

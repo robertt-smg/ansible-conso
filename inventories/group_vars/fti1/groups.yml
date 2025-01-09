@@ -1,0 +1,4 @@
+groups_list_www:
+  - name: www-data
+    system: true
+    state: present

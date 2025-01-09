@@ -1,0 +1,6 @@
+- name: Install required packages 
+  apt:
+    name:
+      - certbot
+      - haproxy
+      - busybox

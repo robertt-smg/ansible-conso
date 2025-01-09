@@ -1,0 +1,9 @@
+winusers_list_wserver1:
+  SA_AQUSER1:
+    password: "password1"
+
+  SA_AQUSER2:
+    password: "password1"
+
+  RA_AQUSER1:
+    password: "password1"

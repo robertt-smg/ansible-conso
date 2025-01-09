@@ -1,0 +1,5 @@
+jborean93:
+  win_openssh:
+    openssh_firewall_profiles: "domain,private,public"
+    opt_openssh_admin_pubkey: "ssh-rsa AAAAB3NzaC1yc2EAAAABJQAAAQEAnfapY4eEIlWRRHGErO74UhpkAEaOyKGumie3qzvRQe9i4+l4AmH2m5NrZTeXclwZt3LRy7HlK10dufmdnfKa+mvDvlef5oqRARawykxXxKxiXs05FrUXDGguLTjC6E8tI8Dmi4+fpx8H0bidcSnaiNgyZpocLqwojakh1iB4EXIvsrAg1pYI7XM+fCbU2AY5tjIMloVTqi4tuSMGB/dmDUhkKhBxQgs6lMQvjmz2oHHsczKWHDgvzJvY3PdPKAFj7wkSrAlY2W2Nju290Vt7RrHQbtC1RUZuJcdU101ABw1u2+pIaHjDruCsij6eMVt0WASVb4auJdd02ANlhIPMlw== id_devops"
+    opt_openssh_url: "https://github.com/PowerShell/Win32-OpenSSH/releases/download/v9.8.1.0p1-Preview/OpenSSH-Win64.zip"

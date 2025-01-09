@@ -1,0 +1,103 @@
+
+mysql:
+  config:
+    enabled: true
+
+    sections:
+      mysqld-5-5:
+        query_cache_limit: 2M
+        query_cache_size: 0
+        query_cache_type: 0
+
+      mysqld-5.7:
+        innodb_file_format: barracuda
+        innodb_large_prefix: true
+        query_cache_limit: 1M
+        query_cache_size: 0
+        query_cache_type: 0
+        slave_sql_verify_checksum: 0
+        binlog_checksum: 0
+
+      percona-8.0:
+        log_timestamps: SYSTEM
+
+      mysqld-8.0:
+        #default_authentication_plugin: mysql_native_password
+        default_authentication_plugin: caching_sha2_password
+        
+        binlog_checksum: NONE
+        slave_transaction_retries: 32
+        slave_parallel_workers: 0
+        log_timestamps: SYSTEM
+
+        # mysql8.0
+        #lc_messages_dir: /usr/share/mysql-8.0/
+        
+        # percona 8.0
+        lc_messages_dir: /usr/share/mysql/
+        lc_messages: en_US
+
+      mysqld:
+        # Slow Query Logging
+        ####################
+
+        bind_address: "0.0.0.0"
+        binlog_format: mixed
+        connect_timeout: 7200
+        #default_authentication_plugin: mysql_native_password
+        default_authentication_plugin: caching_sha2_password
+        character-set-server: utf8
+        collation-server: utf8_general_ci
+        default-time-zone: 'Europe/Berlin'
+        expire_logs_days: 10
+        federated: 1
+        innodb_buffer_pool_instances: 1  # Reduced to 1
+        innodb_buffer_pool_size: 512M  # Reduced to 512M
+        innodb_doublewrite: 0
+        innodb_file_per_table: noarg_present
+        innodb_flush_log_at_trx_commit: 2
+        innodb_flush_method: fsync
+        innodb_io_capacity: 8192
+        innodb_log_file_size: 128M  # Reduced to 128M
+        innodb_lru_scan_depth: 8192
+        innodb_stats_on_metadata: 0
+        interactive_timeout: 28800
+        join_buffer_size: 1M  # Reduced to 1M
+        local_infile: 1
+        group_concat_max_len: 4096
+        key_buffer_size: 8M  # Reduced to 8M
+        log_bin: noarg_present
+        log_error: /var/log/mysql/error.log
+        log_error_verbosity: 3
+        log_slave_updates: ON
+
+        log-queries-not-using-indexes: noarg_present
+        long_query_time: 25
+        lower_case_table_names: 1
+        max_allowed_packet: 16M  # Reduced to 16M
+        max_binlog_size: 64M  # Reduced to 64M
+        max_connections: 50  # Reduced to 50
+        max_heap_table_size: 16M  # Reduced to 16M
+        net_read_timeout: 3600
+        net_write_timeout: 3600
+
+        performance_schema: ON
+        read_buffer_size: 1M  # Reduced to 1M
+        read_rnd_buffer_size: 1M  # Reduced to 1M
+        relay_log_purge: 1
+        relay_log_recovery: ON
+        relay-log: /var/lib/mysql/mysql-relay-bin.log
+        replicate-wild-ignore-table: "%.__maatkit_char_chunking_map"
+        skip-name-resolve: noarg_present
+
+        # 1064 - Syntax error, skip on slave deprecated SQLs from old mysql5.5
+        slave_skip_errors: 1064
+        slow_query_log_file: '/var/log/mysql/mysql-slow.log'
+        slow_query_log: 'OFF'
+        sort_buffer_size: 1M  # Reduced to 1M
+        symbolic_links: 1 
+        ssl: 0
+        sync_binlog: 1
+        table_open_cache: 64  # Reduced to 64
+        tmp_table_size: 16M  # Reduced to 16M
+        wait_timeout: 28800

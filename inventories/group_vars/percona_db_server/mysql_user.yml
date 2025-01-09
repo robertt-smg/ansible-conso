@@ -1,0 +1,14 @@
+groups_list_mysql:
+  - name: mysql
+    system: true
+    state: present
+
+users_list_mysql:
+  - name: mysql
+    authorized_keys:
+    username: mysql
+    shell: /usr/sbin/nologin
+    group: mysql
+    groups:
+      - mysql
+      - nomad

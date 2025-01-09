@@ -1,0 +1,12 @@
+# {{ ansible_managed }}
+
+# Login credentials
+user: "{{ mailrelay_smtp_to_matrix_username }}"
+password: '{{ mailrelay_smtp_to_matrix_password }}'
+server: "{{ mailrelay_smtp_to_matrix_server }}"
+
+# Target room to post messages in
+room_id: "{{ mailrelay_smtp_to_matrix_room_id }}"
+
+# Debug mode (prints to stdout instead of sending matrix message)
+debug: False

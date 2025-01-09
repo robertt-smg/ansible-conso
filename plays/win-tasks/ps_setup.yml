@@ -1,0 +1,20 @@
+- name: Check if NuGet package provider is installed
+  win_shell: |
+    if (-not (Get-PackageProvider -Name NuGet -ErrorAction SilentlyContinue)) {
+      Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force
+    } else {
+      Write-Host "NuGet package provider is already installed."
+    }
+
+- name: Add PowerShell module PolicyFileEditor
+  community.windows.win_psmodule:
+    name: PolicyFileEditor
+    state: present
+    accept_license: true
+
+- name: Turn Off PowerShell Transcription as it interferes with ansible/win_copy tasks
+  ansible.windows.win_powershell:
+    script: |
+      New-Item -Path 'HKLM:\\Software\\Policies\\Microsoft\\Windows\\PowerShell' -Name Transcription -Force
+      Set-ItemProperty -Path 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\PowerShell\\Transcription' -Name EnableTranscripting -Value 0 -Type 'DWord'
+    executable: pwsh.exe

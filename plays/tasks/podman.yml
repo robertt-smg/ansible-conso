@@ -1,0 +1,36 @@
+- name: Install required packages fuse-overlayfs
+  apt:
+    name:
+      - fuse-overlayfs
+  when: podman.fuse_overlayfs is defined and podman.fuse_overlayfs is true
+
+- name: Download HashiCorp GPG key
+  get_url:
+    url: https://apt.releases.hashicorp.com/gpg
+    dest: /tmp/hashicorp.gpg
+
+- name: Convert GPG key to keyring format
+  command: gpg --batch --yes  --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg /tmp/hashicorp.gpg
+  args:
+    removes: /tmp/hashicorp.gpg # Remove the temporary file after conversion
+
+- name: Create HashiCorp APT repository file
+  copy:
+    dest: /etc/apt/sources.list.d/hashicorp.list
+    content: "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com {{ ansible_lsb.codename }} main\n"
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Update APT package index
+  apt:
+    update_cache: yes
+
+- name: Install Nomad Driver for Podman
+  apt:
+    name: nomad-driver-podman
+    state: present
+
+- name: Include role alvistack.podman if nomad_enabled is defined
+  include_role:
+    name: alvistack.podman

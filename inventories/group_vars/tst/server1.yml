@@ -1,0 +1,4 @@
+certbot_server1_tst:
+  domain: test.la-cuna.icu
+  renew_cron: "*/15 * * * *"
+  testing: true

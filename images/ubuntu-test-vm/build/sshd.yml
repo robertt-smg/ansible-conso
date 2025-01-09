@@ -1,0 +1,49 @@
+---
+- name: Install OpenSSH server
+  apt:
+    name: openssh-server
+    state: present
+    update_cache: yes
+
+- name: Ensure trailing newline in sshd_config
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    line: ""
+    state: present
+    create: yes
+
+- name: Set UseDNS to no
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: "^[[:space:]]*UseDNS"
+    line: "UseDNS no"
+    state: present
+
+- name: Set GSSAPIAuthentication to no
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: "^[[:space:]]*GSSAPIAuthentication"
+    line: "GSSAPIAuthentication no"
+    state: present
+
+- name: Generate SSH host keys
+  command: ssh-keygen -A
+  args:
+    chdir: /etc/ssh
+
+- name: Ensure .ssh directory exists for root
+  file:
+    path: /root/.ssh
+    state: directory
+    mode: "0700"
+
+- name: Append additional SSH configuration
+  blockinfile:
+    path: /etc/ssh/sshd_config
+    block: |
+      AcceptEnv LANG KEEPASS_PORT TERM LC_*
+
+      # allow Public Key
+      PubkeyAuthentication yes
+      AllowAgentForwarding yes
+      AllowTcpForwarding yes

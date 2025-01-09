@@ -1,0 +1,32 @@
+
+- name: Install NuGet package provider
+  win_shell: |
+      Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force
+
+- name: Add PowerShell module PolicyFileEditor
+  community.windows.win_psmodule:
+    name: PolicyFileEditor
+    state: present
+    accept_license: true
+
+- name: Ensure Local Group Policy Settings
+  win_dsc:
+        resource_name: "cAdministrativeTemplateSetting"
+        policytype: "{{ item.policytype }}"
+        keyvaluename: "{{ item.keyvaluename }}"
+        data: "{{ item.data }}"
+        type: "{{ item.type }}"
+  with_items: "{{ policy_settings.cAdministrativeTemplateSetting }}"
+
+- name: Ensure Policy Registry Settings
+  win_dsc:
+        resource_name: "Registry"
+        Ensure: Present
+        key: "{{ item.key }}"
+        ValueName: "{{ item.vname }}"
+        ValueType: "{{ item.vtype }}" 
+        ValueData: "{{ item.vdata }}" 
+  with_items: "{{ policy_settings.registry }}"
+
+- name: Run gpupdate to refresh Group Policy
+  win_command: gpupdate.exe /force

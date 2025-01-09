@@ -1,0 +1,10 @@
+- name: Set Windows region to German
+  ansible.windows.win_powershell: 
+    script: |
+      Set-Culture de-DE
+      Set-WinSystemLocale de-DE
+      Set-WinHomeLocation -GeoId "0x5E"
+      Set-WinUserLanguageList -LanguageList "de-DE" -Force
+    arguments:
+      - -ExecutionPolicy
+      - ByPass

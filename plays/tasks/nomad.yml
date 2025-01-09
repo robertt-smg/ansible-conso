@@ -1,0 +1,40 @@
+- name: Include role alvistack.podman if nomad_enabled is defined
+  include_tasks: tasks/podman.yml
+  when: nomad_enabled is defined and nomad_enabled is true
+
+- name: Include tasks nomad_certs if nomad_enabled is defined
+  include_tasks: tasks/nomad/certs.yml
+  when: nomad_enabled is defined and nomad_enabled is true
+
+- name: Include role torian.nomad if nomad_enabled is defined
+  include_role:
+    name: torian.nomad
+  when: nomad_enabled is defined and nomad_enabled
+
+- name: Include tasks nomad_verify if nomad_enabled is defined
+  include_tasks: tasks/nomad/verify.yml
+  when: nomad_enabled is defined and nomad_enabled is true
+
+- name: Include tasks nomad_token if nomad_enabled is defined
+  include_tasks: tasks/nomad/token.yml
+  when: nomad_enabled is defined and nomad_enabled is true
+
+#- haproxy
+- name: Include tasks nomad-haproxy if nomad_haproxy.enabled is defined
+  include_tasks: tasks/nomad/haproxy.yml
+  when: nomad_haproxy.enabled is defined and nomad_haproxy.enabled is true
+
+#- percona db server
+- name: Include tasks nomad-percona if nomad_percona.enabled is defined
+  include_tasks: tasks/nomad/percona.yml
+  when: nomad_percona.enabled is defined and nomad_percona.enabled is true
+
+#- mariadb server
+- name: Include tasks nomad-mariadb if nomad_mariadb.enabled is defined
+  include_tasks: tasks/nomad/mariadb.yml
+  when: nomad_mariadb.enabled is defined and nomad_mariadb.enabled is true
+
+#- passbolt server
+- name: Include tasks nomad-passbolt if nomad_passbolt.enabled is defined
+  include_tasks: tasks/nomad/passbolt.yml
+  when: nomad_passbolt.enabled is defined and nomad_passbolt.enabled is true

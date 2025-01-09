@@ -1,0 +1,9 @@
+- hosts: all
+  become: true
+  gather_facts: true
+
+  vars_files:
+  - main/vars.yml
+
+  tasks:
+  - import_tasks: tasks/dump_groups.yml

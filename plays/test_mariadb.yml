@@ -1,0 +1,12 @@
+- hosts: all
+  become: true
+  gather_facts: true
+
+  vars_files:
+  - main/vars.yml
+
+  tasks:
+#- mariadb server
+  - name: Include tasks nomad-mariadb if nomad_mariadb.enabled is defined
+    include_tasks: tasks/nomad/mariadb.yml
+    when: nomad_mariadb.enabled is defined and nomad_mariadb.enabled is true

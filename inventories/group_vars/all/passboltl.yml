@@ -1,0 +1,3 @@
+#- merge all passbolt_... variables into one
+
+passbolt:  "{{ lookup('community.general.merge_variables', 'passbolt_', pattern_type='prefix', override='ignore') }}"

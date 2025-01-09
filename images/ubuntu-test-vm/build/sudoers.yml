@@ -1,0 +1,15 @@
+---
+# Configure Sudoers
+
+- name: Ensure /etc/sudoers.d directory exists
+  file:
+    path: /etc/sudoers.d
+    state: directory
+    mode: "0755"
+
+- name: Add exempt_group to sudoers
+  lineinfile:
+    path: /etc/sudoers
+    line: "Defaults exempt_group=sudo"
+    state: present
+    insertafter: '^Defaults\s+env_reset'

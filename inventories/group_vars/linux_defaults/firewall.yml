@@ -1,0 +1,4 @@
+## firewall
+firewall_allowed_tcp_ports_default:
+  - "31222"
+

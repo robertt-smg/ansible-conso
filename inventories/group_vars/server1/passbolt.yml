@@ -1,0 +1,3 @@
+nomad_passbolt:
+  enabled: true
+  job_name: "passbolt-server"

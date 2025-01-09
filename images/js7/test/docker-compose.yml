@@ -1,0 +1,74 @@
+
+x-project:
+  name: js7-test-vm
+
+services:
+  db:
+    image: registry.gitlab.com/la-cuna-icu/podman-images/mariadb:11.6.2-noble
+
+    #restart: unless-stopped
+    environment:
+      MARIADB_RANDOM_ROOT_PASSWORD: "true"
+      MARIADB_DATABASE: "js7db"
+      MARIADB_USER: "js7user"
+      MARIADB_PASSWORD: "js7password"
+      MARIADB_ROOT_PASSWORD: js7rootpassword
+      MYSQL_DATABASE: js7db
+    networks:
+      salt-vm:
+        ipv4_address: 192.168.11.216
+
+    volumes: ## MySQL / MariaDB does not work with windows map directories - crashes, we need to use volume
+     - database_volume:/var/lib/mariadb
+
+  js7-joc-primary:
+    container_name: js7-joc-primary
+    image: sosberlin/js7:joc-2-7-2
+    hostname: js7-joc-primary
+    ports:
+      - "127.0.0.217:17446:4446"
+    #restart: unless-stopped
+    depends_on:
+      - db
+    #entrypoint: "/bin/bash"
+    #command: -c "while true; do echo Alive ;sleep 30; done"
+
+    environment:
+      RUN_JS_JAVA_OPTIONS: -Xmx256m
+      RUN_JS_USER_ID: "1000:0"
+
+    volumes:
+      - ./config:/var/sos-berlin.com/js7/joc/resources/joc
+      - ./log:/var/sos-berlin.com/js7/joc/logs
+
+    networks:
+      salt-vm:
+        ipv4_address: 192.168.11.217
+
+  js7-controller-primary:
+    image: sosberlin/js7:controller-2-7-2
+    depends_on:
+      - db
+      - js7-joc-primary
+
+    hostname: js7-controller-primary
+    volumes:
+      - ./controller-primary:/var/sos-berlin.com/js7/controller/var
+    networks:
+      salt-vm:
+        ipv4_address: 192.168.11.218
+
+    environment:
+      RUN_JS_JAVA_OPTIONS: -Xmx256m
+      RUN_JS_USER_ID: "1000:0"
+
+    restart: "no"
+
+networks:
+  salt-vm:
+     external: true
+
+volumes:
+  database_volume:
+  gpg_volume:
+  jwt_volume:

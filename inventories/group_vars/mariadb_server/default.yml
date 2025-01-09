@@ -1,0 +1,13 @@
+mariadb_default:
+  port: 3306
+  external_port: 3306
+  cpu: 14000
+  memory: "28176"
+  memory_hard_limit: 37570
+  db_volume: /var/lib/mariadb
+  log_volume: /var/lib/mariadb/log
+  
+  image_version: "mariadb:11.6.2-noble"
+  
+  purge_binlog_days: 5
+  purge_schedule: "18 2 * * * *"  

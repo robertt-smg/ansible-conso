@@ -1,0 +1,162 @@
+
+groups_list_nomad:
+  - name: nomad
+    system: true
+    state: present
+
+users_list_nomad:
+  - name: nomad
+    authorized_keys:
+    username: nomad
+    shell: /usr/sbin/nologin
+    group: nomad
+
+## Role: torian.nomad
+## -------------------------
+nomad_enabled: true
+nomad_version: "1.9.3"
+#nomad_version: "1.7.7"
+nomad_config_dir: /etc/nomad.d
+nomad_data_dir: /var/lib/nomad
+nomad_log_dir: /var/log/nomad-jobs
+
+nomad_datacenter: "server1-dc"
+nomad_log_level: "DEBUG"
+nomad_servers: 1
+
+nomad_install_http_scheme: "https"
+nomad_install_http_ip: "{{ nomad_advertise_address }}"
+nomad_install_http_port: "4646"
+# Addresses
+nomad_iface: "{{ ansible_default_ipv4.interface }}"
+
+nomad_bind_address: "0.0.0.0"
+nomad_advertise_address: "{{ hostvars[inventory_hostname]['ansible_' + nomad_iface]['ipv4']['address'] }}"
+nomad_server_url: "{{ nomad_install_http_scheme }}://{{ nomad_advertise_address }}:{{ nomad_install_http_port }}"
+
+nomad_memory_total_mb: 16384
+nomad_cpu_total_compute: 10772
+nomad_bootstrap_expect: 1
+
+nomad_plugin_dir: "/opt/nomad/data/plugins"
+
+nomad_config:
+  all: |
+    acl {
+      enabled    = true
+    }
+    bind_addr = "{{nomad_bind_address}}"
+    log_level = "DEBUG"
+    data_dir  = "{{ nomad_data_dir }}"
+    plugin_dir  = "{{ nomad_plugin_dir }}"
+    plugin {
+      raw_exec {
+        config {
+          enabled = true
+        }
+      }
+      nomad-driver-podman {
+        config {
+          recover_stopped = false # might block on reboot
+          extra_labels = [ "job_name" ]
+          gc {
+            container = true
+          }
+          volumes {
+            enabled = true
+            selinuxlabel = "z"
+          }
+        }
+      }
+      docker {
+        config {
+          extra_labels = ["job_name", "job_id", "task_group_name", "task_name", "namespace", "node_name", "node_id"]
+          gc {
+            image       = true
+            image_delay = "3m"
+            container   = true
+
+            dangling_containers {
+              enabled        = true
+              dry_run        = false
+              period         = "5m"
+              creation_grace = "5m"
+            }
+          }
+
+          volumes {
+            enabled      = true
+            selinuxlabel = "z"
+          }
+          allow_privileged = false
+          allow_caps       = ["DAC_OVERRIDE", "FSETID", "FOWNER", "MKNOD", "SETGID", "SETUID", "SETFCAP", "SETPCAP", "NET_BIND_SERVICE", "SYS_CHROOT", "KILL", "AUDIT_WRITE", "CHOWN", "NET_RAW", "SYS_NICE"]
+        }
+      }
+    }
+    datacenter = "{{ nomad_datacenter }}"
+    leave_on_terminate = true
+
+    autopilot {
+      cleanup_dead_servers = true
+      last_contact_threshold = "200ms"
+      max_trailing_logs = 250
+      server_stabilization_time = "10s"
+      enable_redundancy_zones = false
+      disable_upgrade_migration = false
+      enable_custom_upgrades = false
+    }
+    # Nodes not bound to consul must be configured to advertise themselves.
+    advertise {
+      http = "{{nomad_advertise_address}}"
+      rpc = "{{nomad_advertise_address}}"
+      serf = "{{nomad_advertise_address}}"
+    }
+    server {
+      enabled = true
+      raft_protocol = 3
+      bootstrap_expect = {{nomad_bootstrap_expect}}
+      server_join {
+        retry_join =[ "127.0.0.1" ]
+      }
+      encrypt = "{{nomad_encrypt}}"
+      default_scheduler_config {
+        scheduler_algorithm = "spread"
+        memory_oversubscription_enabled = true
+        reject_job_registration = false
+        pause_eval_broker = false 
+
+        preemption_config {
+          batch_scheduler_enabled = true
+          system_scheduler_enabled = true
+          service_scheduler_enabled = true
+          sysbatch_scheduler_enabled = true
+        }
+      }
+    }
+    client {
+      enabled = true
+      network_interface = "{{nomad_iface}}"
+      network_speed = 0
+      cpu_total_compute = "{{nomad_cpu_total_compute}}"
+      memory_total_mb = "{{nomad_memory_total_mb}}"
+      options = {
+        "driver.allowlist" = "exec,podman"
+      }
+      
+    }
+    # Require TLS
+    tls {
+      http = true
+      rpc  = true
+
+      ca_file   = "{{ nomad_data_dir }}/certs/nomad-agent-ca.pem"
+      cert_file = "{{ nomad_data_dir }}/certs/global-server-nomad.pem"
+      key_file  = "{{ nomad_data_dir }}/certs/global-server-nomad-key.pem"
+
+      verify_server_hostname = false
+      verify_https_client    = false
+    }
+
+
+
+

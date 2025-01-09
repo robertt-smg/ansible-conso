@@ -1,0 +1,9 @@
+## Role: mailrelay-opensmtpd
+## -------------------------
+mailrelay_enabled: true
+
+mailrelay_opensmtpd_monitoring_linux_users:
+  - root
+
+default_email_from: devops@la-cuna.de
+# localhost is default: mailrelay_listen_on_interface: 

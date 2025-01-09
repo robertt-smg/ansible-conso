@@ -1,0 +1,127 @@
+########################################################################
+# File managed by ansible
+# Your changes will be overwritten.
+########################################################################
+#
+# For more information on the "job" stanza, please see
+# the online documentation at:
+#
+#     https://www.nomadproject.io/docs/job-specification/job.html
+#
+
+job "{{ job_name }}" {
+  datacenters = [ "{{ datacenter }}" ]
+  type = "service"
+  constraint {
+    attribute = "${attr.kernel.name}"
+    value     = "linux"
+  }
+  update {
+    max_parallel = 1
+    min_healthy_time = "10s"
+    healthy_deadline = "30m"
+    progress_deadline = "32m"
+    auto_revert = false
+    canary = 0
+  }
+
+  group "{{ job_name }}" {
+    count = 1
+    network {
+      
+      port "mariadb_port" { 
+        static = {{ mariadb.external_port }} 
+        to = {{ mariadb.port }} 
+      }
+      port "mariadb_health_port" { 
+        static = 8000 
+        to = 8000
+      }
+      mode = "host"
+    }
+    restart {
+      attempts = 10
+      interval = "5m"
+      delay = "25s"
+      mode = "delay"
+    }
+    
+    task "mariadb-server" {
+      {% if nomad_config_driver_is_docker is defined and nomad_config_driver_is_docker %}
+      driver = "docker"
+      {% else %}
+      driver = "podman"
+      {% endif %}
+      #kill_timeout = "600s"
+      #kill_signal = "SIGSTOP"
+      env {  
+          MARIADB_ROOT_PASSWORD = "{{ mariadb.server.root_password }}"
+          MARIADB_ROOT_HOST="%"
+          MYSQL_ROOT_PASSWORD = "{{ mariadb.server.root_password }}"
+          MYSQL_ROOT_HOST="%"
+          DB_FLAVOR = "mysql"
+      }
+      config {
+        {% if nomad_config_driver_is_docker is defined and nomad_config_driver_is_docker %}
+          memory_hard_limit = {{ mariadb.memory_hard_limit }}
+        {% endif %}
+        {% set image_version= mariadb.image_version %}
+        {% include "nomad-files/gitlab_registry.j2" %}
+
+        labels {
+          group = "mariadb-mysql-server-8"
+        }
+        #command = "/bin/bash"
+        #args = [ "/script/start_mysqld.sh" ]
+
+        #command = "/bin/bash"
+        #command = "/script/sigcatch"
+        #args = ["-"]
+        #args = [ "-c", "while true; do echo Alive...; sleep 30; done" ]
+        #args = [ "/script/start_server.sh" ]
+
+        cap_add = [
+          "SYS_NICE",
+        ]
+        volumes = [
+            "{{ mariadb.db_volume }}/tmp:/var/lib/tmp",
+            "{{ mariadb.db_volume }}/mysql:/var/lib/mysql",
+            "{{ mariadb.log_volume }}:/var/log/mysql",
+            "{{ config_dir }}/cnf:/etc/mysql/conf.d",
+            "{{ config_dir }}/script:/script",
+            #"{{ mariadb.db_volume }}/tmp/initdb:/docker-entrypoint-initdb.d",
+            "/etc/passwd:/etc/passwd:ro",
+            "/etc/group:/etc/group:ro"
+
+        ]
+        {% if nomad_config_driver_is_docker is defined and nomad_config_driver_is_docker %}
+        volume_driver = "local"
+        {% endif %}
+         
+        ports = [ "mariadb_port", "mariadb_health_port" ]
+        
+      }
+      service {
+        name = "{{ job_name }}"
+        port = "mariadb_health_port"
+        provider = "nomad"
+        check {
+          type     = "http"
+          port     = "mariadb_health_port"
+          path = "/healthweb.sh"
+          interval = "120s"
+          timeout  = "30s"
+        }
+      }
+      logs {
+         max_files     = 2
+         max_file_size = 15
+      }
+ 
+      resources {
+        cpu = {{ mariadb.cpu }}
+        memory = {{ mariadb.memory }}
+      }
+    }
+  }
+}

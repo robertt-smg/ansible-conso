@@ -1,0 +1,7 @@
+[client]
+protocol=tcp
+host     = {{ mysql_server_ip }}
+user     = root
+password = {{ mysql_server_pass }}
+#default-auth=mysql_native_password
+default-auth=caching_sha2_password

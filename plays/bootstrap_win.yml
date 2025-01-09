@@ -1,0 +1,18 @@
+- hosts: windows_defaults
+  become: true
+  become_method: "runas"
+  become_user: "Administrator"
+  gather_facts: false
+
+  tasks:
+
+  - name: "Change the hostname to {{ win_hostname}}"
+    ansible.windows.win_hostname:
+      name: "{{ win_hostname }}"
+    register: res
+
+  - import_tasks: win-tasks/sshd.yml
+ 
+  - name: Reboot
+    ansible.windows.win_reboot:
+    when: res.reboot_required

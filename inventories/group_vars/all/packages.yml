@@ -1,0 +1,1 @@
+apt_packages:  "{{ lookup('community.general.merge_variables', 'apt_packages_', pattern_type='prefix', override='ignore') }}"

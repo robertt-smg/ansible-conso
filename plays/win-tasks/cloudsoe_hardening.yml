@@ -1,0 +1,87 @@
+
+- name: Ensure temp directory exists
+  win_file:
+    path: "{{ item }}"
+    state: directory
+  with_items:
+    - C:\batch\temp
+    - C:\batch\temp\windows
+    - C:\batch\temp\WindowsServer
+    - C:\batch\\temp\MicrosoftWindowsServer
+    - C:\batch\temp\2022-datacenter
+
+# -----------------------------------
+# we use the Australian CloudSOE project for our security baseline
+# implementing https://www.cyber.gov.au/acsc/view-all-content/ism
+# https://github.com/Azure/ausgovcaf-cloudsoe
+- name: Copy Hardening JSON file to target machine
+  become: true
+  become_user: Administrator
+  ansible.builtin.copy:
+    src: files/arm-cloudsoe-image.json
+    dest: C:\\batch\\temp\\arm-cloudsoe-image.json
+
+- name: Read JSON file
+  ansible.builtin.slurp:
+    src: "C:\\batch\\temp\\arm-cloudsoe-image.json"
+  register: json_content
+
+- name: Fix and Remove comments from JSON content
+  set_fact: 
+    json_data: >- 
+      {{ json_content.content | b64decode | 
+      regex_replace('(?m)[ \t]+//.*', '') |
+      regex_replace('(?m)[ \t]+\"(<!--.*)(\n)', '"\1') |
+      regex_replace('"resources": [\s\S]*],', '', multiline=True) 
+       }}
+
+- name: Write cleaned JSON to a file
+  ansible.builtin.copy:
+    content: "{{ json_data }}"
+    dest: C:\batch\temp\cleaned_arm-cloudsoe-image.json
+
+- name: "2022-datacenter - Write cleaned PS code to a file"
+  ansible.builtin.copy:
+    content: "{{ item.inline | join('\n') }}"
+    dest: "C:\\batch\\temp\\2022-datacenter\\{{ item.name }}.ps1"
+  with_items: "{{ json_data['variables']['buildImageCustomisationAssignments']['windows']['MicrosoftWindowsServer']['WindowsServer']['2022-datacenter']['customisations'] }}"
+
+- name: Windows - Write cleaned PS code to a file
+  ansible.builtin.copy:
+    content: "{{ item.inline | join('\n') }}"
+    dest: "C:\\batch\\temp\\windows\\{{ item.name }}.ps1"
+  with_items: "{{ json_data.variables.buildImageCustomisationAssignments.windows.customisations }}"
+
+- name: MicrosoftWindowsServer - Write cleaned PS code to a file
+  ansible.builtin.copy:
+    content: "{{ item.inline | join('\n') }}"
+    dest: "C:\\batch\\temp\\MicrosoftWindowsServer\\{{ item.name }}.ps1"
+  with_items: "{{ json_data.variables.buildImageCustomisationAssignments.windows.MicrosoftWindowsServer.customisations }}"
+
+- name: Windows - Execute PowerShell commands
+  ansible.windows.win_command:
+    cmd: pwsh.exe -ExecutionPolicy ByPass -File "C:\\batch\\temp\\windows\\{{ item.name }}.ps1"
+    chdir: C:\batch\temp\windows
+    
+  with_items: "{{ json_data.variables.buildImageCustomisationAssignments.windows.customisations }}"
+
+- name: MicrosoftWindowsServer - Execute PowerShell commands
+  ansible.windows.win_command:
+    cmd: pwsh.exe -ExecutionPolicy ByPass -File "C:\\batch\\temp\\MicrosoftWindowsServer\\{{ item.name }}.ps1"
+    chdir: C:\batch\temp\MicrosoftWindowsServer
+    
+  with_items: "{{ json_data.variables.buildImageCustomisationAssignments.windows.MicrosoftWindowsServer.customisations }}"
+
+- name: 2022-datacenter - Execute PowerShell commands
+  ansible.windows.win_command:
+    cmd: pwsh.exe -ExecutionPolicy ByPass -File "C:\\batch\\temp\\2022-datacenter\\{{ item.name }}.ps1"
+    chdir: C:\batch\temp\2022-datacenter
+  with_items: "{{ json_data['variables']['buildImageCustomisationAssignments']['windows']['MicrosoftWindowsServer']['WindowsServer']['2022-datacenter']['customisations'] }}"
+
+
+- name: Turn Off PowerShell Transcription as it interferes with ansible/win_copy tasks
+  ansible.windows.win_powershell:
+    script: |
+      New-Item -Path 'HKLM:\\Software\\Policies\\Microsoft\\Windows\\PowerShell' -Name Transcription -Force
+      Set-ItemProperty -Path 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\PowerShell\\Transcription' -Name EnableTranscripting -Value 0 -Type 'DWord'
+    executable: pwsh.exe

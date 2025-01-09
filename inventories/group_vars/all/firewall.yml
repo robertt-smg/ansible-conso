@@ -1,0 +1,1 @@
+firewall_allowed_tcp_ports:  "{{ lookup('community.general.merge_variables', 'firewall_allowed_tcp_ports_', pattern_type='prefix', override='ignore') }}"

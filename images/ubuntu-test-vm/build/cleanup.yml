@@ -1,0 +1,164 @@
+---
+# Cleanup System
+- name: Check for linux-headers in dpkg -l
+  command: dpkg -l
+  register: dpkg_output
+
+- name: Remove linux headers
+  apt:
+    name: "{{ item }}"
+    state: absent
+  loop: "{{ ansible_facts.packages['linux-headers'] | map(attribute='name') | list }}"
+  when: "'linux-headers' in dpkg_output.stdout"
+
+- name: Remove specific Linux kernels
+  apt:
+    name: "{{ item }}"
+    state: absent
+  loop: "{{ ansible_facts.packages['linux-image'] | map(attribute='name') | select('search', 'linux-image-.*-generic') | select('search', ansible_kernel, invert=True) | list }}"
+  when: "'linux-image' in dpkg_output.stdout"
+
+- name: Remove old kernel modules packages
+  apt:
+    name: "{{ item }}"
+    state: absent
+  loop: "{{ ansible_facts.packages['linux-modules'] | map(attribute='name') | select('search', 'linux-modules-.*-generic') | select('search', ansible_kernel, invert=True) | list }}"
+  when: "'linux-modules' in dpkg_output.stdout"
+
+- name: Remove linux-source package
+  apt:
+    name: "{{ item }}"
+    state: absent
+  loop: "{{ ansible_facts.packages['linux-source'] | map(attribute='name') | list }}"
+  when: "'linux-source' in dpkg_output.stdout"
+
+- name: Remove docs packages
+  apt:
+    name: "{{ item }}"
+    state: absent
+  loop: "{{ ansible_facts.packages | select('search', '-doc$') | map(attribute='name') | list }}"
+  when: "'-doc' in dpkg_output.stdout"
+
+- name: Remove X11 libraries
+  apt:
+    name:
+      - libx11-data
+      - xauth
+      - libxmuu1
+      - libxcb1
+      - libx11-6
+      - libxext6
+    state: absent
+
+- name: Remove obsolete networking packages
+  apt:
+    name:
+      - ppp
+      - pppconfig
+      - pppoeconf
+    state: absent
+
+- name: Remove unnecessary packages
+  apt:
+    name:
+      - popularity-contest
+      - command-not-found
+      - friendly-recovery
+      - bash-completion
+      - laptop-detect
+      - motd-news-config
+      - usbutils
+      - grub-legacy-ec2
+    state: absent
+
+- name: Remove fonts-ubuntu-font-family-console
+  apt:
+    name: fonts-ubuntu-font-family-console
+    state: absent
+  ignore_errors: yes
+
+- name: Remove installation-report
+  apt:
+    name: installation-report
+    state: absent
+  ignore_errors: yes
+
+- name: Remove console font
+  apt:
+    name: fonts-ubuntu-console
+    state: absent
+  ignore_errors: yes
+
+- name: Remove command-not-found-data
+  apt:
+    name: command-not-found-data
+    state: absent
+  ignore_errors: yes
+
+- name: Ensure the excludes file exists
+  file:
+    path: /etc/dpkg/dpkg.cfg.d/excludes
+    state: touch # This will create the file if it does not exist
+
+- name: Setup dpkg excludes for linux-firmware
+  lineinfile:
+    path: /etc/dpkg/dpkg.cfg.d/excludes
+    line: "{{ item }}"
+    state: present
+  loop:
+    - "#BENTO-BEGIN"
+    - "path-exclude=/lib/firmware/*"
+    - "path-exclude=/usr/share/doc/linux-firmware/*"
+    - "#BENTO-END"
+
+- name: Delete firmware files
+  file:
+    path: "{{ item }}"
+    state: absent
+  loop:
+    - /lib/firmware/*
+    - /usr/share/doc/linux-firmware/*
+
+- name: Autoremove packages and clean apt data
+  apt:
+    autoremove: yes
+    autoclean: yes
+
+- name: Remove contents of /usr/share/doc/
+  file:
+    path: /usr/share/doc/*
+    state: absent
+
+- name: Remove files in /var/cache
+  file:
+    path: /var/cache/*
+    state: absent
+
+- name: Truncate logs
+  file:
+    path: /var/log/*
+    state: absent
+
+- name: Blank netplan machine-id
+  command: truncate -s 0 /etc/machine-id
+
+- name: Remove contents of /tmp and /var/tmp
+  file:
+    path: "{{ item }}"
+    state: absent
+  loop:
+    - /tmp/*
+    - /var/tmp/*
+
+- name: Force a new random seed to be generated
+  file:
+    path: /var/lib/systemd/random-seed
+    state: absent
+
+- name: Clear history
+  file:
+    path: /root/.wget-hsts
+    state: absent
+
+- name: Clear bash history
+  command: bash -c 'export HISTSIZE=0'

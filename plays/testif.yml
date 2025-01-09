@@ -1,0 +1,31 @@
+---
+- hosts: all
+  gather_facts: yes  # Ensure facts are gathered
+
+  tasks:
+    - name: Display all interfaces
+      debug:
+        msg: "{{ msg.split('\n') }}"
+      vars:
+        msg: |
+            {% for iface in ansible_interfaces|sort %}
+                System interface {{ iface }}
+                {{ vars.ansible_facts[iface] | to_nice_json }}
+            {% endfor %}
+    
+    - name: XX Find network interfaces without specific IP address prefixes and unwanted names
+      set_fact:
+        nomad_interfaces_address: "{{ [ansible_facts[item].ipv4.address] }}"
+        nomad_interfaces_iface: "{{ item }}"
+      when: 
+        - item not in ['lo', 'cni0', 'veth', 'docker', 'nomad' ]  # Exclude unwanted interface names
+        - ansible_facts[item].ipv4 is defined
+        - ansible_facts[item].ipv4.address is defined
+        #- not (ansible_facts[item].ipv4.address| startswith('10.0') or ansible_facts[item].ipv4.address | startswith('192.168.31'))
+      loop: "{{ ansible_interfaces }}"
+
+    - name: Display filtered network interfaces
+      debug:
+        msg: "Filtered network interface: {{ nomad_interfaces_address }} {{ nomad_interfaces_iface }} / {{ hostvars[inventory_hostname]['ansible_' + nomad_iface]['ipv4']['address'] }} {{ ansible_default_ipv4.interface }}"
+      
+      when: nomad_interfaces_address is defined and nomad_interfaces_iface is defined

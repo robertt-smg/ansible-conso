@@ -1,0 +1,1 @@
+certbot:  "{{ lookup('community.general.merge_variables', 'certbot_', pattern_type='prefix', override='ignore') }}"

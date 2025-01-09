@@ -1,0 +1,17 @@
+# Ignore all subfolders and files in ansible/roles
+roles.external/*
+
+# Allow .keep files in any subfolder of ansible/roles
+!roles.external/**/.keep
+
+# Ignore all subfolders and files in ansible/roles
+collections.external/*
+
+# Allow .keep files in any subfolder of ansible/roles
+!collections.external/**/.keep
+tmp/
+install.log
+build.log
+*.log.gz
+*.log
+.git-old

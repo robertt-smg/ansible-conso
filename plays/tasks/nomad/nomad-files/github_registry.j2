@@ -1,0 +1,11 @@
+
+        image = "ghcr.io/thr27/podman-image/{{image_version}}"
+
+        image_pull_timeout = "7m"
+
+        auth {
+          username = "{{ nomad_registry_github.username }}"
+          password = "{{ nomad_registry_github.password }}"
+        }
+        force_pull = true
+        

@@ -1,0 +1,14 @@
+percona_default:
+  port: 3306
+  external_port: 3306
+  cpu: 14000
+  memory: "28176"
+  memory_hard_limit: 37570
+  db_volume: /var/lib/percona
+  log_volume: /var/lib/percona/log
+  
+  #image_version: "percona:8.0.36-28-centos"
+  image_version: "percona:8.0.39-30-debian-12-r3"
+  
+  purge_binlog_days: 5
+  purge_schedule: "18 2 * * * *"  

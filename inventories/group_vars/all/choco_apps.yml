@@ -1,0 +1,1 @@
+chocoapps_list:  "{{ lookup('community.general.merge_variables', 'chocoapps_list_', pattern_type='prefix', override='ignore') }}"

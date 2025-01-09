@@ -1,0 +1,13 @@
+- hosts: windows_defaults
+  gather_facts: false
+  #become: true
+  become_method: runas
+  become_user: Administrator
+
+  vars_files:
+  - main/vars.yml
+
+  tasks:
+  
+ # - import_tasks: win-tasks/sshd.yml
+  - import_tasks: win-tasks/windows_base.yml

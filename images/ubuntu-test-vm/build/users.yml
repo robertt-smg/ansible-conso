@@ -1,0 +1,38 @@
+---
+# Create Users and Groups ubuntu and ubuntu
+
+- name: Check if the group exists
+  command: getent group 1000
+  register: group_check
+  ignore_errors: true
+
+- name: Create ubuntu group
+  group:
+    name: ubuntu
+    gid: 1000
+    state: present
+  when: group_check.rc != 0
+
+- name: Create ubuntu user
+  user:
+    name: ubuntu
+    uid: 1000
+    group: 1000
+    home: /home/ubuntu
+    shell: /bin/bash
+    system: yes
+    create_home: yes
+    password: "{{ 'ubuntu' | password_hash('sha512') }}"
+    state: present
+
+- name: Add ubuntu user to sudo group
+  user:
+    name: ubuntu
+    groups: sudo
+    append: yes
+
+- name: Set up password-less sudo for ubuntu user
+  copy:
+    dest: /etc/sudoers.d/99_ubuntu
+    content: "ubuntu ALL=(ALL) NOPASSWD:ALL"
+    mode: "0440"

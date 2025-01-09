@@ -1,0 +1,149 @@
+- name: Create {{ nomad_mariadb.job_name }} log directory
+  file:
+    path: "{{ nomad_log_dir }}/{{ nomad_mariadb.job_name }}"
+    state: directory
+    owner: mysql
+    group: mysql
+    mode: "0775"
+    recurse: yes
+
+- name: Create configuration volume {{ nomad_mariadb.job_name }}
+  file:
+    path: "{{ nomad_data_dir }}/jobs/{{ nomad_mariadb.job_name }}/{{ item }}"
+    state: directory
+    owner: mysql
+    group: mysql
+    mode: "0775"
+    recurse: yes
+  loop:
+    - script
+    - cnf
+
+- name: Create database volume and dirs {{ nomad_mariadb.job_name }}
+  file:
+    path: "{{ mariadb.db_volume }}/{{ item }}"
+    state: directory
+    owner: mysql
+    group: mysql
+    mode: "0775"
+    recurse: yes
+  loop:
+    - mysql
+    - log
+    - tmp
+    - tmp/initdb
+
+- name: Manage mariadb-client.cnf configuration file {{ nomad_mariadb.job_name }}
+  template:
+    src: nomad-files/mariadb/mariadb-client.cnf.j2
+    dest: /etc/mysql/conf.d/mariadb-client.cnf
+    owner: mysql
+    group: mysql
+    mode: "0444"
+  vars:
+    job_name: "{{ nomad_mariadb.job_name }}"
+    mysql_server_ip: "{{ nomad_advertise_address }}"
+    mysql_server_pass: "{{ mariadb.server.root_password }}"
+
+- name: Manage 90_server_id.cnf configuration file {{ nomad_mariadb.job_name }}
+  template:
+    src: nomad-files/mariadb/server_id.cnf.j2
+    dest: "{{ nomad_data_dir }}/jobs/{{ nomad_mariadb.job_name }}/cnf/90_server_id.cnf"
+    owner: mysql
+    group: mysql
+    mode: "0444"
+  vars:
+    job_name: "{{ nomad_mariadb.job_name }}"
+    mysql_server_ip: "{{ nomad_advertise_address }}"
+    mysql_server_pass: "{{ mariadb.server.root_password }}"
+    server_id: "{{ mariadb.server.id }}"
+  register: mariadb_cnf_changed
+
+- name: Create 90_mysql_custom.cnf file {{ nomad_mariadb.job_name }}
+  template:
+    src: nomad-files/mariadb/mysql.cnf.j2
+    dest: "{{ nomad_data_dir }}/jobs/{{ nomad_mariadb.job_name }}/cnf/90_mysql_custom.cnf"
+    owner: mysql
+    group: mysql
+    mode: "0444"
+  when: mysql.config.enabled is defined
+
+- name: Install MySQL client / MYSQL admin
+  apt:
+    name: mysql-client
+    state: present
+
+#- name: Copy sigcatch app {{ nomad_mariadb.job_name }}
+#  copy:
+#    src: nomad-files/mariadb/start_server.sh.j2
+#    dest: "{{ nomad_data_dir }}/jobs/{{ nomad_mariadb.job_name }}/script/sigcatch"
+#    owner: root
+#    group: root
+#    mode: "0774"
+
+# - name: Manage start_server.sh script {{ nomad_mariadb.job_name }}
+#   template:
+#     src: nomad-files/mariadb/start_server.sh.j2
+#     dest: "{{ nomad_data_dir }}/jobs/{{ nomad_mariadb.job_name }}/script/start_server.sh"
+#     owner: root
+#     group: root
+#     mode: "0644"
+#   vars:
+#     job_name: "{{ nomad_mariadb.job_name }}"
+#     datacenter: "{{ nomad_datacenter }}"
+#     hostname: "{{ ansible_hostname }}"
+#     config_dir: "{{ nomad_data_dir }}/jobs/{{ nomad_mariadb.job_name }}"
+
+- name: Manage Nomad job file {{ nomad_mariadb.job_name }}
+  template:
+    src: nomad-files/mariadb/mariadb.nomad.j2
+    dest: "{{ nomad_data_dir }}/jobs/{{ nomad_mariadb.job_name }}.nomad"
+    owner: nomad
+    group: nomad
+    mode: "0644"
+  vars:
+    job_name: "{{ nomad_mariadb.job_name }}"
+    datacenter: "{{ nomad_datacenter }}"
+    hostname: "{{ ansible_hostname }}"
+    config_dir: "{{ nomad_data_dir }}/jobs/{{ nomad_mariadb.job_name }}"
+
+- name: "Manage Nomad job file {{ nomad_mariadb.job_name }}"
+  run_once: true
+  nomad_job:
+    url: "{{ nomad_server_url }}"
+    validate_certs: false
+    management_token: "{{ nomad_acl_management_token }}"
+    state: present
+    namespace: default
+    hcl_spec: "{{ lookup('template', 'nomad-files/mariadb/mariadb.nomad.j2') }}"
+  vars:
+    job_name: "{{ nomad_mariadb.job_name }}"
+    datacenter: "{{ nomad_datacenter }}"
+    hostname: "{{ ansible_hostname }}"
+    config_dir: "{{ nomad_data_dir }}/jobs/{{ nomad_mariadb.job_name }}"
+  register: mariadb_nomad_file_changed
+
+- name: Check MariaDB server status
+  command: mysqladmin --protocol tcp status
+  ignore_errors: true
+  until: mysql_status.rc == 0
+  retries: 12
+  delay: 30
+  register: mysql_status
+
+# - name: Set state and comment based on MySQL status
+#   set_fact:
+#     STATE: "{{ 'no' if mysql_status.rc == 0 else 'yes' }}"
+#     COMMENT: "{{ 'mariadb DB server is up' if mysql_status.rc == 0 else 'mariadb DB server is stopped' }}"
+
+# - name: Output the state and comment
+#   debug:
+#     msg: "changed={{ STATE }} comment='{{ COMMENT }}'"
+
+#- name: Run Nomad job {{ nomad_mariadb.job_name }}
+#  command: nomad job run {{ nomad_data_dir }}/jobs/{{ nomad_mariadb.job_name }}.nomad
+#  async: 240
+#  poll: 0
+#  register: mariadb_nomad_job_run
+#  when: mariadb_nomad_file_changed is changed
+

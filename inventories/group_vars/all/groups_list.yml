@@ -1,0 +1,1 @@
+groups_list:  "{{ lookup('community.general.merge_variables', 'groups_list_', pattern_type='prefix', override='ignore') }}"

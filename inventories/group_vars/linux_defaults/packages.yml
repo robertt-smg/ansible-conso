@@ -1,0 +1,35 @@
+
+##- default packages for role: weareinteractive.apt
+## !! DO NOT ADD any secrets here !! =>  use 'linux_defaults_secrets.yml' instead !
+
+apt_cache_valid_time: 7200
+apt_packages_default:
+  - apt-transport-https
+  - ca-certificates
+  - curl
+  - gawk
+  - jq
+  - lsof
+  - mailutils
+  - net-tools
+  - ntpdate
+  - open-vm-tools
+  - tree
+  - vim
+  - name: zsh
+    state: absent
+    purge: true
+  - name: nullmailer
+    state: absent
+    purge: true
+
+
+apt_mails:
+  - root
+
+apt_unattended_upgrades_notify_error_only: no
+apt_remove_recommends: yes
+apt_remove_suggests: yes
+apt_remove_purge: yes
+
+

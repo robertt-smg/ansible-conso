@@ -1,0 +1,25 @@
+
+mysql:
+  config:
+    enabled: true
+    sections:
+      mysqld:
+        binlog_format: mixed
+        connect_timeout: 7200
+        character-set-server: utf8
+        collation-server: utf8_general_ci
+        default-time-zone: 'Europe/Berlin'
+        expire_logs_days: 10
+        federated: 1
+
+        log-queries-not-using-indexes: noarg_present
+        long_query_time: 25
+        lower_case_table_names: 1
+        max_connections: 50  # Reduced to 50
+        net_read_timeout: 3600
+        net_write_timeout: 3600
+
+        performance_schema: ON
+        slow_query_log_file: '/var/log/mysql/mysql-slow.log'
+        slow_query_log: 'OFF'
+        wait_timeout: 28800

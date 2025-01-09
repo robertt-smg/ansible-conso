@@ -1,0 +1,33 @@
+- name: Include tasks setup powershell
+  include_tasks: win-tasks/ps_setup.yml
+
+- name: Include update Timezone
+  include_tasks: win-tasks/timezone.yml
+
+- name: Include update Locale Settings
+  include_tasks: win-tasks/locale.yml
+
+- name: Include windows user create task if winusers_list is defined
+  include_tasks: win-tasks/create_users.yml
+  when: winusers_list is defined and winusers_list
+
+- name: Include choco app install task if chocoapps_list is defined
+  include_tasks: win-tasks/choco.yml
+  when: chocoapps_list is defined and chocoapps_list
+
+- name: Enable server roles
+  include_tasks: win-tasks/roles.yml
+  when: winserver_roles_enabled is defined
+
+- name: Include tasks for ISM hardening based on CloudSOE project
+  include_tasks: win-tasks/cloudsoe_hardening.yml
+
+- name: Include update Local Group Policies
+  include_tasks: win-tasks/policy_settings_ps.yml
+
+- name: Install icinga2 client on windows
+  include_tasks: win-tasks/icinga2.yml
+
+- name: Configure Defender
+  include_tasks: win-tasks/defender.yml
+  when: defender_list is defined and defender_list

@@ -1,0 +1,1 @@
+defender_list:  "{{ lookup('community.general.merge_variables', 'defender_list_', pattern_type='prefix', override='ignore') }}"

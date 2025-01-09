@@ -1,0 +1,112 @@
+########################################################################
+# File managed by ansible
+# Your changes will be overwritten.
+########################################################################
+#
+# For more information on the "job" stanza, please see
+# the online documentation at:
+#
+#     https://www.nomadproject.io/docs/job-specification/job.html
+#
+
+job "{{ job_name }}" {
+  datacenters = [ "{{ datacenter }}" ]
+  type = "service"
+  constraint {
+    attribute = "${attr.kernel.name}"
+    value     = "linux"
+  }
+  update {
+    max_parallel = 1
+    min_healthy_time = "10s"
+    healthy_deadline = "5m"
+    progress_deadline = "12m"
+    auto_revert = false
+    canary = 0
+  }
+  group "{{ job_name }}" {
+    # Specify the number of these tasks we want.
+    count = 1
+    network {
+      mode = "host"
+      port "passbolt" {
+        static = {{ passbolt.external_port }} 
+        to     = {{ passbolt.external_port }} 
+      }
+    }
+    restart {
+      # The number of attempts to run the job within the specified interval.
+      attempts = 10
+      interval = "5m"
+
+      # The "delay" parameter specifies the duration to wait before restarting
+      # a task after it has failed.
+      delay = "25s"
+
+     # The "mode" parameter controls what happens when a task has restarted
+     # "attempts" times within the interval. "delay" mode delays the next
+     # restart until the next interval. "fail" mode does not restart the task
+     # if "attempts" has been hit within the interval.
+      mode = "delay"
+    }
+    task "{{ job_name }}" {
+      {% if nomad_config_driver_is_docker is defined and nomad_config_driver_is_docker %}
+      driver = "docker"
+      {% else %}
+      driver = "podman"
+      {% endif %}
+
+      # Configuration is specific to each driver.
+      config {
+        {% set image_version= passbolt.image_version %}
+        {% include "nomad-files/gitlab_registry.j2" %}
+        
+        hostname = "passbolt.la-cuna.icu"
+        extra_hosts = [ "api.la-cuna.icu:{{ passbolt.api_external_host_ip }}" ]
+         
+        ports = [ "passbolt" ]
+        volumes = [
+            # Use absolute paths to mount arbitrary paths on the host
+            "{{ nomad_data_dir }}/jobs/{{ job_name }}/data/passbolt/nginx/sites-enabled:/etc/nginx/sites-enabled/",
+            "{{ nomad_data_dir }}/jobs/{{ job_name }}/data/passbolt/nginx/snippets:/etc/nginx/snippets/",
+            "{{ nomad_data_dir }}/jobs/{{ job_name }}/data/passbolt/nginx/ssl-files:/etc/ssl/certs/",
+
+            "{{ nomad_data_dir }}/jobs/{{ job_name }}/data/gpg_volume:/gpg",
+            "{{ nomad_data_dir }}/jobs/{{ job_name }}/data/jwt_volume:/jwt",
+            "{{ nomad_data_dir }}/jobs/{{ job_name }}/data/:/data",
+            "{{ nomad_log_dir }}/{{ job_name }}/nginx:/var/log/nginx"
+
+        ]  
+        #command = "/bin/bash"
+        #args = [ "-c", "while true; do echo Alive...; sleep 30; done" ]
+      }
+      env {
+        APP_FULL_BASE_URL="{{ passbolt.app_full_base_url }}"
+        APP_BASE="{{ passbolt.app_base }}"
+        DATASOURCES_DEFAULT_HOST="{{ passbolt.db_server }}"
+        DATASOURCES_DEFAULT_USERNAME="{{ passbolt.db_user }}"
+        DATASOURCES_DEFAULT_PASSWORD="{{ passbolt.db_password }}"
+        DATASOURCES_DEFAULT_DATABASE="{{ passbolt.db_name }}"
+        EMAIL_TRANSPORT_DEFAULT_HOST="{{ passbolt.email_server }}"
+        EMAIL_DEFAULT_FROM_ADDRESS="{{ passbolt.email_from_address }}"
+        EMAIL_DEFAULT_FROM="{{ passbolt.email_from_address }}"
+        PASSBOLT_EMAIL_VALIDATE_MX="true"
+
+        PASSBOLT_GPG_SERVER_KEY_FINGERPRINT="{{ passbolt.gpg_server_key_fingerprint }}"
+        PASSBOLT_SECURITY_SMTP_SETTINGS_ENDPOINTS_DISABLED= "true"
+        PASSBOLT_SECURITY_PROXIES_ACTIVE= "true"
+        PASSBOLT_SSL_FORCE= "true"
+      }
+
+      logs {
+         max_files     = 2
+         max_file_size = 15
+      }
+      resources {
+        cpu = 2048
+        memory = 2048
+
+      }   
+    }
+  }
+}

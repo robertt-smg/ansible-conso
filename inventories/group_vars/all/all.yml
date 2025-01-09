@@ -1,0 +1,20 @@
+
+
+# name of the company
+company_name: "la cuna private host"
+company_short: la cuna
+company_main_domain: la-cuna.de
+
+# role-mailrelay-opensmtpd
+wg_mesh_aliases: []
+internal_private_domain_name: la-cuna.vm
+internal_private_domain_tld: vm
+internal_private_domain: la-cuna.vm
+internal_private_domain_underscore: la_cuna_vm
+# internally used public domain, reachable publicly, has public DNS records
+internal_public_domain_name: int.la-cuna.de
+internal_public_domain_tld: de
+internal_public_domain: int.la-cuna.de
+internal_public_domain_underscore: int_la_cuna_de
+
+default_email_from: devops@la-cuna.de

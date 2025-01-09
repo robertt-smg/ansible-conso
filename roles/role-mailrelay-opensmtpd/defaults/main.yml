@@ -1,0 +1,39 @@
+mailrelay_opensmtpd_conf_max_message_size: 100M
+mailrelay_opensmtpd_smtpd_conf_bounce_warn_interval: 300s
+
+# Config files for filters, will be placed in /etc/smtpd/filters/ as well
+opensmtpd_mailrelay_filter_configs:
+  - src: templates/etc/smtpd/filters/regex-replace-data.yml.j2
+    name: regex-replace-data.yml
+
+
+
+# Default matrix server
+mailrelay_smtp_to_matrix_server: "https://matrix.org"
+
+# Recipient users / email addresses which will be forwarded to matrix
+# Define this variable in plays / inventory
+mailrelay_smtp_to_matrix_users: []
+# Default values
+mailrelay_smtp_to_matrix_users_default:
+  - monitoring
+  - root
+  - www-data
+  - prometheus-exporter
+# Combining default with custom values
+mailrelay_smtp_to_matrix_users_template: "{{ mailrelay_smtp_to_matrix_users_default + mailrelay_smtp_to_matrix_users }}"
+
+
+# Defaults from playbook-infrastructure-template-11 - replaced by smtp-to-matrix
+monitoring_email_from: ""
+monitoring_email_sender: ""
+monitoring_email_address: ""
+monitoring_email_recipient: ""
+
+
+# Recipient for test mails after role is applied
+mailrelay_testmail_recipient: "devops@la-cuna.de"
+
+
+# List of relays
+mailrelay_opensmtpd_relays: []

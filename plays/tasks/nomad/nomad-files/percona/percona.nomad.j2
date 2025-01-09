@@ -1,0 +1,122 @@
+########################################################################
+# File managed by ansible
+# Your changes will be overwritten.
+########################################################################
+#
+# For more information on the "job" stanza, please see
+# the online documentation at:
+#
+#     https://www.nomadproject.io/docs/job-specification/job.html
+#
+
+job "{{ job_name }}" {
+  datacenters = [ "{{ datacenter }}" ]
+  type = "service"
+  constraint {
+    attribute = "${attr.kernel.name}"
+    value     = "linux"
+  }
+  update {
+    max_parallel = 1
+    min_healthy_time = "10s"
+    healthy_deadline = "30m"
+    progress_deadline = "32m"
+    auto_revert = false
+    canary = 0
+  }
+
+  group "{{ job_name }}" {
+    count = 1
+    network {
+      
+      port "percona_port" { 
+        static = {{ percona.external_port }} 
+        to = {{ percona.port }} 
+      }
+      mode = "host"
+    }
+    restart {
+      # The number of attempts to run the job within the specified interval.
+      attempts = 0 # 10
+      interval = "5m"
+
+      # The "delay" parameter specifies the duration to wait before restarting
+      # a task after it has failed.
+      delay = "25s"
+
+     # The "mode" parameter controls what happens when a task has restarted
+     # "attempts" times within the interval. "delay" mode delays the next
+     # restart until the next interval. "fail" mode does not restart the task
+     # if "attempts" has been hit within the interval.
+      mode = "fail" #"delay"
+    }
+    task "percona-server" {
+      {% if nomad_config_driver_is_docker is defined and nomad_config_driver_is_docker %}
+      driver = "docker"
+      {% else %}
+      driver = "podman"
+      {% endif %}
+      #kill_timeout = "600s"
+      #kill_signal = "SIGTERM"
+      env {  
+          MYSQL_ROOT_PASSWORD = "{{ percona.server.root_password }}"
+          DB_FLAVOR = "mysql"
+          MYSQL_HOME = "/bitnami/mysql/conf"
+          #MYSQL_USER = "root"
+          #MYSQL_PASSWORD = "{{ percona.server.root_password }}"
+          MYSQL_AUTHENTICATION_PLUGIN = "caching_sha2_password"
+      }
+      config {
+        {% if nomad_config_driver_is_docker is defined and nomad_config_driver_is_docker %}
+          memory_hard_limit = {{ percona.memory_hard_limit }}
+        {% endif %}
+        {% set image_version= percona.image_version %}
+        {% include "nomad-files/gitlab_registry.j2" %}
+
+        labels {
+          group = "percona-mysql-server-8"
+        }
+        command = "/bin/bash"
+        args = [ "/script/start_mysqld.sh" ]
+        cap_add = [
+          "SYS_NICE",
+        ]
+        volumes = [
+            #"{{ config_dir }}:/bitnami/mysql/conf",
+            #"{{ config_dir }}:/opt/bitnami/mysql/conf",
+            "{{ percona.db_volume }}/mysql:/bitnami/mysql/data",
+            #"{{ config_dir }}:/etc/mysql",
+            #"{{ config_dir }}:/opt/bitnami/mysql/conf",
+            #"{{ percona.db_volume }}/tmp:/opt/bitnami/mysql/tmp",
+            "{{ config_dir }}:/etc/mysql/conf.d",
+
+            "{{ percona.db_volume }}/tmp:/var/lib/tmp",
+            "{{ percona.db_volume }}/mysql:/var/lib/mysql",
+            "{{ percona.log_volume }}:/var/log/mysql",
+            "{{ config_dir }}:/etc/percona-server.conf.d",
+            "{{ config_dir }}:/etc/my.cnf.d",
+            "{{ config_dir }}/script:/script",
+            "{{ percona.db_volume }}/tmp/initdb:/docker-entrypoint-initdb.d",
+            "/etc/passwd:/etc/passwd:ro",
+            "/etc/group:/etc/group:ro"
+
+        ]
+        {% if nomad_config_driver_is_docker is defined and nomad_config_driver_is_docker %}
+        volume_driver = "local"
+        {% endif %}
+         
+        ports = [ "percona_port" ]
+      }
+ 
+      logs {
+         max_files     = 2
+         max_file_size = 15
+      }
+ 
+      resources {
+        cpu = {{ percona.cpu }}
+        memory = {{ percona.memory }}
+      }
+    }
+  }
+}

@@ -1,0 +1,15 @@
+[server1]
+server1.tst ansible_host=127.0.0.108 ansible_ssh_port=22 ansible_ssh_user=ansible
+
+[fti1]
+fti1.tst ansible_host=127.0.0.8 ansible_ssh_port=22 ansible_ssh_user=ansible
+
+[tulip:children]
+server1
+
+[fti:children]
+fti1
+
+[tst:children]
+tulip
+fti

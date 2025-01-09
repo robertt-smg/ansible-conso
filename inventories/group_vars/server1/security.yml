@@ -1,0 +1,7 @@
+## we use the same server config for prod and test server, this is why we use a group_var file and not hosts_var
+
+## Role: geerlingguy.security
+## -------------------------
+
+security_ssh_port: 31222
+

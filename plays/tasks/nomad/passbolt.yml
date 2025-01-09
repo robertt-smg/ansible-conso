@@ -1,0 +1,192 @@
+- name: Create database 'passbolt'
+  community.mysql.mysql_db:
+    login_host: "{{ passbolt.db_server }}"
+    login_port: "{{ passbolt.db_server_port }}"
+    login_user: "{{ passbolt.db_server_admin }}"
+    login_password: "{{ passbolt.db_server_admin_password }}"
+    name: passbolt
+    state: present
+
+- name: Create database user 'passbolt'
+  mysql_user:
+    name: passbolt
+    host: "%"
+    login_host: "{{ passbolt.db_server }}"
+    login_port: "{{ passbolt.db_server_port }}"
+    login_user: "{{ passbolt.db_server_admin }}"
+    login_password: "{{ passbolt.db_server_admin_password }}"
+    password: "{{ passbolt.db_password }}"
+    #plugin: mysql_native_password
+    #plugin: caching_sha2_password
+    #salt: "{{ lookup('password', '/dev/null', length=20) }}"
+    state: present
+    priv: 
+      'passbolt.*': 'ALL,GRANT'
+
+- name: Create log directory {{ nomad_passbolt.job_name }}
+  file:
+    path: "{{ nomad_log_dir }}/{{ nomad_passbolt.job_name }}/nginx"
+    state: directory
+    owner: nomad
+    group: nomad
+    mode: "0777"
+    recurse: yes
+
+- name: Create job directory {{ nomad_passbolt.job_name }}
+  file:
+    path: "{{ nomad_data_dir }}/jobs/{{ nomad_passbolt.job_name }}"
+    state: directory
+    owner: nomad
+    group: nomad
+    mode: '0777'
+
+- name: Create nginx directories {{ nomad_passbolt.job_name }}
+  file:
+    path: "{{ nomad_data_dir }}/jobs/{{ nomad_passbolt.job_name }}/data/passbolt/nginx/{{ item }}"
+    state: directory
+    owner: nomad
+    group: nomad
+    mode: '0777'
+    recurse: yes
+  loop:
+    - sites-enabled
+    - snippets
+    - ssl-files
+
+- name: Manage nginx-passbolt.conf file {{ nomad_passbolt.job_name }}
+  copy:
+    src: nomad-files/passbolt/nginx/sites-enabled/nginx-passbolt.conf
+    dest: "{{ nomad_data_dir }}/jobs/{{ nomad_passbolt.job_name }}/data/passbolt/nginx/sites-enabled/nginx-passbolt.conf"
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Manage passbolt-ssl.conf file {{ nomad_passbolt.job_name }}
+  copy:
+    src: nomad-files/passbolt/nginx/snippets/passbolt-ssl.conf
+    dest: "{{ nomad_data_dir }}/jobs/{{ nomad_passbolt.job_name }}/data/passbolt/nginx/snippets/passbolt-ssl.conf"
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Manage certificate.crt file {{ nomad_passbolt.job_name }}
+  copy:
+    src: nomad-files/passbolt/SSL/server.crt
+    dest: "{{ nomad_data_dir }}/jobs/{{ nomad_passbolt.job_name }}/data/passbolt/nginx/ssl-files/certificate.crt"
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Manage certificate.key file {{ nomad_passbolt.job_name }}
+  copy:
+    src: nomad-files/passbolt/SSL/server.key.secret
+    dest: "{{ nomad_data_dir }}/jobs/{{ nomad_passbolt.job_name }}/data/passbolt/nginx/ssl-files/certificate.key"
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Create gpg directories {{ nomad_passbolt.job_name }}
+  file:
+    path: "{{ nomad_data_dir }}/jobs/{{ nomad_passbolt.job_name }}/data/{{item}}_volume/{{item}}"
+    state: directory
+    owner: nomad
+    group: nomad
+    mode: '0777'
+    recurse: yes
+  loop:
+    - gpg
+    - jwt
+
+- name: Manage serverkey.asc file {{ nomad_passbolt.job_name }}
+  copy:
+    src: nomad-files/passbolt/gpg/public.key.secret
+    dest: "{{ nomad_data_dir }}/jobs/{{ nomad_passbolt.job_name }}/data/gpg_volume/serverkey.asc"
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Manage serverkey_private.asc file {{ nomad_passbolt.job_name }}
+  copy:
+    src: nomad-files/passbolt/gpg/private.key.secret
+    dest: "{{ nomad_data_dir }}/jobs/{{ nomad_passbolt.job_name }}/data/gpg_volume/serverkey_private.asc"
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Create jwt_volume directory {{ nomad_passbolt.job_name }}
+  file:
+    path: "{{ nomad_data_dir }}/jobs/{{ nomad_passbolt.job_name }}/data/jwt_volume"
+    state: directory
+    owner: nomad
+    group: nomad
+    mode: '0777'
+    recurse: yes
+
+- name: Manage jwt.key file {{ nomad_passbolt.job_name }}
+  copy:
+    src: nomad-files/passbolt/jwt/jwt.key.secret
+    dest: "{{ nomad_data_dir }}/jobs/{{ nomad_passbolt.job_name }}/data/jwt_volume/jwt.key"
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Manage jwt.pem file {{ nomad_passbolt.job_name }}
+  copy:
+    src: nomad-files/passbolt/jwt/jwt.pem.secret
+    dest: "{{ nomad_data_dir }}/jobs/{{ nomad_passbolt.job_name }}/data/jwt_volume/jwt.pem"
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Create conf volume directory {{ nomad_passbolt.job_name }}
+  file:
+    path: "{{ nomad_data_dir }}/jobs/{{ nomad_passbolt.job_name }}"
+    state: directory
+    owner: nomad
+    group: nomad
+    mode: '0777'
+    recurse: yes
+
+- name: Manage Nomad job file {{ nomad_passbolt.job_name }}
+  template:
+    src: nomad-files/passbolt/passbolt.nomad.j2
+    dest: "{{ nomad_data_dir }}/jobs/{{ nomad_passbolt.job_name }}.nomad"
+    owner: root
+    group: root
+    mode: "0644"
+  vars:
+    job_name: "{{ nomad_passbolt.job_name }}"
+    datacenter: "{{ nomad_datacenter }}"
+    hostname: "{{ ansible_hostname }}"
+    config_dir: "{{ nomad_data_dir }}/jobs/{{ nomad_passbolt.job_name }}"
+
+- name: "Manage Nomad job file {{ nomad_passbolt.job_name }}"
+  run_once: true
+  nomad_job:
+    url: "{{ nomad_server_url }}"
+    validate_certs: false
+    management_token: "{{ nomad_acl_management_token }}"
+    state: present
+    namespace: default
+    hcl_spec: "{{ lookup('template', 'nomad-files/passbolt/passbolt.nomad.j2') }}"
+  vars:
+    job_name: "{{ nomad_passbolt.job_name }}"
+    datacenter: "{{ nomad_datacenter }}"
+    hostname: "{{ ansible_hostname }}"
+    config_dir: "{{ nomad_data_dir }}/jobs/{{ nomad_passbolt.job_name }}"
+  register: passbolt_nomad_file_changed
+
+#- name: Run Nomad job {{ nomad_passbolt.job_name }}
+#  command: nomad job run {{ nomad_data_dir }}/jobs/{{ nomad_passbolt.job_name }}.nomad
+#  async: 240
+#  poll: 0
+#  register: passbolt_nomad_job_run
+#  when: passbolt_nomad_file_changed is changed
+
+- name: Check Nomad job status {{ nomad_passbolt.job_name }}
+  shell: nomad job status -address="{{ nomad_server_url }}" -ca-cert="{{ nomad_data_dir }}/certs/nomad-agent-ca.pem" -tls-skip-verify -token="{{ nomad_acl_management_token }}" --short {{ nomad_passbolt.job_name }} | grep running
+  register: passbolt_job_status
+  until: passbolt_job_status.stdout | length > 0
+  retries: 10
+  delay: 10
+  when: passbolt_nomad_file_changed is changed

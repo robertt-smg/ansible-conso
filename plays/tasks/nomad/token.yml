@@ -1,0 +1,34 @@
+## https://discuss.hashicorp.com/t/nomad-acl-bootstrap-with-ansible/52638/2
+
+- name: Check if Nomad management token file exists
+  ansible.builtin.stat:
+    path: "{{ nomad_config_dir }}/mgmt-secret"
+  register: mgmt_secret_file
+
+- name: "Nomad ACL | Generate Bootstrap token"
+  ansible.builtin.uri:
+        url: "{{ nomad_server_url }}/v1/acl/bootstrap"
+        ca_path: "{{nomad_data_dir}}/certs/nomad-agent-ca.pem"
+        client_cert: "{{nomad_data_dir}}/certs/global-server-nomad.pem"
+        client_key: "{{nomad_data_dir}}/certs/global-server-nomad-key.pem"
+        validate_certs: no
+        method: POST
+        body_format: json
+        body: '{ "BootstrapSecret": "{{ nomad_acl_management_token }}" }'
+        status_code:
+            - 200
+  register: nomad_management_token_result
+  when: not mgmt_secret_file.stat.exists
+
+- ansible.builtin.debug:
+        msg: "{{ nomad_management_token_result.json.SecretID }}"
+  when: not mgmt_secret_file.stat.exists
+
+- name: Write Nomad management token to /etc/nomad/token
+  copy:
+    content: "{{ nomad_management_token_result.json.SecretID }}"
+    dest: "{{ nomad_config_dir }}/mgmt-secret"
+    owner: nomad  # Set the owner of the file
+    group: nomad  # Set the group of the file
+    mode: '0600'  # Set the file permissions        
+  when: not mgmt_secret_file.stat.exists

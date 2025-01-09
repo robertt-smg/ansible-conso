@@ -1,0 +1,10 @@
+- hosts: all
+  become: false
+  gather_facts: false
+
+  vars_files:
+  - main/vars.yml
+
+  tasks:
+        
+    - import_tasks: tasks/dump_vars.yml

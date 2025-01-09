@@ -1,0 +1,36 @@
+- name: Ensure nomad_data_dir exists
+  file:
+    path: "{{nomad_data_dir}}/certs"
+    state: directory
+    owner: nomad
+    group: nomad
+    mode: '0775'
+    recurse: yes
+  become: true
+
+- name: Create nomad-agent-ca.pem
+  copy:
+    src: "{{nomad_datacenter}}.certs/nomad-agent-ca.pem"
+    dest: "{{nomad_data_dir}}/certs/nomad-agent-ca.pem"
+    owner: nomad
+    group: nomad
+    mode: '0775'
+  become: true
+
+- name: Create global-server-nomad.pem
+  copy:
+    src: "{{nomad_datacenter}}.certs/global-server-nomad.pem"
+    dest: "{{nomad_data_dir}}/certs/global-server-nomad.pem"
+    owner: nomad
+    group: nomad
+    mode: '0775'
+  become: true
+
+- name: Create global-server-nomad-key.pem
+  copy:
+    src: "{{nomad_datacenter}}.certs/global-server-nomad-key.pem"
+    dest: "{{nomad_data_dir}}/certs/global-server-nomad-key.pem"
+    owner: nomad
+    group: nomad
+    mode: '0775'
+  become: true
