@@ -1,7 +1,18 @@
 certbot_fti1:
   domain_list:
+    - www.fti-ticketshop.at
+    - www.fti-ticketshop.it
+    - www.fti-ticketshop.nl
     - www.fti-ticketshop.es
-    - api.fti-ticketshop.com
+    - api.fti-ticketshop.de
+    - www.fti-ticketshop.de
+    - solamento.fti-ticketshop.de
+    - kim.inhouse.fti-ticketshop.de
+    - ts.inhouse.fti-ticketshop.de
+    - ws.inhouse.fti-ticketshop.de
+    - bm.inhouse.fti-ticketshop.de
+    - api.inhouse.fti-ticketshop.de
+    - devapi.inhouse.fti-ticketshop.de
 
   email: robert.thurnreiter@fti.de
   web_root: /var/www/html

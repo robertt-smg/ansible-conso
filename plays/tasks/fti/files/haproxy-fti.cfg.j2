@@ -1,3 +1,4 @@
+# manged by ansible
 
 global
     ulimit-n 1048576
@@ -55,7 +56,7 @@ listen stats
     stats uri /
 
 frontend ft_http_api
-        bind :8080
+        bind :80
         bind :443 ssl crt /usr/local/etc/haproxy/certs/live/server.pem
 
         http-request set-src hdr(x-forwarded-for)
@@ -65,18 +66,32 @@ frontend ft_http_api
         http-request capture req.hdr(Host) len 10
         http-request capture req.hdr(User-Agent) len 100
 
+        acl passbolt path_sub passbolt
+        use_backend passbolt if passbolt
+
+        acl lets_encrypt path_beg /.well-known/acme-challenge/
+        use_backend lets_encrypt if lets_encrypt 
+
         mode http
         default_backend httpd
 
 backend per_ip_rates
     stick-table type ip size 1m expire 10m store http_req_rate(10s) 
 
+backend lets_encrypt
+    mode http
+    timeout server  120s
+    server httpd 127.0.0.1:2480 id 2480 check port 2480
+
 backend httpd
     mode http
-
     timeout server  120s
-    http-response set-header Content-Security-Policy frame-ancestors\ %[var(txn.allowed_origins)];
-    http-request set-header Access-Control-Allow-Private-Network true if { req.hdr(X-Access-Control-Allow-Private-Network) -m int 1 }
     server httpd 127.0.0.1:2480 id 2480 check port 2480
+
+backend passbolt
+    mode http
+    timeout server  120s
+    http-request set-header Host api.fti-ticketshop.biz
+    server passbolt 213.61.78.225:443 id 443 check ssl verify none check port 443 
 
 #eof - haproxy need empty LF

@@ -3,8 +3,13 @@
   service: name=apache2 state=restarted
 
 - name: include nomad handlers
-  include_tasks: nomad.yml
+  include_tasks: haproxy.yml
   when: nomad_enabled is defined and nomad_enabled
+
+- name: Restart HAProxy
+  systemd:
+    name: haproxy
+    state: restarted
 
 - name: reload systemd
   systemd:

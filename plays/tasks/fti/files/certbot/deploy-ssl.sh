@@ -13,6 +13,8 @@ CERT_PATH="/etc/letsencrypt/live/server.pem"
 cat "${FULLCHAIN_PATH}" "${PRIVKEY_PATH}" > "${CERT_PATH}"
 cp ${CERT_PATH} /usr/local/etc/haproxy/certs/live/server.pem
 cp ${CERT_PATH} /var/www/html/.ssl/server.pem
+cp "${FULLCHAIN_PATH}" /var/www/html/.ssl/fullchain.pem
+cp "${PRIVKEY_PATH}" /var/www/html/.ssl/server.key
 
 echo -e "set ssl cert /usr/local/etc/haproxy/certs/live/server.pem <<\n$(cat ${CERT_PATH})\n" | socat tcp-connect:${HAPROXY_HOST_ADMIN} -
 echo "show ssl cert" | socat tcp-connect:${HAPROXY_HOST_ADMIN} -

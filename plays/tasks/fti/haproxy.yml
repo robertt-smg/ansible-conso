@@ -38,6 +38,7 @@
     owner: root
     group: root
     mode: "0644"
+  notify: Restart HAProxy
 
 - name: Manage certbot scripts
   copy:
@@ -69,3 +70,4 @@
 - name: Execute the renew-ssl.sh script if privkey.pem does not exist
   command: bash /usr/local/bin/certbot/renew-ssl.sh
   when: not privkey_stat.stat.exists
+
