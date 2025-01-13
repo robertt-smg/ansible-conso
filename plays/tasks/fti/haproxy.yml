@@ -62,12 +62,6 @@
   retries: 3
   delay: 30
 
-- name: Check if privkey.pem exists
-  stat:
-    path: /etc/letsencrypt/live/www.fti-ticketshop.es/privkey.pem
-  register: privkey_stat
-
-- name: Execute the renew-ssl.sh script if privkey.pem does not exist
+- name: Execute the renew-ssl.sh 
   command: bash /usr/local/bin/certbot/renew-ssl.sh
-  when: not privkey_stat.stat.exists
 
