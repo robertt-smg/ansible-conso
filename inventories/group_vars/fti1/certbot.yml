@@ -1,0 +1,7 @@
+certbot_fti1:
+  domain_list:
+    - www.fti-ticketshop.es
+    - api.fti-ticketshop.com
+
+  email: robert.thurnreiter@fti.de
+  web_root: /var/www/html

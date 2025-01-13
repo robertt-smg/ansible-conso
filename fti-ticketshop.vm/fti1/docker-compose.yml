@@ -29,6 +29,7 @@ services:
 
     ports:
     - "127.0.0.8:22:22"
+    - "127.0.0.8:2222:22" # 22 can not be mapped into windows host as it is used by host system -permission denied
     - "127.0.0.8:80:80"
     - "127.0.0.8:443:443"
     - "127.0.0.8:2443:2443"

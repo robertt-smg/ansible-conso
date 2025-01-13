@@ -2,5 +2,7 @@
 firewall_allowed_tcp_ports_fti1:
   - "80"
   - "443"
-  - "2443"
+  - "2480"
+  - "8690"
+  
 

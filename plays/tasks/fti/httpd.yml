@@ -1,0 +1,54 @@
+- name: create static web dir
+  file:
+    path: /var/www/html
+    state: directory
+
+- name: create static .ssl dir
+  file:
+    path: /var/www/html/.ssl
+    state: directory
+
+
+- name: Copy index.html to /var/www/html
+  copy:
+    src: files/index.html
+    dest: /var/www/html/index.html
+    owner: www-data
+    group: www-data
+    mode: '0644'
+
+- name: Copy 241214_Datenschutzhinweise.pdf to /var/www/html
+  copy:
+    src: files/241214_Datenschutzhinweise.pdf
+    dest: /var/www/html/241214_Datenschutzhinweise.pdf
+    owner: www-data
+    group: www-data
+    mode: '0644'
+
+- name: Create httpd.conf
+  copy:
+    dest: /etc/httpd.conf
+    content: |
+      ## created by ansible - empty
+
+- name: Create systemd service file for httpd
+  copy:
+    dest: /etc/systemd/system/httpd.service
+    content: |
+      [Unit]
+      Description=BusyBox httpd
+
+      [Service]
+      ExecStart=/usr/bin/busybox httpd -f -v -p {{ httpd_listen_port }} -h /var/www/html -c /etc/httpd.conf
+      Restart=always
+
+      [Install]
+      WantedBy=multi-user.target
+  notify: reload systemd
+
+- name: Enable httpd service
+  systemd:
+    name: httpd.service
+    enabled: yes
+    state: started
+

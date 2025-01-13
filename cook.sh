@@ -58,7 +58,7 @@ function check_opts_and_run() {
     fi
     if [ "$1" = "--bootstrap" ]; then
         INVENTORY="-i ${IV}/${INVENTORY}-bootstrap -i ${IV}/${IVGROUPS} "
-        BOOTSTRAP_PLAY=${DEFAULT_BOOTSTRAP_PLAY:-bootstrap_python.yml}
+        BOOTSTRAP_PLAY=${DEFAULT_BOOTSTRAP_PLAY:-bootstrap_linux.yml}
         shift
     else
         INVENTORY="-i ${IV}/${INVENTORY} -i ${IV}/${IVGROUPS} "
@@ -69,12 +69,13 @@ function check_opts_and_run() {
           echo "Ansible playbook ${BOOTSTRAP_PLAY} execution failed. Exiting."
           exit 1
         fi
-    fi
+    else
 
-    ansible-playbook ${INVENTORY} ${SCRIPTPATH}/plays/${DEFAULT_PLAY} $*
-    if [ $? -ne 0 ]; then
-        echo "Ansible playbook ${DEFAULT_PLAY} execution failed. Exiting."
-        exit 1
+        ansible-playbook ${INVENTORY} ${SCRIPTPATH}/plays/${DEFAULT_PLAY} $*
+        if [ $? -ne 0 ]; then
+            echo "Ansible playbook ${DEFAULT_PLAY} execution failed. Exiting."
+            exit 1
+        fi
     fi
 }
 # Build a server/s
@@ -103,7 +104,6 @@ build_on_win_test() {
 build_on_prod() {
     echo ${FUNCNAME[0]}
     DEFAULT_PLAY="install-linux.yml"
-    BOOTSTRAP_PLAY="bootstrap_win.yml"
     IVGROUPS=groups
     check_ssh_add
 

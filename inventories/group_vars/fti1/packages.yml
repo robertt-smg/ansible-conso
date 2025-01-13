@@ -4,3 +4,4 @@ apt_packages_fti:
   - busybox
   - fuse-overlayfs
   - podman
+  - socat

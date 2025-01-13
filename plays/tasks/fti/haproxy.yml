@@ -1,0 +1,71 @@
+---
+- name: Ensure certs directory exists
+  file:
+    path: "/usr/local/etc/haproxy/certs/live"
+    state: directory
+    owner: haproxy
+    group: haproxy
+    mode: "0777"
+    recurse: yes
+
+- name: Manage server.pem
+  copy:
+    src: files/haproxy/server.pem
+    dest: "/usr/local/etc/haproxy/certs/live/server.pem"
+    owner: root
+    group: root
+    mode: "0644"
+    force: no
+
+- name: Manage HAProxy configuration file
+  template:
+    src: files/haproxy-fti.cfg.j2
+    dest: "/etc/haproxy/haproxy.cfg"
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Create certbot env directory
+  file:
+    path: "/etc/haproxy/certbot"
+    state: directory
+    mode: '0755'  # Set the desired permissions
+
+- name: Manage HAProxy configuration file
+  template:
+    src: files/certbot.env.j2
+    dest: "/etc/haproxy/certbot/.env"
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Manage certbot scripts
+  copy:
+    src: certbot
+    dest: "/usr/local/bin/"
+    owner: root
+    group: root
+    mode: "0774"
+
+- name: Check if haproxy service is running
+  ansible.builtin.systemd:
+    name: haproxy
+    state: started
+    enabled: yes
+
+- name: Check haProxy server status
+  command: curl http://127.0.0.1:8690/
+  register: haProxy_status
+  ignore_errors: true
+  until: haProxy_status.rc == 0
+  retries: 3
+  delay: 30
+
+- name: Check if privkey.pem exists
+  stat:
+    path: /etc/letsencrypt/live/www.fti-ticketshop.es/privkey.pem
+  register: privkey_stat
+
+- name: Execute the renew-ssl.sh script if privkey.pem does not exist
+  command: bash /usr/local/bin/certbot/renew-ssl.sh
+  when: not privkey_stat.stat.exists

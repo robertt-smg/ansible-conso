@@ -1,0 +1,82 @@
+
+global
+    ulimit-n 1048576
+    tune.ssl.default-dh-param 2048
+    log 127.0.0.1 local0 debug
+
+    stats socket ipv4@*:9999 mode 660 level admin expose-fd listeners
+    nbthread 8
+
+    # Default SSL material locations
+    ca-base /etc/ssl/certs
+    crt-base /etc/ssl/private
+
+    # See: https://ssl-config.mozilla.org/#server=haproxy&server-version=2.0.3&config=intermediate
+    ssl-default-bind-ciphers ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384
+    ssl-default-bind-ciphersuites TLS_AES_128_GCM_SHA256:TLS_AES_256_GCM_SHA384:TLS_CHACHA20_POLY1305_SHA256
+    ssl-default-bind-options ssl-min-ver TLSv1.2 no-tls-tickets
+
+    user haproxy
+    group haproxy
+    daemon
+    
+defaults
+    log global
+    # option httplog
+    log-format "%{+Q}o %{-Q}ci - - [%trg] %r %ST %B \"\" \"\" %cp %ms %ft %b %s %TR %Tw %Tc %Tr %Ta %tsc %ac %fc %bc %sc %rc %sq %bq %CC %CS %hrl %hsl"
+
+    balance roundrobin
+
+    # option  dontlognull
+    option dontlog-normal
+    option redispatch
+    option logasap
+
+    maxconn 1024
+
+    timeout connect 60s
+    timeout client  120s
+    timeout server  120s
+    timeout queue   120s
+    timeout http-request 15s
+    timeout http-keep-alive 15s
+    errorfile 400 /etc/haproxy/errors/400.http
+    errorfile 403 /etc/haproxy/errors/403.http
+    errorfile 408 /etc/haproxy/errors/408.http
+    errorfile 500 /etc/haproxy/errors/500.http
+    errorfile 502 /etc/haproxy/errors/502.http
+    errorfile 503 /etc/haproxy/errors/503.http
+    errorfile 504 /etc/haproxy/errors/504.http
+listen stats 
+    bind :8690
+    mode http
+    stats enable
+    stats hide-version
+    stats uri /
+
+frontend ft_http_api
+        bind :8080
+        bind :443 ssl crt /usr/local/etc/haproxy/certs/live/server.pem
+
+        http-request set-src hdr(x-forwarded-for)
+        http-request track-sc0 src table per_ip_rates
+        http-request capture req.hdrs len 4000
+        http-request set-var(txn.myhdr) capture.req.hdr(0)
+        http-request capture req.hdr(Host) len 10
+        http-request capture req.hdr(User-Agent) len 100
+
+        mode http
+        default_backend httpd
+
+backend per_ip_rates
+    stick-table type ip size 1m expire 10m store http_req_rate(10s) 
+
+backend httpd
+    mode http
+
+    timeout server  120s
+    http-response set-header Content-Security-Policy frame-ancestors\ %[var(txn.allowed_origins)];
+    http-request set-header Access-Control-Allow-Private-Network true if { req.hdr(X-Access-Control-Allow-Private-Network) -m int 1 }
+    server httpd 127.0.0.1:2480 id 2480 check port 2480
+
+#eof - haproxy need empty LF
