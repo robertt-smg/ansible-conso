@@ -22,7 +22,7 @@ else
     echo "Try 'podman machine stop podman-machine-default && podman machine start podman-machine-default'"
     exit 1
 fi
-packages=("ansible" "openssh-clients" "podman-compose" "git" "pip" "sshpass")
+packages=("ansible" "openssh-clients" "podman-compose" "git" "python3-pip" "sshpass")
 
 for package in "${packages[@]}"; do
     if ! podman machine ssh "dnf list installed $package &> /dev/null"; then
@@ -66,6 +66,8 @@ cd /mnt/$PW
 
 EOF
 
+echo "Connecting via ssh ..."
 scp -i $IDENT -P $port -o IdentitiesOnly=yes -o StrictHostKeyChecking=no -o LogLevel=ERROR  /tmp/bashrc $user@$host:/tmp/bashrc
 ssh -i $IDENT -p $port $user@$host -o IdentitiesOnly=yes -o StrictHostKeyChecking=no -o LogLevel=ERROR -o SetEnv=LC_ALL= \
-    -t  "/bin/bash --norc -c \"exec bash --init-file /tmp/bashrc  \""
+    -t \
+     "/bin/bash --norc -c \"exec bash --init-file /tmp/bashrc  \""
