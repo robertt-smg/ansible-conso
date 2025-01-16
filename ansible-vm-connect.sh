@@ -22,9 +22,13 @@ else
     echo "Try 'podman machine stop podman-machine-default && podman machine start podman-machine-default'"
     exit 1
 fi
-packages=("ansible" "openssh-clients" "podman-compose" "git" "python3-pip" "sshpass")
+
+echo "verifying installed dnf packages..."
+
+packages=("ansible" "openssh-clients" "podman-compose" "git" "python3-pip" "sshpass" "hostname")
 
 for package in "${packages[@]}"; do
+    echo "verifying installed dnf package $package..."
     if ! podman machine ssh "dnf list installed $package &> /dev/null"; then
         echo "Info: $package is not installed. Installing $package now ..."
         if ! podman machine ssh "dnf install -y $package"; then
@@ -33,8 +37,11 @@ for package in "${packages[@]}"; do
         fi
     fi
 done
+
+echo "verifying installed pip packages..."
 pip_packages=("pywinrm")
 for package in "${pip_packages[@]}"; do
+    echo "verifying installed pip package $package..."
     if ! podman machine ssh "pip show $package &> /dev/null"; then
         echo "Info: pip $package is not installed. Installing pip $package now ..."
         if ! podman machine ssh "pip install --user ansible $package"; then
@@ -70,4 +77,5 @@ echo "Connecting via ssh ..."
 scp -i $IDENT -P $port -o IdentitiesOnly=yes -o StrictHostKeyChecking=no -o LogLevel=ERROR  /tmp/bashrc $user@$host:/tmp/bashrc
 ssh -i $IDENT -p $port $user@$host -o IdentitiesOnly=yes -o StrictHostKeyChecking=no -o LogLevel=ERROR -o SetEnv=LC_ALL= \
     -t \
+    -v \
      "/bin/bash --norc -c \"exec bash --init-file /tmp/bashrc  \""

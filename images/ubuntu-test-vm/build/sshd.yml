@@ -26,6 +26,13 @@
     line: "GSSAPIAuthentication no"
     state: present
 
+- name: Set GatewayPorts clientspecified
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: "^[[:space:]]*GatewayPorts"
+    line: "GatewayPorts clientspecified"
+    state: present
+
 - name: Generate SSH host keys
   command: ssh-keygen -A
   args:
