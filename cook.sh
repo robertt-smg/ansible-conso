@@ -112,7 +112,7 @@ build_on_prod() {
 }
 function connect_builder() {
     echo ${FUNCNAME[0]}
-    . $SCRIPTPATH/ansible-vm-connect.sh
+    . $SCRIPTPATH/podman-vm-connect.sh
 }
 function start_vm() {
     echo ${FUNCNAME[0]}

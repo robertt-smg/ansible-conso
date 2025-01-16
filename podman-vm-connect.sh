@@ -72,10 +72,23 @@ export ANSIBLE_CONFIG=/mnt/$PW/ansible.cfg
 cd /mnt/$PW
 
 EOF
+#	RemoteForward  192.168.11.1:5005 10.83.20.16:5005
+#	RemoteForward  192.168.11.1:10022 10.83.20.16:10022
+#	RemoteForward  192.168.11.1:443 10.83.20.16:443
+
+	## ldap.fti.de VIA VPN 10.83.20.16
+#	RemoteForward  192.168.11.1:389 10.83.20.18:389
+#	RemoteForward  192.168.11.1:636 10.83.20.18:636
 
 echo "Connecting via ssh ..."
+## we are forwarding FTI Private hosts from 10.83.x.x network to podman VM
+##  VMs then can connect via podman host
 scp -i $IDENT -P $port -o IdentitiesOnly=yes -o StrictHostKeyChecking=no -o LogLevel=ERROR  /tmp/bashrc $user@$host:/tmp/bashrc
 ssh -i $IDENT -p $port $user@$host -o IdentitiesOnly=yes -o StrictHostKeyChecking=no -o LogLevel=ERROR -o SetEnv=LC_ALL= \
     -t \
-    -v \
+    -R 192.168.11.1:5005:10.83.20.16:5005 \
+    -R 192.168.11.1:10022:10.83.20.16:10022 \
+    -R 192.168.11.1:443:10.83.20.16:443 \
+    -R 192.168.11.1:389:10.83.20.18:389 \
+    -R 192.168.11.1:636:10.83.20.18:636 \
      "/bin/bash --norc -c \"exec bash --init-file /tmp/bashrc  \""

@@ -242,7 +242,7 @@ function push_image() {
 }
 function connect_builder() {
     echo ${FUNCNAME[0]}
-    . $LIBPATH/../ansible-vm-connect.sh
+    . $LIBPATH/../podman-vm-connect.sh
 }
 [ "$SOURCE_AS_LIB" == "1" ] && return 0
 
