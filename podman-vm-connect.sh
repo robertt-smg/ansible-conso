@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash 
 
 echo -e "\n ------------------------------------------------------------"
 date
@@ -91,4 +91,5 @@ ssh -i $IDENT -p $port $user@$host -o IdentitiesOnly=yes -o StrictHostKeyCheckin
     -R 192.168.11.1:443:10.83.20.16:443 \
     -R 192.168.11.1:389:10.83.20.18:389 \
     -R 192.168.11.1:636:10.83.20.18:636 \
+    -R 192.168.11.1:25:192.168.178.170:25 \
      "/bin/bash --norc -c \"exec bash --init-file /tmp/bashrc  \""

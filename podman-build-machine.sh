@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash 
 SCRIPT="$(readlink -f -- $0)"
 SCRIPTPATH="$(dirname $SCRIPT)"
 export MSYS_NO_PATHCONV=0
