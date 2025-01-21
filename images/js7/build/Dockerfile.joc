@@ -1,0 +1,19 @@
+#FROM percona:8.0.36-28-centos
+FROM sosberlin/js7:joc-2-7-3
+
+VOLUME /var/lib/mysql /var/log/mysql
+ENV TZ=Europe/Berlin 
+
+COPY ./files/setup-joc.sh /tmp/setup.sh
+COPY ./files/docker-entrypoint-joc.sh /docker-entrypoint.sh
+COPY ./files/wait-for.sh /usr/bin/wait-for.sh
+
+USER root
+RUN date &&\
+    chmod +x /tmp/setup.sh /usr/bin/wait-for.sh /docker-entrypoint.sh
+    
+RUN date && \
+    /bin/bash /tmp/setup.sh
+
+ENTRYPOINT [ "/bin/bash" ]
+CMD [ "/docker-entrypoint.sh" ]

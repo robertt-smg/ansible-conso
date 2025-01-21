@@ -1,0 +1,17 @@
+FROM sosberlin/js7:controller-2-7-3
+
+VOLUME /var/lib/mysql /var/log/mysql
+ENV TZ=Europe/Berlin 
+
+COPY ./files/setup-controller.sh /tmp/setup.sh
+COPY ./files/docker-entrypoint-controller.sh /docker-entrypoint.sh
+
+USER root
+RUN date &&\
+    chmod +x /tmp/setup.sh  /docker-entrypoint.sh
+    
+RUN date && \
+    /bin/bash /tmp/setup.sh
+
+ENTRYPOINT [ "/bin/bash" ]
+CMD [ "/docker-entrypoint.sh" ]

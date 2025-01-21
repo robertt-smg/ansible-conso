@@ -1,7 +1,7 @@
 [wserver1]
 #wserver1.tst ansible_host=192.168.178.117 ansible_user=Administrator ansible_password=admin1234! ansible_connection=winrm ansible_winrm_server_cert_validation=ignore pipelining=false
 #wserver1.tst ansible_host=192.168.178.117 ansible_user=Administrator ansible_password="admin1234!" ansible_connection=ssh ansible_shell_type=powershell become_method=runas pipelining=false
-wserver1.tst ansible_host=192.168.178.117 ansible_user=Administrator ansible_connection=ssh ansible_shell_type=cmd become_method=runas pipelining=false
+wserver1.tst ansible_host=192.168.193.133 ansible_user=Administrator ansible_connection=ssh ansible_shell_type=cmd become_method=runas pipelining=false connection_timeout=240
 
 [tst:children]
 wserver1

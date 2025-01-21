@@ -1,3 +1,8 @@
 /log/nginx/
 /test/data/
 /tmp
+controller-primary/state
+controller-primary/work
+controller-primary/logs
+log/
+db/

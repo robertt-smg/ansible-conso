@@ -1,5 +1,5 @@
 [wserver1]
-wserver1.tst ansible_host=192.168.178.117 ansible_user=Administrator ansible_connection=winrm ansible_winrm_server_cert_validation=ignore
+wserver1.tst ansible_host=192.168.193.133 ansible_user=Administrator ansible_connection=winrm ansible_winrm_server_cert_validation=ignore connection_timeout=240
 
 [tst:children]
 wserver1

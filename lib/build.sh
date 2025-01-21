@@ -150,13 +150,15 @@ function run_ansible_in_container() {
 function set_vars() {
     
     echo ${FUNCNAME[0]}
-    if [ -f ${SCRIPTPATH}/Dockerfile ]; then
-        BUILD_IMAGE=$(grep -E -e "^FROM " ${SCRIPTPATH}/Dockerfile |grep -v '#'|awk '{ print $2 }')
-        AUTHOR="$(grep -E -e "^LABEL maintainer=" ${SCRIPTPATH}/Dockerfile |grep -v '#'|sed 's/LABEL maintainer=//g')"
-        CMD="$(grep -E -e "^CMD " ${SCRIPTPATH}/Dockerfile |grep -v '#'|awk '{ for (i=2; i<=NF; i++) printf "%s%s", $i, (i<NF ? OFS : ""); print "" }')"
-        ENTRYPOINT="$(grep -E -e "^ENTRYPOINT " ${SCRIPTPATH}/Dockerfile |grep -v '#'|awk '{ for (i=2; i<=NF; i++) printf "%s%s", $i, (i<NF ? OFS : ""); print "" }')"
+    DOCKERFILE=${DOCKERFILE:-Dockerfile}
+
+    if [ -f ${SCRIPTPATH}/${DOCKERFILE} ]; then
+        BUILD_IMAGE=$(grep -E -e "^FROM " ${SCRIPTPATH}/${DOCKERFILE} |grep -v '#'|awk '{ print $2 }')
+        AUTHOR="$(grep -E -e "^LABEL maintainer=" ${SCRIPTPATH}/${DOCKERFILE} |grep -v '#'|sed 's/LABEL maintainer=//g')"
+        CMD="$(grep -E -e "^CMD " ${SCRIPTPATH}/${DOCKERFILE} |grep -v '#'|awk '{ for (i=2; i<=NF; i++) printf "%s%s", $i, (i<NF ? OFS : ""); print "" }')"
+        ENTRYPOINT="$(grep -E -e "^ENTRYPOINT " ${SCRIPTPATH}/${DOCKERFILE} |grep -v '#'|awk '{ for (i=2; i<=NF; i++) printf "%s%s", $i, (i<NF ? OFS : ""); print "" }')"
     fi
-    IMAGE_NAME=$(basename $(realpath ${SCRIPTPATH}/..))
+    IMAGE_NAME=${IMAGE_NAME:-$(basename $(realpath ${SCRIPTPATH}/..))}
     IMAGE_TAG=${IMAGE_TAG:-latest}
 }
 function run_build() {
@@ -169,7 +171,7 @@ function run_build() {
             --user root \
             --replace --name ansible-build-${IMAGE_NAME} ${BUILD_IMAGE} /bin/bash -c "${SCRIPTPATH}/build.sh --run-ansible"
     else
-        podman build  --format docker --tag ${IMAGE_NAME}:${IMAGE_TAG} -f ${SCRIPTPATH}/Dockerfile
+        podman build  --format docker --tag ${IMAGE_NAME}:${IMAGE_TAG} -f ${SCRIPTPATH}/${DOCKERFILE}
     fi
 }
 function run_terminal() {
@@ -206,7 +208,7 @@ function podman_upload() {
 	LOCAL=${3:-latest}
 	
 	echo Pushing to gitlab ...
-    if podman image exists ${IMAGE_NAME}:${LOCAL}; then
+    if podman image exists ${IMAGE}:${LOCAL}; then
 
         podman tag ${IMAGE}:${LOCAL} registry.gitlab.com/la-cuna-icu/podman-images/${IMAGE}:${TAG}
         podman push registry.gitlab.com/la-cuna-icu/podman-images/${IMAGE}:${TAG}
@@ -220,8 +222,8 @@ function podman_upload() {
 function push_image() {
     echo ${FUNCNAME[0]} $*
 
-    if [[ -f "$PWD/Dockerfile" ]]; then
-    echo "Dockerfile found."
+    if [[ -f "$PWD/${DOCKERFILE}" ]]; then
+    echo "${DOCKERFILE} found."
 
     # Extract the image name and version from the line starting with FROM
     while IFS= read -r line; do
@@ -230,15 +232,15 @@ function push_image() {
             version="${BASH_REMATCH[2]}"
             echo "Image: $image_name, Version: $version"
         fi
-        done < "$PWD/Dockerfile"
-        IMAGE_TAG=$version
+        done < "$PWD/${DOCKERFILE}"
+        IMAGE_TAG=${IMAGE_TAG:-$version}
     else
         IMAGE_TAG=${1:-latest}
     fi
-    IMAGE_NAME=$(basename $(realpath "$(pwd)/.."))
-    IMAGE=${IMAGE_NAME}:${IMAGE_TAG}
+    IMAGE_NAME=${IMAGE_NAME:-$(basename $(realpath "$(pwd)/.."))}
+    #IMAGE=${IMAGE_NAME}:${IMAGE_TAG}
     podman_login
-    podman_upload ${IMAGE_TAG} ${IMAGE_NAME} "latest"
+    podman_upload ${IMAGE_TAG} ${IMAGE_NAME} "${IMAGE_TAG_BUILD:-latest}"
 }
 function connect_builder() {
     echo ${FUNCNAME[0]}
