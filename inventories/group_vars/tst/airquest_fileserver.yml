@@ -1,0 +1,10 @@
+## See https://stackoverflow.com/questions/16221250/add-a-key-to-hkey-current-user-for-all-users
+## to add registry setting per user once
+
+airquest_defaults_test:
+  host: FTI-GERM1-N5291
+  host_ip: 192.168.153.1
+  drive_letter: Q
+  share: tulip_proquest
+  local_path: "d:\\proquest"
+  user: aq@FTI-GERM1-N5291

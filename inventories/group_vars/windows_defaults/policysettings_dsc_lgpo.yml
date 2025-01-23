@@ -105,10 +105,19 @@ policy_settings_lgpo_cAdministrativeTemplateSetting:
       vname: "NoAutoRebootWithLoggedOnUsers"
       vtype: "Dword"
       vdata: "1"
-    
-HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU\ScheduledInstallTime:
+# HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU\ScheduledInstallTime    
+    - key: "HKEY_LOCAL_MACHINE\\SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsUpdate\\AU\\ScheduledInstallTime"
+      vname: "ScheduledInstallTime"
+      vtype: "Dword"
+      vdata: "3"
 
-    - name: "HKEY_LOCAL_MACHINE\\SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsUpdate\\AU"
-    - vname: "ScheduledInstallTime"
-    - vtype: "Dword"
-    - vdata: "3"
+#HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System\\' -Name legalnoticecaption -Value 'REPLACE WITH YOUR LEGAL BANNER TITLE'",
+    - key: "HKEY_LOCAL_MACHINESOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System"
+      vname: "legalnoticecaption"
+      vtype: "String"
+      vdata: "airQuest Terminal Server"
+#HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System\\' -Name legalnoticetext -Value 'REPLACE WITH YOUR LEGAL BANNER TEXT'"
+    - key: "HKEY_LOCAL_MACHINESOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System"
+      vname: "legalnoticetext"
+      vtype: "String"
+      vdata: "The idea of Freibier in Bavaria is deeply religious..."

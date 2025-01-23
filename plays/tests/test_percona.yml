@@ -9,5 +9,5 @@
 #  - import_tasks: tasks/nomad.yml
 #- percona db server
   - name: Include tasks nomad-percona if nomad_percona.enabled is defined
-    include_tasks: tasks/nomad/percona.yml
+    include_tasks: ../tasks/nomad/percona.yml
     when: nomad_percona.enabled is defined and nomad_percona.enabled is true

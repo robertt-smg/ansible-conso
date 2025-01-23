@@ -1,0 +1,103 @@
+airquest_fileserver_default:
+  host: "{{ airquest_defaults.host }}"
+  host_ip: "airquest_defaults.host_ip"
+  drive_letter: "{{ airquest_defaults.drive_letter }}" 
+  share: "{{ airquest_defaults.share }}"
+  local_path: "{{ airquest_defaults.local_path }}"
+  user: "{{ airquest_defaults.user }}"
+  password: "{{ airquest_defaults.password }}"
+
+  registry_absent:
+    - key: "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\AppCompatFlags\Layers"
+      vname: "C:\\Windows\\System32\\Taskmgr.exe"
+
+    - key: "HKEY_LOCAL_MACHINESOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System"
+      vname: "legalnoticecaption"
+
+    - key: "HKEY_LOCAL_MACHINESOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System"
+      vname: "legalnoticetext"
+
+  registry_present:
+    - key: "HKEY_LOCAL_MACHINE\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\\ZoneMap\\Ranges\\Range10000"
+      vname: "file"
+      vtype: "Dword"
+      vdata: 1
+
+    - key: "HKEY_LOCAL_MACHINE\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\\ZoneMap\\Ranges\\Range10000"
+      vname: ":Range"
+      vtype: "String"
+      vdata: "{{ airquest_defaults.host }}"
+
+    - key: "HKEY_LOCAL_MACHINE\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\\ZoneMap\\Ranges\\Range10001"
+      vname: "file"
+      vtype: "Dword"
+      vdata: 1
+
+    - key: "HKEY_LOCAL_MACHINE\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\\ZoneMap\\Ranges\\Range10001"
+      vname: ":Range"
+      vtype: "String"
+      vdata: "{{ airquest_defaults.host_ip }}"
+
+    - key: "HKEY_LOCAL_MACHINE\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\\ZoneMap\\Ranges\\Range10002"
+      vname: "file"
+      vtype: "Dword"
+      vdata: 1
+
+    - key: "HKEY_LOCAL_MACHINE\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\\ZoneMap\\Ranges\\Range10002"
+      vname: ":Range"
+      vtype: "String"
+      vdata: "{{ airquest_defaults.local_path }}"
+
+    - key: "HKEY_LOCAL_MACHINE\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\\ZoneMap\\Ranges\\Range10003"
+      vname: "file"
+      vtype: "Dword"
+      vdata: 1
+
+    - key: "HKEY_LOCAL_MACHINE\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\\ZoneMap\\Ranges\\Range10003"
+      vname: ":Range"
+      vtype: "String"
+      vdata: "{{ airquest_defaults.drive_letter }}:\\"
+
+
+    - key: "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\AppCompatFlags\\Layers"
+      vname: "C:\\Windows\\System32\\Taskmgr.exe"
+      vtype: "String"
+      vdata: "RUNASINVOKER"
+
+    - key: "HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Environment"
+      vname: "__compat_layer"
+      vtype: "String"
+      vdata: "DISABLETHEMES"
+
+## See https://stackoverflow.com/questions/16221250/add-a-key-to-hkey-current-user-for-all-users
+## to add registry setting per user once
+
+    - key: "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Active Setup\\Installed Components\\aq_cli_autostart"
+      vname: "Version"
+      vtype: "String"
+      vdata: "2"
+
+    - key: "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Active Setup\\Installed Components\\aq_cli_autostart"
+      vname: "StubPath" 
+      vtype: "String"
+      vdata: "reg add HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Run /v \"aq_cli_autostart\" /d \"d:\\batch\\aq_cli.cmd POST_LOGON\" /t REG_SZ /f"
+      
+    - key: "HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Environment"
+      vname: "AQ_FILE_SERVER_IP" 
+      vtype: "String"
+      vdata: "{{ airquest_defaults.host_ip }}"
+
+    - key: "HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Environment"
+      vname: "AQ_FILE_SERVER_NETUSR" 
+      vtype: "String"
+      vdata: "{{ airquest_defaults.host }}"
+
+    - key: "HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Environment"
+      vname: "AQ_FILE_SERVER_NETUSR" 
+      vtype: "String"
+      vdata: "{{ airquest_defaults.user }}"
+
+    - key: "HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Environment"
+      vname: "AQ_FILE_SERVER_NETPWD" 
+      vtype: "String"
+      vdata: "{{ airquest_defaults.password }}"

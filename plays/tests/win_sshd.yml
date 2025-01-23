@@ -12,7 +12,7 @@
 #- percona db server
 
   - name: Include update Timezone
-    include_tasks: win-tasks/timezone.yml
+    include_tasks: ../win-tasks/timezone.yml
 
   - name: Include tasks SSHD
-    include_tasks: win-tasks/sshd.yml
+    include_tasks: ../win-tasks/sshd.yml

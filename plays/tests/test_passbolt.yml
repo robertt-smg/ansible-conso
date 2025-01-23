@@ -8,5 +8,5 @@
   tasks:
   #- passbolt server
   - name: Include tasks nomad-passbolt if nomad_passbolt.enabled is defined
-    include_tasks: tasks/nomad/passbolt.yml
+    include_tasks: ../tasks/nomad/passbolt.yml
     when: nomad_passbolt.enabled is defined and nomad_passbolt.enabled is true

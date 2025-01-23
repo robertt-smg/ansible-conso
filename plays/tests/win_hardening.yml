@@ -13,7 +13,7 @@
     become: true
       
   - name: Include tasks setup powershell
-    include_tasks: win-tasks/ps_setup.yml
+    include_tasks: ../win-tasks/ps_setup.yml
 
   - name: Include tasks for ISM hardening based on CloudSOE project
-    include_tasks: win-tasks/cloudsoe_hardening.yml
+    include_tasks: ../win-tasks/cloudsoe_hardening.yml

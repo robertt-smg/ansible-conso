@@ -9,6 +9,5 @@
 
   tasks:
 
-  - name: Install defender exceptions
-    include_tasks: win-tasks/defender.yml
-    when: defender_list is defined and defender_list
+  - name: Install icinga2
+    include_tasks: ../win-tasks/icinga2.yml

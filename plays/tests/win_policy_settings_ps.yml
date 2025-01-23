@@ -9,7 +9,7 @@
 
   tasks:
   - name: Include tasks setup powershell
-    include_tasks: win-tasks/ps_setup.yml
+    include_tasks: ../win-tasks/ps_setup.yml
 
   - name: Include tasks LGPO
-    include_tasks: win-tasks/policy_settings_ps.yml
+    include_tasks: ../win-tasks/policy_settings_ps.yml

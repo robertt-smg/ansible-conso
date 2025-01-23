@@ -1,5 +1,5 @@
 - hosts: all
-  #become: true
+  become: false
   become_method: runas
   become_user: Administrator
   gather_facts: false
@@ -8,6 +8,6 @@
   - main/vars.yml
 
   tasks:
-
-  - name: Install icinga2
-    include_tasks: win-tasks/icinga2.yml
+  - name: Ping all hosts
+    win_ping:
+      data: "Hostname: {{ inventory_hostname }}"

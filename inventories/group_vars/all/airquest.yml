@@ -1,0 +1,2 @@
+airquest_defaults:  "{{ lookup('community.general.merge_variables', 'airquest_defaults_', pattern_type='prefix', override='ignore') }}"
+airquest_fileserver:  "{{ lookup('community.general.merge_variables', 'airquest_fileserver_', pattern_type='prefix', override='ignore') }}"

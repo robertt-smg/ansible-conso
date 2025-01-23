@@ -1,0 +1,81 @@
+
+- name: Set registry keys for airQuest
+  win_dsc:
+        resource_name: "Registry"
+        Ensure: Present
+        key: "{{ item.key }}"
+        ValueName: "{{ item.vname }}"
+        ValueType: "{{ item.vtype }}" 
+        ValueData: "{{ item.vdata }}" 
+  with_items: "{{ airquest_fileserver.registry_present }}"
+
+- name: Delete registry keys for airQuest
+  win_dsc:
+        resource_name: "Registry"
+        Force: true
+        Ensure: Absent
+        key: "{{ item.key }}"
+        ValueName: "{{ item.vname }}"
+  with_items: "{{ airquest_fileserver.registry_absent }}"
+
+- name: Create Logon Script Directory
+  win_file:
+    path: "{{ ansible_facts.env.SystemRoot }}\\System32\\GroupPolicy\\User\\Scripts\\Logon"
+    state: directory
+    owner: Everyone
+    recurse: yes
+
+- name: Create Logon Script
+  win_copy:
+    dest: "{{ ansible_facts.env.SystemRoot }}\\System32\\GroupPolicy\\User\\Scripts\\Logon\\mount_airquest.cmd"
+    content: |
+      net use {{ airquest_fileserver.drive_letter }}: \\\\{{ airquest_fileserver.host }}\\{{ airquest_fileserver.share }} /user:{{ airquest_fileserver.user }}@{{ airquest_fileserver.host }} {{ airquest_fileserver.password }} /WRITETHROUGH
+
+- name: Create Logon Script Directory 2
+  win_file:
+    path: "{{ ansible_facts.env.SystemRoot }}\\System32\\GroupPolicyUser\\Scripts\\Logon"
+    state: directory
+    owner: Everyone
+    recurse: yes
+
+- name: Create Logon Script 2
+  win_copy:
+    dest: "{{ ansible_facts.env.SystemRoot }}\\System32\\GroupPolicyUser\\Scripts\\Logon\\mount_airquest.cmd"
+    content: |
+      net use {{ airquest_fileserver.drive_letter }}: \\\\{{ airquest_fileserver.host }}\\{{ airquest_fileserver.share }} /user:{{ airquest_fileserver.user }}@{{ airquest_fileserver.host }} {{ airquest_fileserver.password }} /WRITETHROUGH
+
+- name: Disable oplocks client
+  win_command: >
+    powershell.exe -ExecutionPolicy ByPass -Command "Set-SmbClientConfiguration -oplocksdisabled $true -Force"
+  args:
+    chdir: C:\
+
+- name: Set SMB Client Configuration
+  win_command: >
+    powershell.exe -ExecutionPolicy ByPass -Command "Set-SmbClientConfiguration -useopportunisticlocking $false -Force"
+  args:
+    chdir: C:\
+
+- name: Set Directory Cache Lifetime
+  win_command: >
+    powershell.exe -ExecutionPolicy ByPass -Command "Set-SmbClientConfiguration -DirectoryCacheLifetime 0 -Force"
+  args:
+    chdir: C:\
+
+- name: Set File Info Cache Lifetime
+  win_command: >
+    powershell.exe -ExecutionPolicy ByPass -Command "Set-SmbClientConfiguration -FileInfoCacheLifetime 0 -Force"
+  args:
+    chdir: C:\
+
+- name: Set File Not Found Cache Lifetime
+  win_command: >
+    powershell.exe -ExecutionPolicy ByPass -Command "Set-SmbClientConfiguration -FileNotFoundCacheLifetime 0 -Force"
+  args:
+    chdir: C:\
+
+- name: Set Session Timeout
+  win_command: >
+    powershell.exe -ExecutionPolicy ByPass -Command "Set-SmbClientConfiguration -SessionTimeout 120 -Force"
+  args:
+    chdir: C:\
