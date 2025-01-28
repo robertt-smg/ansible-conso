@@ -1,0 +1,49 @@
+## https://www.der-windows-papst.de/2020/07/24/download-microsoft-visual-c-redistributable-alle-versionen/
+
+- name: Install Microsoft Visual C++ 2013 Redistributable Package (x64)
+  ansible.windows.win_package:
+    path: https://download.microsoft.com/download/2/E/6/2E61CFA4-993B-4DD4-91DA-3737CD5CD6E3/vcredist_x64.exe
+    product_id: '{050d4fc8-5d48-4b8f-8972-47c82c46020f}'
+    arguments: /install /passive /norestart
+
+- name: Install Microsoft Visual C++ 2015 Redistributable Package (x64)
+  ansible.windows.win_package:
+    path: https://download.microsoft.com/download/9/3/F/93FCF1E7-E6A4-478B-96E7-D4B285925B00/vc_redist.x64.exe
+    product_id: '{e46eca4f-393b-40df-9f49-076faf788d83}'
+    arguments: /install /passive /norestart
+
+- name: Install Microsoft Visual C++ 2019 Redistributable Package (x64)
+  ansible.windows.win_package:
+    path: https://aka.ms/vs/16/release/VC_redist.x64.exe
+    product_id: '{1679EF65-55F3-4248-B91E-6B3BE1A69CDF}'
+    #arguments: /install /passive /norestart
+
+- name: Install MariaDB Connector ODBC
+  ansible.windows.win_package:
+    path: https://downloads.mariadb.com/Connectors/odbc/connector-odbc-3.2.4/mariadb-connector-odbc-3.2.4-win32.msi
+    product_id: '{xxx}'
+    creates_path: 'C:\\Program Files (x86)\\MariaDB\\MariaDB ODBC Driver'
+
+
+- name: Create Foxpro SP2 Service Pack Answer File
+  ansible.windows.win_template:
+    dest: c:\\windows\\temp\\vfpsp2_answer_file.txt
+    src: files/vfpsp2_answer_file.txt
+    newline_sequence: '\r\n'
+
+- name: Install Foxpro SP2 Service Pack
+  ansible.windows.win_package:
+    path: https://github.com/VFPX/VFPRuntimeInstallers/raw/refs/heads/master/VFP9SP2RT.exe
+    product_id: '{7C375145-CFA0-4964-9CD0-4490E10F684D}'
+    creates_path: "C:\\Program Files (x86)\\Common Files\\System\\Ole DB\\vfpoledb.dll"
+    arguments: 
+    - /s 
+    - /m=c:\windows\temp\vfpsp2_answer_file.txt
+
+- name: Register VFP OLEDB DLL
+  ansible.windows.win_command: regsvr32 /s "C:\Program Files (x86)\Common Files\System\Ole DB\vfpoledb.dll"
+
+- name: Create AQ-TEMP directory
+  ansible.windows.win_file:
+    path: D:\Data\AQ-TEMP
+    state: directory

@@ -35,3 +35,15 @@
 - name: Configure airQuest
   include_tasks: win-tasks/airquest.yml
   when: airquest_defaults.enabled is defined and airquest_defaults.enabled
+
+- name: install proQuest
+  include_tasks: win-tasks/proquest.yml
+  when: airquest_defaults.enabled is defined and airquest_defaults.enabled
+
+- name: Enable printspooler for airQuest
+  include_tasks: win-tasks/printspooler.yml
+  when: airquest_defaults.enabled is defined and airquest_defaults.enabled  
+
+- name: Install FoxPro for airQuest
+  include_tasks: win-tasks/foxpro.yml
+  when: airquest_defaults.enabled is defined and airquest_defaults.enabled  

@@ -75,12 +75,12 @@ airquest_fileserver_default:
     - key: "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Active Setup\\Installed Components\\aq_cli_autostart"
       vname: "Version"
       vtype: "String"
-      vdata: "2"
+      vdata: "3"
 
     - key: "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Active Setup\\Installed Components\\aq_cli_autostart"
       vname: "StubPath" 
       vtype: "String"
-      vdata: "reg add HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Run /v \"aq_cli_autostart\" /d \"d:\\batch\\aq_cli.cmd POST_LOGON\" /t REG_SZ /f"
+      vdata: "reg add HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Run /v \"aq_cli_autostart\" /d \"d:\\batch\\aq_cli.cmd -c automation_start POST_LOGON\" /t REG_SZ /f"
       
     - key: "HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Environment"
       vname: "AQ_FILE_SERVER_IP" 
@@ -101,3 +101,8 @@ airquest_fileserver_default:
       vname: "AQ_FILE_SERVER_NETPWD" 
       vtype: "String"
       vdata: "{{ airquest_defaults.password }}"
+
+    - key: "HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Environment"
+      vname: "AQTMP" 
+      vtype: "String"
+      vdata: "D:\\DATA\\AQ-TEMP"

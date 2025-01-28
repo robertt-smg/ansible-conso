@@ -1,0 +1,21 @@
+
+- name: Download ProQuest DLL Setup
+  ansible.windows.win_get_url:
+    url: https://raw.githubusercontent.com/thr27/pqdll_installer/main/build/proquestDLLSetup.msi
+    dest: c:\\windows\\temp\\proquestDLLSetup.msi
+    headers:
+      Authorization: "Bearer {{ github_thr27.token }}"
+
+- name: Install ProQuest DLL Setup
+  ansible.windows.win_package:
+    path: c:\windows\temp\proquestDLLSetup.msi
+    log_path: c:\windows\temp\proquestDLLSetup.log
+    
+    product_id: '{DCD1066B-79CC-4108-90CD-91822DAFA94B}'  # Replace with actual product ID from the MSI
+  register: install_result
+  ignore_errors: true
+
+- name: Display error if installation failed
+  debug:
+    msg: "Installation failed: {{ install_result }}"
+  when: install_result is failed

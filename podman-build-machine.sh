@@ -25,4 +25,8 @@ PW=$(pwd)
 
 scp -i $IDENT -P $port -o IdentitiesOnly=yes -o StrictHostKeyChecking=no -o LogLevel=ERROR  ${SCRIPTPATH}/podman-init.sh $user@$host:/root/podman-init.sh
 #ssh -i $IDENT -p $port -o IdentitiesOnly=yes -o StrictHostKeyChecking=no -o LogLevel=ERROR $user@$host
-podman machine ssh "bash /root/podman-init.sh"
+podman machine ssh "bash -x /root/podman-init.sh PRE"
+podman machine stop
+podman machine start
+podman machine ssh "bash -x /root/podman-init.sh POST"
+

@@ -1,0 +1,13 @@
+
+- name: Check if print spooler is running
+  win_command: sc query spooler
+  register: spooler_status
+  ignore_errors: true
+
+- name: Enable print spooler service
+  win_command: sc config spooler start=auto
+  when: spooler_status.rc != 0
+
+- name: Start print spooler service
+  win_command: net start spooler
+  when: spooler_status.rc != 0

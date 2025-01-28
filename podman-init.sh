@@ -1,42 +1,35 @@
 #!/bin/bash
-
-WSL_CONF=$(cat <<EOF
-[boot]
-systemd=true
-# remove NAT related ip configuration applied by WSL at boot
-command = ip address flush dev eth0 # see networkctl command output for the interface name, assuming eth0 here
-[network]
-generateResolvConf = false
+if [ "$1" == "PRE" ]; then
+    WSL_CONF=$(cat <<EOF
+    [boot]
+    systemd=true
+    # remove NAT related ip configuration applied by WSL at boot
+    command = "ip address flush dev eth0 && dhclient eth0" # see networkctl command output for the interface name, assuming eth0 here
+    [network]
+    generateResolvConf = false
 EOF
-)
+    )
 
-echo "$WSL_CONF" |tee /etc/wsl.conf
-#systemctl stop NetworkManager
-#systemctl disable NetworkManager
+    echo "$WSL_CONF" |tee /etc/wsl.conf
 
-NETWORK_CONF=$(cat <<EOF
-[Match]
-Name=eth0
-[Network]
-DHCP=yes
+    ## second local network interface for port-forwarding gitlan.fti-group.com private address
+    ip addr add 127.83.20.1/16 dev lo
+
+    echo 'GatewayPorts clientspecified' >> /etc/ssh/sshd_config
+    echo '127.83.20.16    gitlab.fti-group.com' >> /etc/hosts
+    systemctl restart sshd
+fi
+
+if [ "$1" == "POST" ]; then
+    # Ensure proper DNS resolution setup
+    touch /etc/containers/nodocker
+    rm -f /etc/resolv.conf
+    RESOLV_CONF=$(cat <<EOF
+nameserver 192.168.178.1
+nameserver 8.8.8.8
+nameserver 8.8.4.4
 EOF
-)
-## second local network interface for port-forwarding gitlan.fti-group.com private address
-ip addr add 127.83.20.1/16 dev lo
+    )
 
-mkdir -p /etc/systemd/network
-echo 'GatewayPorts clientspecified' >> /etc/ssh/sshd_config
-echo '127.83.20.16    gitlab.fti-group.com' >> /etc/hosts
-systemctl restart sshd
-
-echo "$NETWORK_CONF" > /etc/systemd/network/10-eth0.network
-
-systemctl enable systemd-networkd
-systemctl restart systemd-networkd
-systemctl status systemd-networkd
-networkctl
-systemctl enable systemd-resolved
-systemctl start systemd-resolved
-touch /etc/containers/nodocker
-
-rm /mnt/wsl/resolv.conf && ln -sfv /run/systemd/resolve/resolv.conf /mnt/wsl/resolv.conf
+    echo "$RESOLV_CONF" > /etc/resolv.conf
+fi

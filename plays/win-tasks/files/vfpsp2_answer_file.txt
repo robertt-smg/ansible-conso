@@ -1,0 +1,3 @@
+ZIEL=C:\Program Files (x86)\Common Files\Microsoft Shared\VFP\
+SELECT_RT=ABCDEabc
+SELECTION=ABCDabc
