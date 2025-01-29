@@ -5,25 +5,70 @@
     path: https://download.microsoft.com/download/2/E/6/2E61CFA4-993B-4DD4-91DA-3737CD5CD6E3/vcredist_x64.exe
     product_id: '{050d4fc8-5d48-4b8f-8972-47c82c46020f}'
     arguments: /install /passive /norestart
+    state: present
 
-- name: Install Microsoft Visual C++ 2015 Redistributable Package (x64)
+# - name: Install Microsoft Visual C++ 2019 (2015-2017) Redistributable Package (x86)
+#   ansible.windows.win_package:
+#     path: https://aka.ms/vs/16/release/VC_redist.x86.exe
+#     product_id: '{692e16a0-c886-466d-91db-706f6f99ac96}'
+#     arguments: /install /passive /norestart
+#     state: present
+
+# - name: Install Microsoft Visual C++ 2019 (2015-2017) Redistributable Package (x64)
+#   ansible.windows.win_package:
+#     path: https://aka.ms/vs/16/release/VC_redist.x64.exe
+#     product_id: '{688d04f5-ee15-4449-a9e1-5c7f3be50ef0}'
+#     arguments: /install /passive /norestart
+#     state: present
+
+- name: Install Microsoft Visual C++ 2022 (2015-2019) Redistributable Package (x86)
   ansible.windows.win_package:
-    path: https://download.microsoft.com/download/9/3/F/93FCF1E7-E6A4-478B-96E7-D4B285925B00/vc_redist.x64.exe
-    product_id: '{e46eca4f-393b-40df-9f49-076faf788d83}'
+    path: https://aka.ms/vs/17/release/vc_redist.x86.exe
+    product_id: '{e7802eac-3305-4da0-9378-e55d1ed05518}'
     arguments: /install /passive /norestart
+    state: present
 
-- name: Install Microsoft Visual C++ 2019 Redistributable Package (x64)
+- name: Install Microsoft Visual C++ 2022 (2015-2019) Redistributable Package (x64)
   ansible.windows.win_package:
-    path: https://aka.ms/vs/16/release/VC_redist.x64.exe
-    product_id: '{1679EF65-55F3-4248-B91E-6B3BE1A69CDF}'
-    #arguments: /install /passive /norestart
+    path: https://aka.ms/vs/17/release/vc_redist.x64.exe
+    product_id: '{804e7d66-ccc2-4c12-84ba-476da31d103d}'
+    arguments: /install /passive /norestart
+    state: present
 
-- name: Install MariaDB Connector ODBC
+- name: Install MariaDB Connector ODBC 3.2.4
   ansible.windows.win_package:
     path: https://downloads.mariadb.com/Connectors/odbc/connector-odbc-3.2.4/mariadb-connector-odbc-3.2.4-win32.msi
-    product_id: '{xxx}'
+    product_id: '{E3F2C208-8D40-4CA0-BC75-89BA63894B8E}'
     creates_path: 'C:\\Program Files (x86)\\MariaDB\\MariaDB ODBC Driver'
 
+- name: Download and Install MySQL Connector ODBC
+  block:
+    - name: Check existing MySQL Connector version
+      ansible.windows.win_shell: |
+        if (Test-Path "C:\Program Files (x86)\MySQL\Connector ODBC 8.0\INFO_SRC") {
+          $content = Get-Content "C:\Program Files (x86)\MySQL\Connector ODBC 8.0\INFO_SRC"
+          if ($content -match "release/8.0.40") {
+            return $true
+          }
+        }
+        return $false
+      register: version_check
+      changed_when: false
+
+    - name: Download MySQL Connector ODBC 8.0.35
+      ansible.windows.win_get_url:
+        url: https://dev.mysql.com/get/Downloads/Connector-ODBC/8.0/mysql-connector-odbc-8.0.40-win32.msi
+        dest: C:\Windows\temp\mysql-connector-odbc-8.0.40-win32.msi
+        headers:
+          User-Agent: curl/8.9.1
+        force: no
+      register: download_result  
+      when: not version_check.stdout | bool
+    
+    - name: Install MariaDB Connector ODBC 8.0.40
+      ansible.windows.win_package:
+        path: C:\Windows\temp\mysql-connector-odbc-8.0.40-win32.msi
+      when: not version_check.stdout | bool
 
 - name: Create Foxpro SP2 Service Pack Answer File
   ansible.windows.win_template:
