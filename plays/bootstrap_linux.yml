@@ -1,6 +1,6 @@
 - hosts: Linux
   become: true
-  gather_facts: true
+  gather_facts: no
 
   handlers:
   - import_tasks: handlers/handlers.yml
@@ -18,11 +18,39 @@
   - name: Update apt cache if needed.
     apt: update_cache=yes cache_valid_time=3600
 
+  - name: Gather facts
+    setup:
 
+  - name: Install ansible group
+    include_role:
+      name: arillso.system.groups
+
+  - name: Install ansible user
+    include_role:
+      name: arillso.system.users
+
+  - name: Create ansible sudoers file
+    copy:
+      content: "ansible ALL=(ALL) NOPASSWD:ALL"
+      dest: /etc/sudoers.d/ansible
+      mode: '0440'
+      owner: root
+      group: root
+      validate: /usr/sbin/visudo -cf %s      
+
+  tasks:
   - name: install geerlingguy.security
     include_role:
       name: geerlingguy.security
-
   - name: install geerlingguy.firewall
     include_role:
       name: geerlingguy.firewall
+
+  - name: Trigger reboot without waiting
+    shell: "sleep 2 && reboot"
+    async: 1
+    poll: 0
+    ignore_errors: true
+
+  - name: End play after reboot triggered
+    meta: end_play

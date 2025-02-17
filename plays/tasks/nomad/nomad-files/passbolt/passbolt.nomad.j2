@@ -59,7 +59,7 @@ job "{{ job_name }}" {
       # Configuration is specific to each driver.
       config {
         {% set image_version= passbolt.image_version %}
-        {% include "nomad-files/gitlab_registry.j2" %}
+        {% include "nomad-files/github_registry.j2" %}
         
         hostname = "passbolt.la-cuna.icu"
         extra_hosts = [ "api.la-cuna.icu:{{ passbolt.api_external_host_ip }}" ]

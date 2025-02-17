@@ -2,8 +2,21 @@
 #set -x
 SCRIPT="$(readlink -f -- $0)"
 SCRIPTPATH="$(dirname $SCRIPT)"
+LIBPATH="$SCRIPTPATH/lib"
+
+source $LIBPATH/common.sh
 
 IV="${SCRIPTPATH}/inventories"
+
+# Define the trap function
+ctrl_c() {
+    echo
+    echo "** Trapped CTRL-C"
+    # Add any cleanup code here
+    exit 1
+}
+# Set up the trap
+trap ctrl_c INT
 
 # Usage function
 usage() {
@@ -16,7 +29,7 @@ usage() {
     echo "  <-b | -p > --dump_vars       Dump variables in test [ansible-playbook options e.g. --limit server1]"
     echo "  <-b | -p > --dump_groups     Dump groups in test [ansible-playbook options e.g. --limit server1]"
     echo "  <-b | -p > --play <play>     Build differen playbook [ansible-playbook options e.g. --limit server1]"
-    echo "  -w, --win-tst                Build Windows servers in test [ansible-playbook options e.g. --limit server1]"
+    echo "  -w, --win-tst [ --bootstrap] Build Windows servers in test [ansible-playbook options e.g. --limit server1]"
     echo "  -v, --start-vm               Start virtual machine <server>"
     echo "  -h, --help                   Display this help message"
 }
@@ -26,15 +39,6 @@ install_roles() {
     echo ${FUNCNAME[0]}
     ansible-galaxy install -r ${SCRIPTPATH}/requirements.yml --roles-path ${SCRIPTPATH}/roles.external $*
     ansible-galaxy collection install -r ${SCRIPTPATH}/requirements-collections.yml --collections-path ${SCRIPTPATH}/collections.external $*
-}
-check_ssh_add() {
-    echo ${FUNCNAME[0]}
-    count=$(ssh-add -L | wc -l)
-    if [ "$count" -lt 1 ]; then
-        echo "Alert: No SSH keys found."
-    elif [ "$count" -gt 6 ]; then
-        echo "Warning: Too many SSH keys found ($count > 6). Your host may decline connect as of too many wrong keys if key is at the end of the list ..."
-    fi
 }
 function check_opts_and_run() {
     echo ${FUNCNAME[0]} $*
@@ -64,18 +68,21 @@ function check_opts_and_run() {
         INVENTORY="-i ${IV}/${INVENTORY} -i ${IV}/${IVGROUPS} "
     fi
     if [ ! -z "$BOOTSTRAP_PLAY" ]; then
-        ansible-playbook ${INVENTORY} ${SCRIPTPATH}/plays/${BOOTSTRAP_PLAY} $*
+        logfile=install-bootstrap-$(date +%Y-%m-%d-%H-%M-%S).log
+        ansible-playbook ${INVENTORY} ${SCRIPTPATH}/plays/${BOOTSTRAP_PLAY} $* |& tee $logfile
         if [ $? -ne 0 ]; then
           echo "Ansible playbook ${BOOTSTRAP_PLAY} execution failed. Exiting."
           exit 1
         fi
+        echo "Ansible playbook ${BOOTSTRAP_PLAY} execution completed. $logfile"
     else
-
-        ansible-playbook ${INVENTORY} ${SCRIPTPATH}/plays/${DEFAULT_PLAY} $*
+        logfile=install-$(date +%Y-%m-%d-%H-%M-%S).log
+        ansible-playbook ${INVENTORY} ${SCRIPTPATH}/plays/${DEFAULT_PLAY} $* |& tee $logfile
         if [ $? -ne 0 ]; then
             echo "Ansible playbook ${DEFAULT_PLAY} execution failed. Exiting."
             exit 1
         fi
+        echo "Ansible playbook ${DEFAULT_PLAY} execution completed. $logfile"
     fi
 }
 # Build a server/s
@@ -84,7 +91,7 @@ build_on_test() {
     DEFAULT_PLAY="install-linux.yml"
     IVGROUPS=groups
     
-    check_ssh_add
+    check_ssh_agent
 
     INVENTORY="tst"
     check_opts_and_run $*
@@ -96,7 +103,7 @@ build_on_win_test() {
     DEFAULT_PLAY="install-windows.yml"
     DEFAULT_BOOTSTRAP_PLAY="bootstrap_win.yml"
     IVGROUPS="groups-win"
-    check_ssh_add
+    check_ssh_agent
 
     INVENTORY="win-tst"
     check_opts_and_run $*
@@ -105,15 +112,12 @@ build_on_prod() {
     echo ${FUNCNAME[0]}
     DEFAULT_PLAY="install-linux.yml"
     IVGROUPS=groups
-    check_ssh_add
+    check_ssh_agent
 
     INVENTORY="prd"
     check_opts_and_run $*
 }
-function connect_builder() {
-    echo ${FUNCNAME[0]}
-    . $SCRIPTPATH/podman-vm-connect.sh
-}
+
 function start_vm() {
     echo ${FUNCNAME[0]}
 

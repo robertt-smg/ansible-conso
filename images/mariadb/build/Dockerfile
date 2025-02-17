@@ -23,6 +23,6 @@ RUN apt-get clean && \
 COPY ./files/docker-entrypoint.sh /docker-entrypoint.sh
 
 EXPOSE 3306
-USER root
+
 ENTRYPOINT [ "/docker-entrypoint.sh" ]
 CMD [ "mariadbd" ]

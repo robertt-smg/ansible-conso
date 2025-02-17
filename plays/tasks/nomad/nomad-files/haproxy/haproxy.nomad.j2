@@ -82,7 +82,7 @@ job "{{ job_name }}" {
       {% endif %}
       config {
         {% set image_version= "haproxy:3.0" %}
-        {% include "nomad-files/gitlab_registry.j2" %}
+        {% include "nomad-files/github_registry.j2" %}
 
         ports = ["haproxy", "haproxy_ssl", "hastatus", "haadmin" ]
         cap_add = [

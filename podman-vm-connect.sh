@@ -1,10 +1,19 @@
 #!/bin/bash 
-
+# run in elevated bash 
+# https://devblogs.microsoft.com/commandline/introducing-sudo-for-windows/
 echo -e "\n ------------------------------------------------------------"
 date
 export MSYS_NO_PATHCONV=0
 SCRIPT=`readlink -f -- $0`
-SCRIPTPATH=$(cygpath -m $(dirname $SCRIPT))
+SCRIPTPATH="$(dirname $SCRIPT)"
+
+ctrl_c() {
+    echo
+    echo "** Trapped CTRL-C"
+    # Add any cleanup code here
+    exit 1
+}
+trap ctrl_c INT
 
 if ! command -v podman &> /dev/null
 then
@@ -22,34 +31,41 @@ else
     echo "Try 'podman machine stop podman-machine-default && podman machine start podman-machine-default'"
     exit 1
 fi
+if podman machine ssh test -f /install.done; then
+    echo "Installation is already done ..."
+else
 
-echo "verifying installed dnf packages..."
+    echo "verifying installed dnf packages..."
 
-packages=("ansible" "openssh-clients" "podman-compose" "git" "python3-pip" "sshpass" "hostname")
+    packages=("ansible" "openssh-clients" "podman-compose" "git" "python3-pip" "sshpass" "hostname")
 
-for package in "${packages[@]}"; do
-    echo "verifying installed dnf package $package..."
-    if ! podman machine ssh "dnf list installed $package &> /dev/null"; then
-        echo "Info: $package is not installed. Installing $package now ..."
-        if ! podman machine ssh "dnf install -y $package"; then
-            echo "Error: Failed to install $package."
-            exit 1
+    for package in "${packages[@]}"; do
+        echo "verifying installed dnf package $package..."
+        if ! podman machine ssh "dnf list installed $package &> /dev/null"; then
+            echo "Info: $package is not installed. Installing $package now ..."
+            if ! podman machine ssh "dnf install -y $package"; then
+                echo "Error: Failed to install $package."
+                exit 1
+            fi
         fi
-    fi
-done
+    done
 
-echo "verifying installed pip packages..."
-pip_packages=("pywinrm")
-for package in "${pip_packages[@]}"; do
-    echo "verifying installed pip package $package..."
-    if ! podman machine ssh "pip show $package &> /dev/null"; then
-        echo "Info: pip $package is not installed. Installing pip $package now ..."
-        if ! podman machine ssh "pip install --user ansible $package"; then
-            echo "Error: Failed to install $package."
-            exit 1
+    echo "verifying installed pip packages..."
+    pip_packages=("pywinrm")
+    for package in "${pip_packages[@]}"; do
+        echo "verifying installed pip package $package..."
+        if ! podman machine ssh "pip show $package &> /dev/null"; then
+            echo "Info: pip $package is not installed. Installing pip $package now ..."
+            if ! podman machine ssh "pip install --user ansible $package"; then
+                echo "Error: Failed to install $package."
+                exit 1
+            fi
         fi
-    fi
-done
+    done
+
+    podman machine ssh touch /install.done
+fi
+
 echo "Connecting podman default root machine ..."
 CONNECTION=$(podman system connection list|grep podman-machine-default-root)
 URI=$(echo $CONNECTION|grep podman-machine-default-root|awk '{print $2}')
@@ -86,6 +102,7 @@ echo "Connecting via ssh ..."
 scp -i $IDENT -P $port -o IdentitiesOnly=yes -o StrictHostKeyChecking=no -o LogLevel=ERROR  /tmp/bashrc $user@$host:/tmp/bashrc
 ssh -i $IDENT -p $port $user@$host -o IdentitiesOnly=yes -o StrictHostKeyChecking=no -o LogLevel=ERROR -o SetEnv=LC_ALL= \
     -t \
+    -A \
     -R 192.168.11.1:5005:10.83.20.16:5005 \
     -R 192.168.11.1:10022:10.83.20.16:10022 \
     -R 192.168.11.1:443:10.83.20.16:443 \

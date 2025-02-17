@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="info" packages="org.graylog2.log4j2">
+    <Properties>
+        <Property name="default_pattern">%d{MM/dd/yyyy hh:mm:ss} %5p %c{1} - %m%n</Property>
+    </Properties>
+
+    <!--  LOG4J2 APPENDERS -->
+    <Appenders>
+        <Console name="console" target="SYSTEM_OUT">
+            <PatternLayout pattern="${default_pattern}"/>
+        </Console>
+        <Console name="com.sum.exam" target="SYSTEM_OUT">
+            <PatternLayout pattern="${default_pattern}"/>                            
+        </Console>
+        <Console name="auth" target="SYSTEM_OUT">
+            <PatternLayout pattern="${default_pattern}"/>                            
+        </Console>
+        <Console name="com.d.e" target="SYSTEM_OUT">
+            <PatternLayout pattern="${default_pattern}"/>                            
+        </Console>
+        <Console name="com.google.gson" target="SYSTEM_OUT">
+            <PatternLayout pattern="${default_pattern}"/>                            
+        </Console>
+        <Console name="org.elasticsearch" target="SYSTEM_OUT">
+            <PatternLayout pattern="${default_pattern}"/>                            
+        </Console>
+        <Console name="com.datamotion.direct" target="SYSTEM_OUT">
+            <PatternLayout pattern="${default_pattern}"/>                            
+        </Console>
+        <NullAppender name="null">
+            <PatternLayout pattern="${default_pattern}"/> 
+        </NullAppender>
+
+        <!-- GELFJ CONFIGURATION -->
+        <GELF   name="gelfAppender" 
+                server="org.graylog2.log.GelfAppender" 
+                port="12201"
+                hostName="logs.x.d.com" 
+                facility="GELF-JAVA"
+                additionalFields="{'\u2018environment\u2019\': '\u2018EHR\u2019'}"
+                extractStacktrace="true"
+                addExtendedInformation="true">
+            <PatternLayout pattern="${default_pattern}"/>
+            <Root level="info">
+                <AppenderRef ref="gelfAppender" level="info"/>
+            </Root>
+        </GELF>
+    </Appenders>
+
+    <!-- LOG4J2 CONFIGURATION -->
+    <Loggers>
+        <Root level="error" additivity="false" />
+
+        <Logger name="console" level="info">
+            <AppenderRef ref="console" />
+        </Logger>
+        <Logger name="com.sum.exam" level="debug" additivity="false">
+            <AppenderRef ref="com.sum.exam" />
+        </Logger>
+        <Logger name="auth" level="debug" additivity="false">
+            <AppenderRef ref="auth" />
+        </Logger>
+        <Logger name="com.d.e" level="debug" additivity="false">
+            <AppenderRef ref="com.d.e" />
+        </Logger>
+        <Logger name="com.google.gson" level="info">
+            <AppenderRef ref="com.google.gson" />
+        </Logger>
+        <Logger name="org.elasticsearch" level="info">
+            <AppenderRef ref="org.elasticsearch" />
+        </Logger>
+        <Logger name="com.datamotion.direct" level="debug" additivity="false">
+            <AppenderRef ref="com.datamotion.direct" />
+        </Logger>
+    </Loggers>
+
+</Configuration>

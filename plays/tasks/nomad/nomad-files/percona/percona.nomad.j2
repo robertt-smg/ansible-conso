@@ -71,7 +71,7 @@ job "{{ job_name }}" {
           memory_hard_limit = {{ percona.memory_hard_limit }}
         {% endif %}
         {% set image_version= percona.image_version %}
-        {% include "nomad-files/gitlab_registry.j2" %}
+        {% include "nomad-files/github_registry.j2" %}
 
         labels {
           group = "percona-mysql-server-8"

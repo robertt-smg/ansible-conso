@@ -3,13 +3,19 @@ SCRIPT="$(readlink -f -- $0)"
 SCRIPTPATH="$(dirname $SCRIPT)"
 export MSYS_NO_PATHCONV=0
 
+#if ! net session  >nul 2>&1
+#then
+#    echo "Script must be run elevated!"
+#    echo "sudo -E --inline bash -l"
+#fi
+
 if podman machine list | grep -q podman-machine-default; then
     podman machine stop podman-machine-default
     podman machine rm podman-machine-default
     taskkill -f -im win-sshproxy.exe
 fi
 
-podman machine init --cpus=4 --memory=8192
+podman machine init --cpus=8 --memory=8192
 podman machine set --rootful
 podman machine start
 
@@ -28,5 +34,5 @@ scp -i $IDENT -P $port -o IdentitiesOnly=yes -o StrictHostKeyChecking=no -o LogL
 podman machine ssh "bash -x /root/podman-init.sh PRE"
 podman machine stop
 podman machine start
-podman machine ssh "bash -x /root/podman-init.sh POST"
+podman machine ssh "bash /root/podman-init.sh POST"
 

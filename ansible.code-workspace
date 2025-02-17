@@ -4,7 +4,10 @@
 			"path": "."
 		},
 		{
-			"path": "../../la-cuna-icu-bootstrap"
+			"path": "../ansible-bootstrap"
+		},
+		{
+			"path": "../hyper-v/hyperv-vm-provisioning"
 		}
 	],
 	"settings": {}

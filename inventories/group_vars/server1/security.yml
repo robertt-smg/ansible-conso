@@ -4,4 +4,10 @@
 ## -------------------------
 
 security_ssh_port: 31222
+security_ssh_allowed_users: 
+  - ansible
+  
+security_sudoers_passwordless: 
+  - ansible
 
+firewall_disable_ufw: true

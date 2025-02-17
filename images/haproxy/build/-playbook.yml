@@ -1,8 +1,0 @@
----
-- hosts: localhost
-  connection: local
-  become: true
-
-  tasks:
-    - import_tasks: setup.yml
-    - import_tasks: version.yml

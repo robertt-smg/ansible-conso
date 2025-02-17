@@ -5,5 +5,5 @@ mailrelay_enabled: true
 mailrelay_opensmtpd_monitoring_linux_users:
   - root
 
-default_email_from: devops@la-cuna.de
+default_email_from: devops@smg-conso.de
 mailrelay_listen_on_interface: podman0

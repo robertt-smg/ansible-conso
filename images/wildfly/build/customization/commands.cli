@@ -1,0 +1,21 @@
+# Mark the commands below to be run as a batch
+batch
+
+#module add --name=com.mysql --resources=~/Downloads/mysql-connector-java-5.1.37/mysql-connector-java-5.1.37-bin.jar --dependencies=javax.api,javax.transaction.api
+#batch
+#/subsystem=datasources/jdbc-driver=com.mysql:add(driver-name=com.mysql, driver-module-name=com.mysql, driver-xa-datasource-class-name=com.mysql.jdbc.jdbc2.optional.MysqlXADataSource)
+#/subsystem=datasources/xa-data-source=mysql:add(driver-name=com.mysql, jndi-name="java:/jdbc/MySQLXA", enabled=true)
+#/subsystem=datasources/xa-data-source=mysql/xa-datasource-properties=URL:add(value="jdbc:mysql://localhost:3306/temp?autoReconnect=true&useUnicode=true&characterEncoding=UTF-8")
+#run-batch
+	
+module add --name=com.mysql --resources=/tmp/app/standalone/deployments/mariadb-java-client-3.1.0.jar --dependencies=javax.api,javax.transaction.api
+module add --name=com.log4j --resources=/tmp/app/standalone/deployments/log4j-web-2.20.0.jar
+
+# Add MySQL driver
+/subsystem=datasources/jdbc-driver=com.mysql:add(driver-name=com.mysql, driver-module-name=com.mysql, driver-xa-datasource-class-name=org.mariadb.jdbc.MariaDbDataSource)
+
+# Add the datasource
+data-source add --name=neoCoreDS --driver-name=com.mysql --jndi-name=java:jboss/datasources/neoCoreDS --connection-url=jdbc:mariadb://aqdb1.prd.muc01.fti.int:3306/neocore --user-name=neocore --password=neocore1234 --use-ccm=false --max-pool-size=25 --blocking-timeout-wait-millis=5000 --enabled=true
+
+# Execute the batch
+run-batch

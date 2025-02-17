@@ -1,0 +1,28 @@
+---
+- name: Setup ansible user
+  hosts: all
+  become: true
+  tasks:
+    - name: Create ansible user
+      user:
+        name: ansible
+        shell: /bin/bash
+        groups: users
+        create_home: yes
+        state: present
+
+    - name: Create ansible sudoers file
+      copy:
+        content: "ansible ALL=(ALL) NOPASSWD:ALL"
+        dest: /etc/sudoers.d/ansible
+        mode: '0440'
+        owner: root
+        group: root
+        validate: /usr/sbin/visudo -cf %s
+
+    - name: Set up authorized keys
+      authorized_key:
+        user: ansible
+        state: present
+        key: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
+      when: lookup('file', '~/.ssh/id_rsa.pub')

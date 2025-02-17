@@ -3,6 +3,7 @@
 export PODMAN_IGNORE_CGROUPSV1_WARNING=1
 LIBPATH="$(dirname "${BASH_SOURCE[0]}")"
 
+source $LIBPATH/common.sh
 
 if [ "$#" -eq 0 ]; then
     set -- --build  # Set default argument
@@ -165,13 +166,14 @@ function run_build() {
     echo ${FUNCNAME[0]}
 
     is_linux    
+    logfile=build-$(date +%Y-%m-%d-%H-%M-%S).log
     if [ -f ${SCRIPTPATH}/playbook.yml ]; then
 
         podman run -it -e TZ=Europe/Berlin -e DEBIAN_FRONTEND=noninteractive -v ${SCRIPTPATH}/../../..:${SCRIPTPATH}/../../..:ro \
             --user root \
-            --replace --name ansible-build-${IMAGE_NAME} ${BUILD_IMAGE} /bin/bash -c "${SCRIPTPATH}/build.sh --run-ansible"
+            --replace --name ansible-build-${IMAGE_NAME} ${BUILD_IMAGE} /bin/bash -c "${SCRIPTPATH}/build.sh --run-ansible" |& tee $logfile
     else
-        podman build  --format docker --tag ${IMAGE_NAME}:${IMAGE_TAG} -f ${SCRIPTPATH}/${DOCKERFILE}
+        podman build  --format docker --tag ${IMAGE_NAME}:${IMAGE_TAG} -f ${SCRIPTPATH}/${DOCKERFILE} |& tee $logfile
     fi
 }
 function run_terminal() {
@@ -198,23 +200,27 @@ function export_image() {
 function podman_login() {
     echo ${FUNCNAME[0]}
     source ${LIBPATH}/token.secrets
-    podman login registry.gitlab.com -u "${GLCR_USER}" -p "${GLCR_TOKEN}"
+    #podman login registry.gitlab.com -u "${GLCR_USER}" -p "${GLCR_TOKEN}"
+    podman login ${GITHUB_REGISTRY} -u "${GITHUB_USER}" -p "${GITHUB_TOKEN}"
 }
 function podman_upload() {
-	echo ${FUNCNAME[0]}
+	echo ${FUNCNAME[0]} $*
 	
-	TAG=${1}
+	LOCAL=${1}
 	IMAGE=${2/:/_}
-	LOCAL=${3:-latest}
+	TAG=${3:-latest}
 	
 	echo Pushing to gitlab ...
     if podman image exists ${IMAGE}:${LOCAL}; then
 
-        podman tag ${IMAGE}:${LOCAL} registry.gitlab.com/la-cuna-icu/podman-images/${IMAGE}:${TAG}
-        podman push registry.gitlab.com/la-cuna-icu/podman-images/${IMAGE}:${TAG}
-        podman tag registry.gitlab.com/la-cuna-icu/podman-images/${IMAGE}:${TAG} ${IMAGE}:${LOCAL}
+        #podman tag ${IMAGE}:${LOCAL} registry.gitlab.com/la-cuna-icu/podman-images/${IMAGE}:${TAG}
+        #podman push registry.gitlab.com/la-cuna-icu/podman-images/${IMAGE}:${TAG}
+        #podman tag registry.gitlab.com/la-cuna-icu/podman-images/${IMAGE}:${TAG} ${IMAGE}:${LOCAL}
+        podman tag ${IMAGE}:${LOCAL} ${GITHUB_REGISTRY}/${GITHUB_OWNER}/${IMAGE}:${TAG}
+        podman push ${GITHUB_REGISTRY}/${GITHUB_OWNER}/${IMAGE}:${TAG}
+        podman tag ${GITHUB_REGISTRY}/${GITHUB_OWNER}/${IMAGE}:${TAG} ${IMAGE}:${LOCAL}
 
-        echo "New Image name: registry.gitlab.com/la-cuna-icu/podman-images/${IMAGE}:${TAG}"
+        echo "New Image name: ${GITHUB_REGISTRY}/${GITHUB_OWNER}/${IMAGE}:${TAG}"
     else
         echo "Image ${IMAGE_NAME}:${LOCAL} not found ... please build image"
     fi
@@ -222,30 +228,34 @@ function podman_upload() {
 function push_image() {
     echo ${FUNCNAME[0]} $*
 
-    if [[ -f "$PWD/${DOCKERFILE}" ]]; then
-    echo "${DOCKERFILE} found."
+    if [[ -f "$SCRIPTPATH/${DOCKERFILE}" ]]; then
+        echo "${DOCKERFILE} found."
 
-    # Extract the image name and version from the line starting with FROM
-    while IFS= read -r line; do
-        if [[ $line =~ ^FROM\ ([^:]+):([^ ]+) ]]; then
-            image_name="${BASH_REMATCH[1]}"
-            version="${BASH_REMATCH[2]}"
-            echo "Image: $image_name, Version: $version"
-        fi
-        done < "$PWD/${DOCKERFILE}"
-        IMAGE_TAG=${IMAGE_TAG:-$version}
+        # Extract the image name and version from the line starting with FROM
+        while IFS= read -r line; do
+            if [[ $line =~ ^FROM\ ([^:]+):([^ ]+) ]]; then
+                image_name="${BASH_REMATCH[1]}"
+                version="${BASH_REMATCH[2]}"
+                echo "Image: $image_name, Version: $version"
+                export NEW_IMAGE_TAG=${version}
+                break
+            fi
+        done < "$SCRIPTPATH/${DOCKERFILE}"
+        
     else
-        IMAGE_TAG=${1:-latest}
+        echo "Info: ${DOCKERFILE} not found."
+        NEW_IMAGE_TAG=${1:-latest}
     fi
+    
     IMAGE_NAME=${IMAGE_NAME:-$(basename $(realpath "$(pwd)/.."))}
     #IMAGE=${IMAGE_NAME}:${IMAGE_TAG}
     podman_login
-    podman_upload ${IMAGE_TAG} ${IMAGE_NAME} "${IMAGE_TAG_BUILD:-latest}"
+
+    echo "IMAGE_TAG: $IMAGE_TAG / IMAGE_NAME: $IMAGE_NAME / NEW_IMAGE_TAG: ${NEW_IMAGE_TAG:-latest}"
+
+    podman_upload "${IMAGE_TAG}" "${IMAGE_NAME}" "${NEW_IMAGE_TAG:-latest}"
 }
-function connect_builder() {
-    echo ${FUNCNAME[0]}
-    . $LIBPATH/../podman-vm-connect.sh
-}
+
 [ "$SOURCE_AS_LIB" == "1" ] && return 0
 
 set_vars
@@ -255,7 +265,7 @@ function usage() {
     echo "Options:"
     echo "  -b, --build          Run the build process"
     echo "  -e, --export         Export the image from the container"
-    echo "  -p, --push           Push image to github ghcr.io"
+    echo "  -p, --push           Push image to github ${GITHUB_REGISTRY}"
     echo "  -b -e -p             Run the build process, export and publish"
     echo "  -t, --terminal       Open a terminal in the build container"
     echo "  -r, --run-ansible    Run Ansible playbook in the build container"

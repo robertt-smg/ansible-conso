@@ -15,3 +15,5 @@ build.log
 *.log.gz
 *.log
 .git-old
+nul
+NUL

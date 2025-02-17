@@ -1,0 +1,14 @@
+---
+- name: Configure ansible user sudoers
+  hosts: all
+  become: true
+  tasks:
+    - name: Ensure ansible sudoers file exists
+      lineinfile:
+        path: /etc/sudoers.d/ansible
+        line: "ansible ALL=(ALL) NOPASSWD:ALL"
+        create: yes
+        mode: '0440'
+        owner: root
+        group: root
+        validate: /usr/sbin/visudo -cf %s

@@ -5,26 +5,18 @@ date
 
 LIBPATH="$(realpath "$(dirname "${BASH_SOURCE[0]}")")"
 export ROOTPATH="$(realpath "$LIBPATH/..")"
+source $LIBPATH/common.sh
+source ${LIBPATH}/token.secrets
 
 SOURCE_AS_LIB=1
-source $LIBPATH/build.sh
-
 SOURCE_CERT_DIR="${LIBPATH}/../../ssl/cert/archive"
 CERT_DIR="${LIBPATH}/../../ssl/cert/current"
 
-function is_linux() {
-    echo ${FUNCNAME[0]}
-    if [ "$(uname)" != "Linux" ]; then
-        echo "This script only runs on Linux. Exiting."
-        echo "use $0 --connect, first"
-        exit 1
-    fi
-}
-
 function podman_login() {
     echo ${FUNCNAME[0]}
-    source ${LIBPATH}/token.secrets
-    podman login registry.gitlab.com -u "${GLCR_USER}" -p "${GLCR_TOKEN}"
+    
+    # podman login registry.gitlab.com -u "${GLCR_USER}" -p "${GLCR_TOKEN}"
+	podman login ${GITHUB_REGISTRY} -u "${GITHUB_USER}" -p "${GITHUB_TOKEN}"
 }
 function copy_certs() {
 	echo ${FUNCNAME[0]}
@@ -76,6 +68,10 @@ function start_container() {
 		echo creating network salt-vm; 
 		podman network create -d bridge --subnet=192.168.11.0/24 salt-vm
 	fi
+	cat > ${SCRIPTPATH}/.env <<EOF
+	GITHUB_REGISTRY=${GITHUB_REGISTRY}
+	GITHUB_OWNER=${GITHUB_OWNER}
+EOF
 	PROJECT_NAME=$(basename $(pwd))-$(basename $(dirname $(pwd)))
 	if [ $rebuild -eq 1 ]; then
 		podman-compose -p $PROJECT_NAME -f ${SCRIPTPATH}/docker-compose.yml down --remove-orphans
@@ -93,6 +89,38 @@ function up() {
 	is_linux
 	copy_certs
 	start_container
+}
+function hyper_v_build() {
+	echo ${FUNCNAME[0]}
+
+	if [ ! -f ${HYPER_V_BUILD_PATH}/New-HyperVCloudImageVM.ps1 ]; then
+		echo "Error: please clone github.com:robertt-smg/hyperv-vm-provisioning.git into  ${HYPER_V_BUILD_PATH}"
+	else
+		echo "Creating Hyper-V Linux VM $VMName ..."
+		# Run PowerShell command to create Ubuntu VM
+		powershell.exe -Command "Set-ExecutionPolicy Bypass -Scope Process -Force; \
+			& \"$(cygpath -w $HYPER_V_BUILD_PATH)/New-HyperVCloudImageVM.ps1\" \
+			-VMProcessorCount 8 \
+			-VMMemoryStartupBytes 8GB \
+			-VHDSizeBytes 60GB \
+			-VMName \"${VMName}\" \
+			-ImageVersion \"24.04\" \
+			-VMGeneration 2 \
+			-ShowSerialConsoleWindow \
+			-KeyboardLayout de \
+			-ShowVmConnectWindow \
+			-GuestAdminPassword \"${VMPassword}\" \
+			-GuestAdminUsername \"admin\" \
+			-virtualSwitchName \"VM Bridge\" \
+			-VMStaticMacAddress \"${VMMacAddress}\" \
+			-NetConfigType \"v2\" \
+			-NetNetmask \"255.255.255.0\" \
+			-NetAddress \"${VMIpAddress}/24\" \
+			-NetGateway \"192.168.121.2\" \
+			-NameServers \"192.168.121.2,1.1.1.1,4.4.4.4\" \
+			-DomainName \"smg-conso.vm\" \
+			-VMMachine_StoragePath \"\$env:ProgramData\hyperv-vm-provisioning\""
+	fi
 }
 function usage() {
     echo "Usage: $0 [options]"

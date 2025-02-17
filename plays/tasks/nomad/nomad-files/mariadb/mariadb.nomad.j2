@@ -66,7 +66,7 @@ job "{{ job_name }}" {
           memory_hard_limit = {{ mariadb.memory_hard_limit }}
         {% endif %}
         {% set image_version= mariadb.image_version %}
-        {% include "nomad-files/gitlab_registry.j2" %}
+        {% include "nomad-files/github_registry.j2" %}
 
         labels {
           group = "mariadb-mysql-server-8"

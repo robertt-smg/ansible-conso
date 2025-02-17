@@ -1,0 +1,8 @@
+#!/bin/sh
+
+set -eu
+set -o errexit
+set -o nounset
+ulimit -n 1048576
+
+exec haproxy -W -db -f /usr/local/etc/haproxy/haproxy.cfg
