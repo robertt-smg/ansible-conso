@@ -4,12 +4,12 @@ server1.tst ansible_host=192.168.121.20 ansible_ssh_port=22 ansible_ssh_user=adm
 [fti1]
 fti1.tst ansible_host=127.0.0.8 ansible_ssh_port=22 ansible_ssh_user=ansible
 
-[tulip:children]
+[smg:children]
 server1
 
 [fti:children]
 fti1
 
-[tst:children]
-tulip
+[world:children]
+smg
 fti

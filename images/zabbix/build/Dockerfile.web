@@ -1,0 +1,9 @@
+FROM zabbix/zabbix-web-nginx-mysql:7.2-ubuntu-latest
+
+USER root
+RUN date && \
+    apt-get update &&\
+date > /version.txt 
+
+USER 1997
+ENTRYPOINT ["docker-entrypoint.sh"]

@@ -1,12 +1,13 @@
 [wserver1]
 wserver1.tst ansible_host=192.168.121.51 ansible_user=Administrator ansible_connection=winrm ansible_winrm_server_cert_validation=ignore connection_timeout=240
-[wserver1]
-wserver1.tst ansible_host=192.168.121.52 ansible_user=Administrator ansible_connection=winrm ansible_winrm_server_cert_validation=ignore connection_timeout=240
 
-[tst:children]
+[wserver2]
+wserver2.tst ansible_host=192.168.121.52 ansible_user=Administrator ansible_connection=winrm ansible_winrm_server_cert_validation=ignore connection_timeout=240
+
+[smg:children]
 wserver1
 wserver2
 
 [windows_bootstrap:children]
-tst
+smg
 

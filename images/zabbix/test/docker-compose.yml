@@ -1,0 +1,56 @@
+
+x-project:
+  name: passbolt-test-vm
+
+services:
+  db:
+    image:  ghcr.io/robertt-smg/mariadb:11.6.2-noble
+
+    #restart: unless-stopped
+    environment:
+      MARIADB_RANDOM_ROOT_PASSWORD: "true"
+      MARIADB_ROOT_PASSWORD: "10548508275f86e7f0"
+      MARIADB_DATABASE: "zabbix"
+      MARIADB_USER: "zabbix"
+      MARIADB_PASSWORD: "Z@bb1x"
+    networks:
+      salt-vm:
+        ipv4_address: 192.168.11.216
+
+    volumes: ## MySQL / MariaDB does not work with windows map directories - crashes, we need to use volume
+     - database_volume:/var/lib/mariadb
+
+  zabbix:
+    image: zabbix-server-mysql:7.2-ubuntu-latest
+    hostname: zabbix.smg-conso.icu
+
+    #restart: unless-stopped
+    depends_on:
+      - db
+    environment:
+      DB_SERVER_HOST: "db"
+
+      MYSQL_USER: "zabbix"
+      MYSQL_PASSWORD: "Z@bb1x"
+      MYSQL_DATABASE: "zabbix"
+
+      ZABBIX_FRONTEND_PORT: "8080"
+      PHP_TZ: "Europe/Berlin"
+
+    volumes:
+      - ./data/:/data
+
+    ports:
+      - 127.0.0.217:8080:8080
+      - 127.0.0.217:443:2443
+
+    networks:
+      salt-vm:
+        ipv4_address: 192.168.11.217
+
+networks:
+  salt-vm:
+     external: true
+
+volumes:
+  database_volume:

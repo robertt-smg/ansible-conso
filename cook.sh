@@ -93,7 +93,7 @@ build_on_test() {
     
     check_ssh_agent
 
-    INVENTORY="tst"
+    INVENTORY="lnx-tst"
     check_opts_and_run $*
 }
 # Build a server/s

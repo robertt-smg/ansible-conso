@@ -9,6 +9,8 @@ collections.external/*
 
 # Allow .keep files in any subfolder of ansible/roles
 !collections.external/**/.keep
+cert/acme/
+!cert/acme/.keep
 tmp/
 install.log
 build.log

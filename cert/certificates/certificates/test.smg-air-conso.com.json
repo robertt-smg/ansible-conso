@@ -1,0 +1,5 @@
+{
+	"domain": "test.smg-air-conso.com",
+	"certUrl": "https://acme-staging-v02.api.letsencrypt.org/acme/cert/2ba508deff79f908833437045b6a4e405fa3",
+	"certStableUrl": "https://acme-staging-v02.api.letsencrypt.org/acme/cert/2ba508deff79f908833437045b6a4e405fa3"
+}

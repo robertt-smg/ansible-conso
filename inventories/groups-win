@@ -1,7 +1,7 @@
 
 
 [windows_defaults:children]
-wserver1
+smg
  
 [windows_defaults_secrets:children]
 windows_defaults
