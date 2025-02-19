@@ -6,4 +6,4 @@ RUN date && \
 date > /version.txt 
 
 USER 1997
-ENTRYPOINT ["docker-entrypoint.sh"]
+ENTRYPOINT [" /usr/bin/docker-entrypoint.sh"]

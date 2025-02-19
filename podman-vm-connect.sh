@@ -80,6 +80,7 @@ cat <<EOF > /tmp/bashrc
 
 echo "Welcome ..."
 export PS1="\$(uname -s) \u@\h:\w \$ "
+export PODMAN_IGNORE_CGROUPSV1_WARNING=1
 source ~/.bashrc
 
 ## we run in podman and share build dir from windows, so this is writeable 0777 and cannot be changed

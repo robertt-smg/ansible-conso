@@ -1,12 +1,11 @@
-
 x-project:
   name: passbolt-test-vm
 
 services:
   db:
-    image:  ghcr.io/robertt-smg/mariadb:11.6.2-noble
-
-    #restart: unless-stopped
+    #image:  ghcr.io/robertt-smg/mariadb:11.6.2-noble
+    image: mariadb:11.4.5-noble
+    restart: unless-stopped
     environment:
       MARIADB_RANDOM_ROOT_PASSWORD: "true"
       MARIADB_ROOT_PASSWORD: "10548508275f86e7f0"
@@ -16,37 +15,78 @@ services:
     networks:
       salt-vm:
         ipv4_address: 192.168.11.216
-
+    extra_hosts:
+      - "zabbix.smg-conso.icu:192.168.11.218"
     volumes: ## MySQL / MariaDB does not work with windows map directories - crashes, we need to use volume
      - database_volume:/var/lib/mariadb
 
-  zabbix:
+  zabbix-server:
     image: zabbix-server-mysql:7.2-ubuntu-latest
     hostname: zabbix.smg-conso.icu
-
-    #restart: unless-stopped
+    restart: unless-stopped
     depends_on:
       - db
     environment:
       DB_SERVER_HOST: "db"
-
       MYSQL_USER: "zabbix"
       MYSQL_PASSWORD: "Z@bb1x"
       MYSQL_DATABASE: "zabbix"
-
-      ZABBIX_FRONTEND_PORT: "8080"
-      PHP_TZ: "Europe/Berlin"
-
+    extra_hosts:
+      - "zabbix.smg-conso.icu:192.168.11.218"
     volumes:
-      - ./data/:/data
-
+      - zabbix-server-data:/var/lib/zabbix
+      - zabbix-snmptraps-data:/var/lib/zabbix/snmptraps
+      - zabbix-export-data:/var/lib/zabbix/export
     ports:
-      - 127.0.0.217:8080:8080
-      - 127.0.0.217:443:2443
-
+      - "10051:10051"
     networks:
       salt-vm:
         ipv4_address: 192.168.11.217
+
+  zabbix-web-nginx:
+    image: zabbix-web-nginx-mysql:7.2-ubuntu-latest
+    container_name: zabbix-web-nginx
+    restart: unless-stopped
+    depends_on:
+      - db
+      - zabbix-server
+    environment:
+      DB_SERVER_HOST: db
+      MYSQL_USER: "zabbix"
+      MYSQL_PASSWORD: "Z@bb1x"
+      MYSQL_DATABASE: "zabbix"
+      ZBX_SERVER_HOST: zabbix.smg-conso.icu
+      PHP_TZ: "Europe/Berlin"
+    extra_hosts:
+      - "zabbix.smg-conso.icu:192.168.11.217"
+    ports:
+      - 127.0.0.218:8080:8080
+    volumes:
+      - zabbix-web-data:/usr/share/zabbix
+    networks:
+      salt-vm:
+        ipv4_address: 192.168.11.218
+
+  zabbix-agent:
+    image: zabbix-agent:7.2-ubuntu-latest
+    container_name: zabbix-agent
+    restart: unless-stopped
+    depends_on:
+      - zabbix-server
+    environment:
+      ZBX_HOSTNAME: "zabbix.smg-conso.icu"
+      ZBX_SERVER_HOST: zabbix.smg-conso.icu
+      ZBX_SERVER_PORT: '10051'
+      ZBX_SERVER_ACTIVE: zabbix.smg-conso.icu
+    extra_hosts:
+      - "zabbix.smg-conso.icu:192.168.11.217"
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run
+    privileged: true
+    networks:
+      salt-vm:
+        ipv4_address: 192.168.11.219
 
 networks:
   salt-vm:
@@ -54,3 +94,7 @@ networks:
 
 volumes:
   database_volume:
+  zabbix-server-data:
+  zabbix-snmptraps-data:
+  zabbix-export-data:
+  zabbix-web-data:

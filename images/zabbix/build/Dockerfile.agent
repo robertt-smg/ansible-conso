@@ -1,0 +1,9 @@
+FROM zabbix/zabbix-agent:7.2-ubuntu-latest
+
+USER root
+RUN date && \
+    apt-get update &&\
+date > /version.txt 
+
+USER 1997
+CMD ["/usr/sbin/zabbix_agentd" "--foreground" "-c" "/etc/zabbix/zabbix_agentd.conf"]
