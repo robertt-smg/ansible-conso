@@ -1,7 +1,9 @@
+nomad_enabled: true
 
 nomad_datacenter: "lserver1-dc"
 nomad_log_level: "DEBUG"
 nomad_servers: 1
+
 
 nomad_memory_total_mb: 16384
 nomad_cpu_total_compute: 10772

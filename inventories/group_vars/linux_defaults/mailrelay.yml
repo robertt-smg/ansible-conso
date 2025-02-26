@@ -4,18 +4,18 @@
 # Commonly just the domain of the company running the server
 # Will be written into the header of all outgoing emails
 # Has to be an existing mailserver with a MX record
-mailrelay_opensmtpd_mailname: la-cuna.de
+mailrelay_opensmtpd_mailname: smg-air-conso.de
 
-monitoring_email_sender: devops@la-cuna.de
-mailrelay_default_sender_user: devops@la-cuna.de
+monitoring_email_sender: consotechnology@schmetterling.de
+mailrelay_default_sender_user: consotechnology@schmetterling.de
 mailrelay_opensmtpd_monitoring_linux_users:
   - root
   - "root@{{ mailrelay_opensmtpd_mailname }}"
   - "{{ monitoring_email_sender }}"
 # List of relay information
 mailrelay_opensmtpd_relays_default:
-  - alias: mail-la-cuna-de
-    server: "la-cuna.de"
+  - alias: smg-air-conso.de
+    server: "smtp-relay.brevo.com"
     mail-from: "{{ default_email_from }}"
     protocol: "smtp+tls"
     tls: True

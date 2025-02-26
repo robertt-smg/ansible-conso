@@ -11,13 +11,13 @@ linux_defaults
 linux_defaults
 
 [mariadb_server:children]
-server1
+lserver1
 
 [mariadb_server_secrets:children]
 mariadb_server
 
 [passbolt_server:children]
-server1
+lserver1
 
 [passbolt_server_secrets:children]
 passbolt_server

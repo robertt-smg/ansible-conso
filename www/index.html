@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Air Conso Bookmarsk</title>
+    <link rel="stylesheet" href="style.css">
+    <script type="text/javascript" src="wiky/wiky.js"></script>
+  </head>
+  <body>
+    <h3>Air Conso Bookmarks:</h3>
+    
+<!-- Original Wiki markup PLEASE EDIT HERE -->
+<div id="input" style="display: none;">
+= Linux Servers =
+
+[|*Server*|*Beschreibung*|*Link Test*|*Link Prod*|
+|Linux: lserver1|Neocore, WildFly| [http://192.168.121.31:4646, Nomad Jobs] |[http://prod.ri, Nomad Jobs]|]
+
+</div>
+<!-- DO NOT EDIT BELOW THIS LINE  -->    
+    <!-- Converted HTML will appear here -->
+    <div id="output"></div>
+
+    <script>
+      // Convert Wiki markup to HTML when the page loads
+      window.onload = function() {
+        const input = document.getElementById('input').textContent;
+        const output = document.getElementById('output');
+        output.innerHTML = Wiky.toHtml(input.trim());
+      };
+    </script>
+
+    <p class="reference">
+      <a href="https://goessner.net/articles/wiky/" target="_blank">Wiki.js Reference</a>
+    </p>
+  </body>
+</html>

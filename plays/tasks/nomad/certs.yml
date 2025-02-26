@@ -10,7 +10,7 @@
 
 - name: Create nomad-agent-ca.pem
   copy:
-    src: "{{nomad_datacenter}}.certs/nomad-agent-ca.pem"
+    src: "{{nomad_certs}}.certs/nomad-agent-ca.pem"
     dest: "{{nomad_data_dir}}/certs/nomad-agent-ca.pem"
     owner: nomad
     group: nomad
@@ -19,7 +19,7 @@
 
 - name: Create global-server-nomad.pem
   copy:
-    src: "{{nomad_datacenter}}.certs/global-server-nomad.pem"
+    src: "{{nomad_certs}}.certs/global-server-nomad.pem"
     dest: "{{nomad_data_dir}}/certs/global-server-nomad.pem"
     owner: nomad
     group: nomad
@@ -28,7 +28,7 @@
 
 - name: Create global-server-nomad-key.pem
   copy:
-    src: "{{nomad_datacenter}}.certs/global-server-nomad-key.pem"
+    src: "{{nomad_certs}}.certs/global-server-nomad-key.pem"
     dest: "{{nomad_data_dir}}/certs/global-server-nomad-key.pem"
     owner: nomad
     group: nomad

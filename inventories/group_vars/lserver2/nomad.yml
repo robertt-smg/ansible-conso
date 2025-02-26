@@ -1,3 +1,4 @@
+nomad_enabled: true
 
 nomad_datacenter: "lserver2-dc"
 nomad_log_level: "DEBUG"
