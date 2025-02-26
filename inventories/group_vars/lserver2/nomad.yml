@@ -1,5 +1,5 @@
 
-nomad_datacenter: "lserver1-dc"
+nomad_datacenter: "lserver2-dc"
 nomad_log_level: "DEBUG"
 nomad_servers: 1
 

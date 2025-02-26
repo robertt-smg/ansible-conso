@@ -1,11 +1,17 @@
+[dbserver1]
+dbserver1.tst ansible_host=192.168.121.31 ansible_ssh_port=22 ansible_ssh_user=admin 
 [lserver1]
-lserver1.tst ansible_host=192.168.121.20 ansible_ssh_port=22 ansible_ssh_user=admin 
+lserver1.tst ansible_host=192.168.121.21 ansible_ssh_port=22 ansible_ssh_user=admin 
+[lserver2]
+lserver2.tst ansible_host=192.168.121.22 ansible_ssh_port=22 ansible_ssh_user=admin 
 
 [fti1]
 fti1.tst ansible_host=127.0.0.8 ansible_ssh_port=22 ansible_ssh_user=ansible
 
 [lsmg:children]
+dbserver1
 lserver1
+lserver2
 
 [fti:children]
 fti1

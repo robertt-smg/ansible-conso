@@ -1,0 +1,3 @@
+mariadb_dbserver1:
+    server:
+      id: 1

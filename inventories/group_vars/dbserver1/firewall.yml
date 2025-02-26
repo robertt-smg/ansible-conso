@@ -1,0 +1,7 @@
+## Role: geerlingguy.firewall
+## -------------------------
+
+firewall_allowed_tcp_ports_dbserver1:
+  - "22" # ssh port, pre bootstrap
+  - "3306" # modfied ssh port, after bootstrap
+  
