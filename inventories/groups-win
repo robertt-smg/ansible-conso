@@ -1,7 +1,7 @@
 
 
 [windows_defaults:children]
-smg
+wsmg
  
 [windows_defaults_secrets:children]
 windows_defaults

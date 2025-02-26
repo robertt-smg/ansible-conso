@@ -1,7 +1,6 @@
-winserver_roles_enabled_wserver2:
+winserver_roles_enabled_wminiaq1:
   net35: true
   net45: true
   net46: true
   port_sharing: true
-  rdpserver: false
   defender: true

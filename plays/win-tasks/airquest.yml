@@ -24,12 +24,14 @@
     state: directory
     owner: Everyone
     recurse: yes
+  when: airquest_defaults.automount is defined and airquest_defaults.automount
 
 - name: Create Logon Script
   win_copy:
     dest: "{{ ansible_facts.env.SystemRoot }}\\System32\\GroupPolicy\\User\\Scripts\\Logon\\mount_airquest.cmd"
     content: |
       net use {{ airquest_fileserver.drive_letter }}: \\\\{{ airquest_fileserver.host }}\\{{ airquest_fileserver.share }} /user:{{ airquest_fileserver.user }}@{{ airquest_fileserver.host }} {{ airquest_fileserver.password }} /WRITETHROUGH
+  when: airquest_defaults.automount is defined and airquest_defaults.automount
 
 - name: Create Logon Script Directory 2
   win_file:
@@ -37,12 +39,14 @@
     state: directory
     owner: Everyone
     recurse: yes
+  when: airquest_defaults.automount is defined and airquest_defaults.automount
 
 - name: Create Logon Script 2
   win_copy:
     dest: "{{ ansible_facts.env.SystemRoot }}\\System32\\GroupPolicyUser\\Scripts\\Logon\\mount_airquest.cmd"
     content: |
       net use {{ airquest_fileserver.drive_letter }}: \\\\{{ airquest_fileserver.host }}\\{{ airquest_fileserver.share }} /user:{{ airquest_fileserver.user }}@{{ airquest_fileserver.host }} {{ airquest_fileserver.password }} /WRITETHROUGH
+  when: airquest_defaults.automount is defined and airquest_defaults.automount
 
 - name: Disable oplocks client
   win_command: >
@@ -80,7 +84,11 @@
   args:
     chdir: C:\
 
-
+- name: Create AQ-TEMP directory
+  ansible.windows.win_file:
+    path: D:\Data\AQ-TEMP
+    state: directory
+    
 - name: Set permissions on Data directory
   ansible.windows.win_acl:
     path: D:\Data

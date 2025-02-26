@@ -16,7 +16,7 @@ source "${SCRIPTPATH}/config.secret"
 
 # Check if lego is installed
 if ! command -v lego &> /dev/null; then
-    echo "Error: lego is not installed. Please install it first."
+    echo "Error: lego is not installed. Please install it first.(https://go-acme.github.io/lego)"
     exit 1
 fi
 

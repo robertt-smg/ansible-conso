@@ -87,8 +87,3 @@
 
 - name: Register VFP OLEDB DLL
   ansible.windows.win_command: regsvr32 /s "C:\Program Files (x86)\Common Files\System\Ole DB\vfpoledb.dll"
-
-- name: Create AQ-TEMP directory
-  ansible.windows.win_file:
-    path: D:\Data\AQ-TEMP
-    state: directory

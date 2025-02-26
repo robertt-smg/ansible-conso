@@ -1,4 +1,4 @@
-defender_list_wserver1:
+defender_list_wsmg:
   ExclusionProcess:
      - aq32_x9.exe
      - aq32_f9.exe

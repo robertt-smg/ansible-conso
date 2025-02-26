@@ -1,6 +1,6 @@
 airquest_fileserver_default:
   host: "{{ airquest_defaults.host }}"
-  host_ip: "airquest_defaults.host_ip"
+  host_ip: "{{ airquest_defaults.host_ip }}"
   drive_letter: "{{ airquest_defaults.drive_letter }}" 
   share: "{{ airquest_defaults.share }}"
   local_path: "{{ airquest_defaults.local_path }}"
@@ -8,7 +8,7 @@ airquest_fileserver_default:
   password: "{{ airquest_defaults.password }}"
 
   registry_absent:
-    - key: "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\AppCompatFlags\Layers"
+    - key: "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\AppCompatFlags\\Layers"
       vname: "C:\\Windows\\System32\\Taskmgr.exe"
 
     - key: "HKEY_LOCAL_MACHINESOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System"

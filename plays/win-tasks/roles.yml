@@ -107,12 +107,12 @@
 - name: Check if Reboot is required for RDS-RD-Server
   set_fact:
     role_reboot_required: win_feature_rds_rd_server.reboot_required
-  when: win_feature_rds_rd_server.reboot_required
+  when: winserver_roles_enabled.rdpserver is defined and winserver_roles_enabled.rdpserver and win_feature_rds_rd_server.reboot_required
 
 - name: Check if Reboot is required for RDS-Licensing
   set_fact:
     role_reboot_required: win_feature_rds_licensing.reboot_required
-  when: win_feature_rds_licensing.reboot_required
+  when: winserver_roles_enabled.rdpserver is defined and winserver_roles_enabled.rdpserver and win_feature_rds_licensing.reboot_required
 
 - name: Check if Reboot is required for NET-Framework-Core
   set_fact:

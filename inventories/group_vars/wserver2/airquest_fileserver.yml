@@ -3,9 +3,10 @@
 
 airquest_defaults_wserver1:
   enabled: true
-  host: FTI-GERM1-N5291
-  host_ip: 192.168.153.1
+  automount: false
+  host: SMG-TST-W01
+  host_ip: 192.168.121.51
   drive_letter: Q
-  share: tulip_proquest
+  share: proquest
   local_path: "d:\\proquest"
-  user: FTI-GERM1-N5291\aq
+  user: SMG-TST-W01\SA_AQUSER1

@@ -1,0 +1,1 @@
+winserver_roles_enabled:  "{{ lookup('community.general.merge_variables', 'winserver_roles_enabled_', pattern_type='prefix', override='ignore') }}"

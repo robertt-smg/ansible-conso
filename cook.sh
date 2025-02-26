@@ -7,6 +7,7 @@ LIBPATH="$SCRIPTPATH/lib"
 source $LIBPATH/common.sh
 
 IV="${SCRIPTPATH}/inventories"
+export ANSIBLE_CONFIG=$SCRIPTPATH/ansible.cfg
 
 # Define the trap function
 ctrl_c() {
@@ -37,6 +38,7 @@ usage() {
 # Install galaxy roles
 install_roles() {
     echo ${FUNCNAME[0]}
+    
     ansible-galaxy install -r ${SCRIPTPATH}/requirements.yml --roles-path ${SCRIPTPATH}/roles.external $*
     ansible-galaxy collection install -r ${SCRIPTPATH}/requirements-collections.yml --collections-path ${SCRIPTPATH}/collections.external $*
 }
@@ -49,10 +51,12 @@ function check_opts_and_run() {
     fi
     if [ "$1" = "--dump_vars" ]; then
         DEFAULT_PLAY=dump_vars.yml
+        DEFAULT_BOOTSTRAP_PLAY=dump_vars.yml
         shift
     fi
     if [ "$1" = "--dump_groups" ]; then
         DEFAULT_PLAY=dump_groups.yml
+        DEFAULT_BOOTSTRAP_PLAY=dump_groups.yml
         shift
     fi
     if [ "$1" = "--play" ]; then
