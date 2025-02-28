@@ -1,0 +1,19 @@
+
+x-project:
+  name: lego-test-vm
+
+services:
+  cert_bot_lego:
+    image: ghcr.io/robertt-smg/lego_acme:v4.22
+
+    restart: "no"
+    environment:
+      USE_STAGING: 1
+      EMAIL: "robert.thurnreiter@schmetterling.de"
+      CERT_PATH: /data/certs
+      SECRETS_PATH: /data/secrets
+      ALL_DOMAINS: "test.smg-air-conso.com"
+
+    volumes: 
+     - ./data:/data
+

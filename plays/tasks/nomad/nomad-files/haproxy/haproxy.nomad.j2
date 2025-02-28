@@ -93,7 +93,7 @@ job "{{ job_name }}" {
           # Use absolute paths to mount arbitrary paths on the host
           "{{ nomad_log_dir }}/{{ job_name }}:/var/log/haproxy",
           "{{ nomad_data_dir }}/jobs/{{ job_name }}:/usr/local/etc/haproxy",
-          "{{ nomad_data_dir }}/jobs/certs/live:/usr/local/etc/haproxy/certs"
+          "{{ nomad_data_dir }}/jobs/certs/live:/data/certs/live"
         ]
         {% if nomad_config_driver_is_docker is defined and nomad_config_driver_is_docker %}
         volume_driver = "local"

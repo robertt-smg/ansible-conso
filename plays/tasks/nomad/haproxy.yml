@@ -57,8 +57,8 @@
 
 - name: Manage server.pem
   copy:
-    src: nomad-files/haproxy/server.pem
-    dest: "{{ nomad_data_dir }}/jobs/certs/live/server.pem"
+    src: nomad-files/haproxy/server.pem # this is a dummy and will be replaced by cert robot
+    dest: "{{ nomad_data_dir }}/jobs/certs/{{ nomad_haproxy.server_pem }}"
     owner: root
     group: root
     mode: "0644"
@@ -71,6 +71,26 @@
     owner: root
     group: root
     mode: "0774"
+  when: nomad_haproxy.use_certbot is defined and  nomad_haproxy.use_certbot == true
+
+- name: Ensure secrets directory exists
+  file:
+    path: "{{ nomad_data_dir }}/jobs/{{ nomad_haproxy.job_name }}_lego_acme/data/secrets/"
+    state: directory
+    owner: nomad
+    group: nomad
+    mode: "0777"
+    recurse: yes
+  when: nomad_haproxy.use_lego_acme is defined and  nomad_haproxy.use_lego_acme == true
+
+- name: Manage lego_acme secrets
+  template:
+    src: nomad-files/lego_acme/config.secrets.j2
+    dest: "{{ nomad_data_dir }}/jobs/{{ nomad_haproxy.job_name }}_lego_acme/data/secrets/config.secret"
+    owner: root
+    group: root
+    mode: "0774"
+  when: nomad_haproxy.use_lego_acme is defined and  nomad_haproxy.use_lego_acme == true
 
 - name: Create log directory
   file:
@@ -81,7 +101,7 @@
     mode: "0777"
     recurse: yes
 
-- name: Create log directory
+- name: Create certbot log directory
   file:
     path: "{{ nomad_log_dir }}/{{ nomad_haproxy.job_name }}_certbot"
     state: directory
@@ -89,7 +109,17 @@
     group: nomad
     mode: "0777"
     recurse: yes
+  when: nomad_haproxy.use_certbot is defined and  nomad_haproxy.use_certbot == true
 
+- name: Create lego_acme log directory
+  file:
+    path: "{{ nomad_log_dir }}/{{ nomad_haproxy.job_name }}_lego_acme"
+    state: directory
+    owner: nomad
+    group: nomad
+    mode: "0777"
+    recurse: yes
+  when: nomad_haproxy.use_lego_acme is defined and  nomad_haproxy.use_lego_acme == true
 
 # the job file is informational, job is posted directly
 - name: Manage Nomad haproxy job file
@@ -115,6 +145,20 @@
     job_name: "{{ nomad_haproxy.job_name }}_certbot"
     hostname: "{{ ansible_hostname  }}"
     datacenter: "{{ nomad_datacenter }}"
+  when: nomad_haproxy.use_certbot is defined and  nomad_haproxy.use_certbot == true
+
+- name: Manage Nomad lego_acme job file
+  template:
+    src: nomad-files/haproxy/lego_acme.nomad.j2
+    dest: "{{ nomad_data_dir }}/jobs/{{ nomad_haproxy.job_name }}_lego_acme.nomad"
+    owner: root
+    group: root
+    mode: "0644"
+  vars:
+    job_name: "{{ nomad_haproxy.job_name }}_lego_acme"
+    hostname: "{{ ansible_hostname  }}"
+    datacenter: "{{ nomad_datacenter }}"
+  when: nomad_haproxy.use_lego_acme is defined and  nomad_haproxy.use_lego_acme == true
 
 - name: "Manage Nomad haproxy job {{ nomad_haproxy.job_name }}"
   run_once: true
@@ -143,6 +187,22 @@
     job_name: "{{ nomad_haproxy.job_name }}_certbot"
     hostname: "{{ ansible_hostname  }}"
     datacenter: "{{ nomad_datacenter }}"
+  when: nomad_haproxy.use_certbot is defined and  nomad_haproxy.use_certbot == true
+
+- name: "Manage Nomad lego-acme job {{ nomad_haproxy.job_name }}"
+  run_once: true
+  nomad_job:
+    url: "{{ nomad_server_url }}"
+    validate_certs: false
+    management_token: "{{ nomad_acl_management_token }}"
+    state: present
+    namespace: default
+    hcl_spec: "{{ lookup('template', 'nomad-files/haproxy/lego_acme.nomad.j2') }}"
+  vars:
+    job_name: "{{ nomad_haproxy.job_name }}_lego_acme"
+    hostname: "{{ ansible_hostname  }}"
+    datacenter: "{{ nomad_datacenter }}"
+  when: nomad_haproxy.use_lego_acme is defined and  nomad_haproxy.use_lego_acme == true
 
 - name: Check haProxy server status
   command: curl http://{{ nomad_advertise_address }}:8080/

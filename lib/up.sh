@@ -71,6 +71,7 @@ function start_container() {
 	cat > ${SCRIPTPATH}/.env <<EOF
 	GITHUB_REGISTRY=${GITHUB_REGISTRY}
 	GITHUB_OWNER=${GITHUB_OWNER}
+	${EXTRA_ENV}
 EOF
 	PROJECT_NAME=$(basename $(pwd))-$(basename $(dirname $(pwd)))
 	if [ $rebuild -eq 1 ]; then

@@ -1,0 +1,6 @@
+lego_acme:  "{{ lookup('community.general.merge_variables', 'lego_acme_', pattern_type='prefix', override='ignore') }}"
+lego_acme_all:
+  image_version: lego_acme:v4.22
+  email: robert.thurnreiter@schmetterling.de
+  domains: test.smg-air-conso.com,passbolt.smg-air-conso.com,neocore.smg-air-conso.com,crm.smg-air-conso.com
+  use_staging: 1

@@ -34,7 +34,7 @@ function check_ssh_agent() {
         echo "No SSH agent detected. Starting new ssh-agent..."
         eval $(ssh-agent)
     fi
-
+    pwd
     # Try to list keys and capture both output and exit status
     ssh_output=$(ssh-add -L 2>&1)
     ssh_status=$?

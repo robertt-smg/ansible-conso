@@ -1,3 +1,3 @@
-- name: Include fti  if it is defined
-  include_tasks: tasks/fti/main.yml
-  when: fti_enabled is defined and fti_enabled is true
+- name: Include mariadb if it is defined
+  include_tasks: tasks/mariadb/main.yml
+  when: mariadb_native_enabled is defined and mariadb_native_enabled is true

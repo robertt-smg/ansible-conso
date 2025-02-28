@@ -1,0 +1,58 @@
+########################################################################
+# File managed by ansible
+# Your changes will be overwritten.
+########################################################################
+#
+# For more information on the "job" stanza, please see
+# the online documentation at:
+#
+#     https://www.nomadproject.io/docs/job-specification/job.html
+#
+job "{{ job_name }}" {
+  datacenters = ["{{ datacenter }}"]
+  type        = "batch"
+  constraint {
+    attribute = "${attr.kernel.name}"
+    value     = "linux"
+  }
+  periodic {
+    crons = [ "{{ certbot.renew_cron }}" ]
+    prohibit_overlap = true
+  }
+
+  group "{{ job_name }}" {
+    count = 1
+    network {
+      
+      mode = "host"
+      port "haproxy_admin" {
+          static = 29999 # fake port, to get IP address of this host without collsion
+          to     = 9999
+          }
+    }
+    task "run_certbot" {
+      {% if nomad_config_driver_is_docker is defined and nomad_config_driver_is_docker %}
+      driver = "docker"
+      {% else %}
+      driver = "podman"
+      {% endif %}
+
+      config {
+        
+        {% set image_version=lego_acme.image_version %}
+        {% include "nomad-files/github_registry.j2" %}
+
+        volumes = [
+          "{{ nomad_log_dir }}/{{ job_name }}:/var/log",
+          "{{ nomad_data_dir }}/jobs/{{ job_name }}/data/secrets:/data/secrets",
+          "{{ nomad_data_dir }}/jobs/certs:/data/certs",
+        ]
+      }
+      env = {
+          "HAPROXY_HOST_ADMIN" = "${NOMAD_IP_haproxy_admin}:${NOMAD_PORT_haproxy_admin}"
+          "CERT_PATH" = "/data/certs"
+          "SECRETS_PATH" ="/data/secrets"
+      }
+    }
+  }
+}

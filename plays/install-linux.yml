@@ -29,3 +29,5 @@
       name: role-mailrelay-opensmtpd
       tasks_from: main.yml
     when: mailrelay_enabled is defined and mailrelay_enabled == true
+
+  - import_tasks: tasks/mariadb.yml

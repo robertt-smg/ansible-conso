@@ -53,6 +53,7 @@ fi
 lego --email "${EMAIL}" \
      --dns autodns \
      --path "${CERT_PATH}" \
+     --pem \
      $STAGING \
      --accept-tos \
      $DOMAIN_ARGS \
