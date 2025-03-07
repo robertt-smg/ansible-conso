@@ -10,6 +10,7 @@ VMName=SMG-TST-L01
 VMPassword=$DefaultGuestAdminPassword
 VMMacAddress=00155D1ABC21
 VMIpAddress=192.168.121.21
+VMImageVersion=24.04
 
 is_windows
 

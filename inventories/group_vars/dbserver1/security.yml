@@ -11,3 +11,4 @@ security_sudoers_passwordless:
   - ansible
 
 firewall_disable_ufw: true
+

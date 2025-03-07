@@ -1,0 +1,20 @@
+cnf_suitecrm_server1:
+  app_volume: /var/lib/suitecrm
+  db:
+    host: 192.168.121.1
+    name: suitecrm
+
+  email: technology@smg-air-conso.de
+  smtp:
+    host: 192.168.121.21
+    port:
+    user:
+    password:
+    protocol:
+  notify:
+    address: technology@smg-air-conso.de
+    name: Technology SMG Air Conso
+
+nomad_suitecrm:
+  enabled: true
+  job_name: "suitecrm-server"

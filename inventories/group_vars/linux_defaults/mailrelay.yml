@@ -6,8 +6,8 @@
 # Has to be an existing mailserver with a MX record
 mailrelay_opensmtpd_mailname: smg-air-conso.de
 
-monitoring_email_sender: consotechnology@schmetterling.de
-mailrelay_default_sender_user: consotechnology@schmetterling.de
+monitoring_email_sender: technology@smg-air-conso.de
+mailrelay_default_sender_user: 86b734001@smtp-brevo.com
 mailrelay_opensmtpd_monitoring_linux_users:
   - root
   - "root@{{ mailrelay_opensmtpd_mailname }}"

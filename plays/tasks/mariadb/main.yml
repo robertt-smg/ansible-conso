@@ -1,0 +1,49 @@
+---
+- name: Download MariaDB repository setup script
+  ansible.builtin.get_url:
+    url: https://r.mariadb.com/downloads/mariadb_repo_setup
+    dest: /tmp/mariadb_repo_setup
+    mode: '0755'
+    force: yes
+
+- name: Execute MariaDB repository setup script
+  ansible.builtin.shell: /tmp/mariadb_repo_setup --mariadb-server-version="{{ mariadb.version }}"
+  become: yes
+  register: mariadb_repo_setup
+  changed_when: true
+
+- name: Copy MariaDB repository source list to a new file
+  copy:
+    src: /etc/apt/sources.list.d/mariadb.list
+    dest: /etc/apt/sources.list.d/mariadb-by-mariadb_repo_setup.list
+    remote_src: yes
+  become: yes
+  
+- name: Include role claranet.mariadb
+  include_role:
+    name: claranet.mariadb
+  vars:
+      mariadb_debug: true
+      mariadb_version: "{{ mariadb.version }}"
+      mariadb_server_id: "{{ mariadb.server_id }}"
+      mariadb_replication_role: "{{ mariadb.replication_role }}"
+      mariadb_replication_username: "{{ mariadb.replication_username }}"
+      mariadb_replication_password: "{{ mariadb.replication_password }}"
+      mariadb_admin_user: "{{ mariadb.admin_user }}"
+      mariadb_admin_password: "{{ mariadb.admin_password }}"
+      mariadb_users_default_host: "{{ mariadb.users_default_host }}"
+      mariadb_users: "{{ mariadb_all_users }}"
+      mariadb_databases: "{{ mariadb_all_databases }}"
+
+      mariadb_repo_template_path: "tasks/mariadb/templates/mariadb.list.j2"
+      mariadb_manage_pip_dependencies: false
+      mariadb_systemd_override_dir: "/etc/systemd/system/mariadb.service.d"
+      mariadb_systemd_override:
+          - filename: 10-limitcore.conf
+            section: Service
+            options:
+              LimitNOFILE: 100000
+              LimitMEMLOCK: 100000
+
+  tags:  [always,install,encryption,configure,secure-installation,replication,databases,users]
+      

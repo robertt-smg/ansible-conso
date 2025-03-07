@@ -24,7 +24,9 @@ mariadbcnf_supported_sections:
 - server
 - xtrabackup
 
-#- merge all percona_... variables into one
+#- merge all mariadb_... variables into one
 
-mariadb:  "{{ lookup('community.general.merge_variables', 'mariadb_', pattern_type='prefix', override='ignore') }}"
+mariadb:  "{{ lookup('community.general.merge_variables', 'cnf_mariadb_', pattern_type='prefix', override='ignore') }}"
+mariadb_all_users: "{{ lookup('community.general.merge_variables', 'usr_mariadb_', pattern_type='prefix', override='ignore') }}"
+mariadb_all_databases: "{{ lookup('community.general.merge_variables', 'db_mariadb_', pattern_type='prefix', override='ignore') }}"
 

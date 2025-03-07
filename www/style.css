@@ -2,7 +2,7 @@
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
   line-height: 1.6;
-  max-width: 800px;
+  
   margin: 0 auto;
   padding: 2rem;
   color: #333;
@@ -55,4 +55,22 @@ a:hover {
   padding-top: 1rem;
   border-top: 1px solid #eee;
   font-size: 0.9em;
+}
+
+/* Table styling */
+table {
+  width: 80%;
+  border-collapse: double;
+  margin: 1.5rem 0;
+}
+
+th, td {
+  border: 1px solid #333;
+  padding: 0.5rem;
+  text-align: left;
+  width: 25%; /* Adjust this value based on the number of columns */
+}
+
+th {
+  background-color: #f2f2f2;
 }

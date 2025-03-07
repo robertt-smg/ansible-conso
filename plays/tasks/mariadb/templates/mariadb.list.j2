@@ -1,0 +1,6 @@
+# {{ ansible_managed }}
+### ROLE setup of sources.list will be IGNORED
+## deb {{ _mariadb_mirror_base_url }}/{{ mariadb_version }}/{{ ansible_distro }} {{ ansible_distro_release }} main
+# deb-src {{ _mariadb_mirror_base_url }}/{{ mariadb_version }}/{{ ansible_distro }} {{ ansible_distro_release }} main
+
+### we use https://r.mariadb.com/downloads/mariadb_repo_setup to download the correct sources.list and then safe it as /mariadb-by-mariadb_repo_setup.list in task 'Download and run MariaDB repository setup script'

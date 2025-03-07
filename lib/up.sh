@@ -105,7 +105,7 @@ function hyper_v_build() {
 			-VMMemoryStartupBytes 8GB \
 			-VHDSizeBytes 60GB \
 			-VMName \"${VMName}\" \
-			-ImageVersion \"24.04\" \
+			-ImageVersion \"${VMImageVersion}\" \
 			-VMGeneration 2 \
 			-ShowSerialConsoleWindow \
 			-KeyboardLayout de \

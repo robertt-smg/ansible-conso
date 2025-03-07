@@ -1,8 +1,9 @@
-mariadb_server1:
+cnf_mariadb_server1:
     server:
       id: 2233
     cpu: 4096
     memory: 8192
+    db_volume: /var/lib/mariadb
 
 ## percona db server
 ## -------------------------

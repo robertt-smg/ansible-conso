@@ -1,0 +1,117 @@
+########################################################################
+# File managed by ansible
+# Your changes will be overwritten.
+########################################################################
+#
+# For more information on the "job" stanza, please see
+# the online documentation at:
+#
+#     https://www.nomadproject.io/docs/job-specification/job.html
+#
+
+job "{{ job_name }}" {
+  datacenters = [ "{{ datacenter }}" ]
+  type = "service"
+  constraint {
+    attribute = "${attr.kernel.name}"
+    value     = "linux"
+  }
+  update {
+    max_parallel = 1
+    min_healthy_time = "10s"
+    healthy_deadline = "30m"
+    progress_deadline = "32m"
+    auto_revert = false
+    canary = 0
+  }
+
+  group "{{ job_name }}" {
+    count = 1
+    network {
+      
+      port "http_port" { 
+        static = {{ suitecrm.external_port }} 
+        to = 8080 
+      }
+ 
+      mode = "host"
+    }
+    restart {
+      attempts = 10
+      interval = "5m"
+      delay = "25s"
+      mode = "delay"
+    }
+    
+    task "suitecrm-server" {
+      {% if nomad_config_driver_is_docker is defined and nomad_config_driver_is_docker %}
+      driver = "docker"
+      {% else %}
+      driver = "podman"
+      {% endif %}
+      env {  
+          SUITECRM_DATABASE_HOST="{{ suitecrm.db.host }}"
+          SUITECRM_DATABASE_PORT_NUMBER=3306
+          SUITECRM_DATABASE_USER="{{ suitecrm.db.user }}"
+          SUITECRM_DATABASE_NAME="{{ suitecrm.db.name }}"
+          SUITECRM_DATABASE_PASSWORD="{{ suitecrm.db.password }}"
+          SUITECRM_USERNAME="{{ suitecrm.username }}"
+          SUITECRM_PASSWORD="{{ suitecrm.password }}"
+          SUITECRM_EMAIL="{{ suitecrm.email }}"
+          SUITECRM_SMTP_HOST="{{ suitecrm.smtp.host }}"
+          SUITECRM_SMTP_PORT_NUMBER="{{ suitecrm.smtp.port }}"
+          SUITECRM_SMTP_USER="{{ suitecrm.smtp.user }}"
+          SUITECRM_SMTP_PASSWORD="{{ suitecrm.smtp.password }}"
+          SUITECRM_SMTP_PROTOCOL="{{ suitecrm.smtp.protocol }}"
+          SUITECRM_SMTP_NOTIFY_ADDRESS="{{ suitecrm.notify.address }}"
+          SUITECRM_SMTP_NOTIFY_NAME="{{ suitecrm.notify.name }}"
+          
+      }
+      config {
+        {% if nomad_config_driver_is_docker is defined and nomad_config_driver_is_docker %}
+          memory_hard_limit = {{ suitecrm.memory_hard_limit }}
+        {% endif %}
+        {% set image_version= suitecrm.image_version %}
+        {% include "nomad-files/github_registry.j2" %}
+
+        labels {
+          group = "suitecrm-php-apache"
+        }
+
+        volumes = [
+            "{{ suitecrm.app_volume }}/data:/bitnami/suitecrm",
+            "{{ config_dir }}/script:/script",
+            "/etc/passwd:/etc/passwd:ro",
+            "/etc/group:/etc/group:ro"
+        ]
+        {% if nomad_config_driver_is_docker is defined and nomad_config_driver_is_docker %}
+        volume_driver = "local"
+        {% endif %}
+         
+        ports = [ "http_port" ]
+        
+      }
+      service {
+        name = "{{ job_name }}"
+        port = "http_port"
+        provider = "nomad"
+        check {
+          type     = "http"
+          port     = "http_port"
+          path = "/#/Login"
+          interval = "120s"
+          timeout  = "30s"
+        }
+      }
+      logs {
+         max_files     = 2
+         max_file_size = 15
+      }
+ 
+      resources {
+        cpu = {{ suitecrm.cpu }}
+        memory = {{ suitecrm.memory }}
+      }
+    }
+  }
+}

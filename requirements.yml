@@ -16,3 +16,4 @@ roles:
   - name: geerlingguy.varnish
   - name: weareinteractive.apt
   - name: jborean93.win_openssh
+  - name: claranet.mariadb

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "Starting ..."
+echo "Waiting for MySQL Database ${DATASOURCES_DEFAULT_HOST} $(date) ..."
 /usr/bin/wait-for.sh -t "0" "${DATASOURCES_DEFAULT_HOST}:3306" "--" "/usr/bin/sleep" "15"
 
 [ -d /data/passbolt/etc ] && cp -R /data/passbolt/etc/ /etc/passbolt/ && echo "copied /data/passbolt/etc to /etc/passbolt"

@@ -1,0 +1,6 @@
+# vim
+
+#- merge all suitecrm_... variables into one
+
+suitecrm:  "{{ lookup('community.general.merge_variables', 'cnf_suitecrm_', pattern_type='prefix', override='ignore') }}"
+

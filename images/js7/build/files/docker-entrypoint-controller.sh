@@ -1,5 +1,5 @@
 #!/bin/bash
 
-echo "Starting ... $(date)"
+echo "Starting Controller ... $(date)"
 
 exec /usr/local/bin/entrypoint.sh $*

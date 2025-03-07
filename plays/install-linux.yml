@@ -13,6 +13,16 @@
     - weareinteractive.apt
 
   pre_tasks:
+  
+  - name: Ensure ntpdate is installed
+    apt:
+      name: ntpdate
+      state: present
+
+  - name: Synchronize time with NTP server
+    command: ntpdate pool.ntp.org
+    become: true
+
   - name: Update apt cache if needed.
     apt: update_cache=yes cache_valid_time=3600
 

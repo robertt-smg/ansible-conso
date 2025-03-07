@@ -16,6 +16,12 @@ lserver1
 [mariadb_server_secrets:children]
 mariadb_server
 
+[suitecrm_server:children]
+lserver2
+
+[suitecrm_server_secrets:children]
+suitecrm_server
+
 [passbolt_server:children]
 lserver1
 
