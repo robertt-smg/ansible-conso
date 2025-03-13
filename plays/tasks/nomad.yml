@@ -19,6 +19,10 @@
   include_tasks: tasks/nomad/token.yml
   when: nomad_enabled is defined and nomad_enabled is true
 
+- name: Include tasks podman-prune if nomad_enabled is defined
+  include_tasks: tasks/nomad/podman-prune.yml
+  when: nomad_enabled is defined and nomad_enabled is true
+
 #- haproxy
 - name: Include tasks nomad-haproxy if nomad_haproxy.enabled is defined
   include_tasks: tasks/nomad/haproxy.yml
@@ -43,3 +47,8 @@
 - name: Include tasks nomad-suitecrm if nomad_suitecrm.enabled is defined
   include_tasks: tasks/nomad/suitecrm.yml
   when: nomad_suitecrm.enabled is defined and nomad_suitecrm.enabled is true
+
+#- neocore server
+- name: Include tasks nomad-neocore if nomad_neocore.enabled is defined
+  include_tasks: tasks/nomad/neocore.yml
+  when: nomad_neocore.enabled is defined and nomad_neocore.enabled is true

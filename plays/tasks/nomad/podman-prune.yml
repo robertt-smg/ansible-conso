@@ -1,0 +1,28 @@
+- name: Manage Nomad job file podman-prune.nomad
+  template:
+    src: "nomad-files/podman-prune.nomad.j2"
+    dest: "{{ nomad_data_dir }}/jobs/podman-prune.nomad"
+    owner: root
+    group: root
+    mode: "0644"
+  vars:
+    job_name: "{{ nomad_percona.job_name }}"
+    datacenter: "{{ nomad_datacenter }}"
+    hostname: "{{ ansible_hostname }}"
+    config_dir: "{{ nomad_data_dir }}/jobs/{{ nomad_percona.job_name }}"
+
+- name: "Manage Nomad job file podman-prune"
+  run_once: true
+  nomad_job:
+    url: "{{ nomad_server_url }}"
+    validate_certs: false
+    management_token: "{{ nomad_acl_management_token }}"
+    state: present
+    namespace: default
+    hcl_spec: "{{ lookup('template', 'nomad-files/podman-prune.nomad.j2') }}"
+  vars:
+    job_name: "podman-prune"
+    datacenter: "{{ nomad_datacenter }}"
+    hostname: "{{ ansible_hostname }}"
+    config_dir: "{{ nomad_data_dir }}/jobs/{{ nomad_percona.job_name }}"
+  register: percona_nomad_file_changed

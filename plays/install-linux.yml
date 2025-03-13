@@ -30,6 +30,8 @@
   - import_tasks: handlers/handlers.yml
 
   tasks:
+  - import_tasks: tasks/default_user.yml
+
   - import_tasks: tasks/nomad.yml
   
   - import_tasks: tasks/fti.yml
@@ -39,5 +41,10 @@
       name: role-mailrelay-opensmtpd
       tasks_from: main.yml
     when: mailrelay_enabled is defined and mailrelay_enabled == true
+
+  - name: install nullmailer
+    include_role:
+      name: lifeofguenter.nullmailer
+    when: nullmailer_enabled is defined and nullmailer_enabled == true
 
   - import_tasks: tasks/mariadb.yml

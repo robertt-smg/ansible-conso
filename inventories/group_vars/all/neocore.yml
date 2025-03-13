@@ -1,0 +1,6 @@
+# vim
+
+#- merge all neocore_... variables into one
+
+neocore:  "{{ lookup('community.general.merge_variables', 'cnf_neocore_', pattern_type='prefix', override='ignore') }}"
+

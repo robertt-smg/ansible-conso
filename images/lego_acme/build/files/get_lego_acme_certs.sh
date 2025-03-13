@@ -99,11 +99,17 @@ function deploy() {
     fi
     CERT_PATH_LIVE="${CERT_PATH}/live"
     [ ! -d  "${CERT_PATH_LIVE}" ] && mkdir -p "${CERT_PATH_LIVE}"
-    cp "${CERT_PATH}/${FIRST_DOMAIN}.pem" "${CERT_PATH_LIVE}/server.pem"
+    cp "${CERT_PATH}/certificates/${FIRST_DOMAIN}.pem" "${CERT_PATH_LIVE}/server.pem"
+    cp "${CERT_PATH}/certificates/${FIRST_DOMAIN}.key" "${CERT_PATH_LIVE}/server.key"
+    cp "${CERT_PATH}/certificates/${FIRST_DOMAIN}.crt" "${CERT_PATH_LIVE}/server.crt"
+    cp "${CERT_PATH}/certificates/${FIRST_DOMAIN}.issuer.crt" "${CERT_PATH_LIVE}/server.issuer.crt"
+    cp "${CERT_PATH}/certificates/${FIRST_DOMAIN}.json" "${CERT_PATH_LIVE}/server.json"
 
     echo -e "set ssl cert ${CERT_PATH_LIVE}/server.pem <<\n$(cat ${CERT_PATH_LIVE}/server.pem)\n" | socat tcp-connect:${HAPROXY_HOST_ADMIN} -
     echo "show ssl cert" | socat tcp-connect:${HAPROXY_HOST_ADMIN} -
     echo "commit ssl cert ${CERT_PATH_LIVE}/server.pem" | socat tcp-connect:${HAPROXY_HOST_ADMIN} -
+
+    openssl x509 -in ${CERT_PATH_LIVE}/server.pem -text -noout
 }
 function main() {
     echo ${FUNCNAME[0]}

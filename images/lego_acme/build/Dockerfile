@@ -23,6 +23,7 @@ RUN date &&\
     chmod +x /scripts/*.sh && \
     apk update && \
     apk add bash && \
+    apk add openssl && \
     /bin/bash /scripts/setup.sh
 
 ENTRYPOINT [ "bash", "/scripts/get_lego_acme_certs.sh" ]

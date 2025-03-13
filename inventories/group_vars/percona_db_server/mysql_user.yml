@@ -12,3 +12,4 @@ users_list_mysql:
     groups:
       - mysql
       - nomad
+      - default

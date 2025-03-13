@@ -94,6 +94,8 @@ function up() {
 function hyper_v_build() {
 	echo ${FUNCNAME[0]}
 
+	VMMemory=${VMMemory:-8GB}
+
 	if [ ! -f ${HYPER_V_BUILD_PATH}/New-HyperVCloudImageVM.ps1 ]; then
 		echo "Error: please clone github.com:robertt-smg/hyperv-vm-provisioning.git into  ${HYPER_V_BUILD_PATH}"
 	else
@@ -102,7 +104,7 @@ function hyper_v_build() {
 		powershell.exe -Command "Set-ExecutionPolicy Bypass -Scope Process -Force; \
 			& \"$(cygpath -w $HYPER_V_BUILD_PATH)/New-HyperVCloudImageVM.ps1\" \
 			-VMProcessorCount 8 \
-			-VMMemoryStartupBytes 8GB \
+			-VMMemoryStartupBytes ${VMMemory} \
 			-VHDSizeBytes 60GB \
 			-VMName \"${VMName}\" \
 			-ImageVersion \"${VMImageVersion}\" \

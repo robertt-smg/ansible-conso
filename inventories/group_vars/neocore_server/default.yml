@@ -1,0 +1,10 @@
+cnf_neocore_default:
+  port: 8080
+  external_port: 2080
+  external_admin_port: 2990
+  cpu: 4096
+  memory: 8192
+  memory_hard_limit: 37570
+  app_volume: /var/lib/wildfly
+  
+  image_version: "wildfly:latest"

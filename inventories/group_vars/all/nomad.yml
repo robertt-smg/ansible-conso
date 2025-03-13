@@ -14,7 +14,7 @@ users_list_nomad:
 ## Role: torian.nomad
 ## -------------------------
 
-nomad_version: "1.9.3"
+nomad_version: "1.9.7"
 
 nomad_config_dir: /etc/nomad.d
 nomad_data_dir: /var/lib/nomad
@@ -49,6 +49,12 @@ nomad_config:
     log_level = "DEBUG"
     data_dir  = "{{ nomad_data_dir }}"
     plugin_dir  = "{{ nomad_plugin_dir }}"
+    
+    plugin "raw_exec" {
+    config {
+        enabled = true
+      }
+    }
     plugin {
       raw_exec {
         config {
@@ -140,7 +146,7 @@ nomad_config:
       cpu_total_compute = "{{nomad_cpu_total_compute}}"
       memory_total_mb = "{{nomad_memory_total_mb}}"
       options = {
-        "driver.allowlist" = "exec,podman"
+        "driver.allowlist" = "raw_exec,exec,podman"
       }
       
     }

@@ -1,0 +1,26 @@
+job "podman_prune" {
+  datacenters = [ "{{ datacenter }}" ]
+  type        = "batch"
+  # Schedule the task to run daily
+  periodic {
+      crons  = [
+        "0 0 * * *"
+      ]
+      prohibit_overlap = true
+  }
+  group "podman_prune_group" {
+    task "podman_prune_task" {
+      driver = "raw_exec"
+
+      config {
+        command = "podman"
+        args    = ["system", "prune", "-f", "-a"]
+      }
+
+      resources {
+        cpu    = 100
+        memory = 128
+      }
+    }
+  }
+}

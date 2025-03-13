@@ -1,0 +1,72 @@
+- name: Create {{ nomad_neocore.job_name }} log directory
+  file:
+    path: "{{ nomad_log_dir }}/{{ nomad_neocore.job_name }}"
+    state: directory
+    owner: 1000
+    group: 1000
+    mode: "0775"
+    recurse: yes
+
+- name: Create configuration volume {{ nomad_neocore.job_name }}
+  file:
+    path: "{{ nomad_data_dir }}/jobs/{{ nomad_neocore.job_name }}/{{ item }}"
+    state: directory
+    owner: 1000
+    group: 1000
+    mode: "0775"
+    recurse: yes
+  loop:
+    - config
+
+- name: Create application volume and dirs {{ nomad_neocore.job_name }}
+  file:
+    path: "{{ neocore.app_volume }}/{{ item }}"
+    state: directory
+    owner: 1000
+    group: 1000
+    mode: "0775"
+    recurse: yes
+  loop:
+    - data
+    - cache
+    - log
+
+- name: Manage Nomad job file {{ nomad_neocore.job_name }}
+  template:
+    src: nomad-files/neocore/neocore.nomad.j2
+    dest: "{{ nomad_data_dir }}/jobs/{{ nomad_neocore.job_name }}.nomad"
+    owner: nomad
+    group: nomad
+    mode: "0644"
+  vars:
+    job_name: "{{ nomad_neocore.job_name }}"
+    datacenter: "{{ nomad_datacenter }}"
+    hostname: "{{ ansible_hostname }}"
+    config_dir: "{{ nomad_data_dir }}/jobs/{{ nomad_neocore.job_name }}"
+
+- name: "Manage Nomad job file {{ nomad_neocore.job_name }}"
+  run_once: true
+  nomad_job:
+    url: "{{ nomad_server_url }}"
+    validate_certs: false
+    management_token: "{{ nomad_acl_management_token }}"
+    state: present
+    namespace: default
+    hcl_spec: "{{ lookup('template', 'nomad-files/neocore/neocore.nomad.j2') }}"
+  vars:
+    job_name: "{{ nomad_neocore.job_name }}"
+    datacenter: "{{ nomad_datacenter }}"
+    hostname: "{{ ansible_hostname }}"
+    config_dir: "{{ nomad_data_dir }}/jobs/{{ nomad_neocore.job_name }}"
+  register: neocore_nomad_file_changed
+
+- name: Check neocore service status
+  uri:
+    url: "http://{{ nomad_advertise_address }}:{{ neocore.external_port }}//neoCore/XmlServlet"
+    method: GET
+    status_code: 200
+  ignore_errors: true
+  until: neocore_status.status == 200
+  retries: 12
+  delay: 30
+  register: neocore_status

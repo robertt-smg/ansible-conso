@@ -27,3 +27,9 @@ lserver1
 
 [passbolt_server_secrets:children]
 passbolt_server
+
+[neocore_server:children]
+lserver1
+
+[neocore_server_secrets:children]
+neocore_server

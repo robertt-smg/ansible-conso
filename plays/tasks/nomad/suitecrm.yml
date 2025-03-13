@@ -17,8 +17,6 @@
     recurse: yes
   loop:
     - config
-    - script
-    - nginx
 
 - name: Create application volume and dirs {{ nomad_suitecrm.job_name }}
   file:
@@ -32,6 +30,7 @@
     - data
     - cache
     - log
+    - backup
 
 - name: Manage Nomad job file {{ nomad_suitecrm.job_name }}
   template:

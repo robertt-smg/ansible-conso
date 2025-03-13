@@ -1,0 +1,24 @@
+- name: Check if group ID 1000 exists
+  command: getent group 1000
+  register: group_check
+  ignore_errors: true
+
+- name: Check if user ID 1000 exists
+  command: getent passwd 1000
+  register: user_check
+  ignore_errors: true
+
+- name: Create group with ID 1000
+  group:
+    name: default
+    gid: 1000
+    system: yes
+  when: group_check.rc != 0
+
+- name: Create user with ID 1000
+  user:
+    name: default
+    uid: 1000
+    shell: /usr/sbin/nologin
+    group: default
+  when: user_check.rc != 0

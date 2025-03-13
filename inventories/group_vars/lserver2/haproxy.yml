@@ -3,10 +3,10 @@ nomad_haproxy:
   enabled: true
   use_certbot: false
   use_lego_acme: true
-  server_pem: test.smg-air-conso.com.pem
+  server_pem: server.pem
   job_name: "smg-conso-haproxy"
   cfg_template: "haproxy-passbolt"
   haproxy:
-    domain_list: "test.smg-air-conso.com,passbolt.smg-air-conso.com,neocore.smg-air-conso.com,crm.smg-air-conso.com"
+    domain_list: "test.smg-air-conso.com,passbolt.smg-air-conso.com,neocore.smg-air-conso.com,crm.smg-air-conso.com,kim.test.smg-air-conso.com,l1.test.smg-air-conso.com,l2.test.smg-air-conso.com"
     cookie_domain: "{{ ansible_fqdn }}"
     maxconn: 500

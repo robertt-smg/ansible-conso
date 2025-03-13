@@ -1,0 +1,37 @@
+x-project:
+  name: neocore-test-vm
+
+services:
+  mariadb:
+    image: mariadb:latest
+    environment:
+      - MARIADB_RANDOM_ROOT_PASSWORD="true"
+      - MARIADB_ROOT_PASSWORD="70548508275f86e7f0"
+      - ALLOW_EMPTY_PASSWORD=yes
+      - MARIADB_USER=neocore
+      - MARIADB_DATABASE=neocore
+      - MARIADB_PASSWORD=neocore123
+    volumes:
+      - 'mariadb_data:/var/lib/mysql'
+      - './mariadb-init:/docker-entrypoint-initdb.d'  # Hier das Init-Skript einbinden
+
+  neocore:
+    image: wildfly:latest
+    ports:
+      - 127.0.0.180:8080:8080
+      - 127.0.0.180:9990:9990 
+
+    environment:
+      - DUMMY=true
+    depends_on:
+      - mariadb
+    networks:
+      salt-vm:
+        ipv4_address: 192.168.11.180
+
+networks:
+  salt-vm:
+    external: true
+
+volumes:
+  mariadb_data:

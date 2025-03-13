@@ -92,13 +92,19 @@
     name: mysql-client
     state: present
 
-#- name: Manage Nomad job file {{ nomad_percona.job_name }}
-#  template:
-#    src: templates/nomad-files/percona/percona.nomad.j2
-#    dest: "{{ nomad_data_dir }}/jobs/{{ nomad_percona.job_name }}.nomad"
-#    owner: root
-#    group: root
-#    mode: "0644"
+- name: Manage Nomad job file {{ nomad_percona.job_name }}
+  template:
+    src: "nomad-files/percona/percona.nomad.j2"
+    dest: "{{ nomad_data_dir }}/jobs/{{ nomad_percona.job_name }}.nomad"
+    owner: root
+    group: root
+    mode: "0644"
+  vars:
+    job_name: "{{ nomad_percona.job_name }}"
+    datacenter: "{{ nomad_datacenter }}"
+    hostname: "{{ ansible_hostname }}"
+    config_dir: "{{ nomad_data_dir }}/jobs/{{ nomad_percona.job_name }}"
+
 - name: "Manage Nomad job file {{ nomad_percona.job_name }}"
   run_once: true
   nomad_job:

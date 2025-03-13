@@ -210,7 +210,7 @@ function podman_upload() {
 	IMAGE=${2/:/_}
 	TAG=${3:-latest}
 	
-	echo Pushing to gitlab ...
+	echo Pushing to registry ${GITHUB_REGISTRY}/${GITHUB_OWNER} ...
     if podman image exists ${IMAGE}:${LOCAL}; then
 
         #podman tag ${IMAGE}:${LOCAL} registry.gitlab.com/la-cuna-icu/podman-images/${IMAGE}:${TAG}

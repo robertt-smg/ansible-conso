@@ -7,7 +7,9 @@ COPY ./files/wait-for.sh /usr/bin/wait-for.sh
 USER root
 RUN date && \
     apt-get update &&\
-    chmod +x /tmp/setup.sh /usr/bin/wait-for.sh /run.sh 
+    chmod +x /tmp/setup.sh /usr/bin/wait-for.sh /run.sh &&\
+    /tmp/setup.sh
+
 
 EXPOSE 8080 8443
 
