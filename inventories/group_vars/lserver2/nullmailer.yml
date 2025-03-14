@@ -1,1 +1,3 @@
 nullmailer_enabled: true
+nullmailer_remotes: 
+  - "192.168.121.21 smtp"

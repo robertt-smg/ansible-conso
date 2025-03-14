@@ -79,8 +79,11 @@ job "{{ job_name }}" {
         }
 
         volumes = [
-            "{{ suitecrm.app_volume }}/data:/bitnami/suitecrm",
+            "{{ suitecrm.app_volume }}/cache:/bitnami/suitecrm/cache",
+            "{{ suitecrm.app_volume }}/config:/bitnami/suitecrm/config",
+            "{{ suitecrm.app_volume }}/log:/bitnami/suitecrm/logs"
             "{{ suitecrm.app_volume }}/backup:/backups",
+            "{{ suitecrm.app_volume }}/scripts:/docker-entrypoint-init.d"
             "/etc/passwd:/etc/passwd:ro",
             "/etc/group:/etc/group:ro"
         ]

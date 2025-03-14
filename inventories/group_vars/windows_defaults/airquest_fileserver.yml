@@ -53,11 +53,25 @@ airquest_fileserver_default:
       vtype: "Dword"
       vdata: 1
 
-    - key: "HKEY_LOCAL_MACHINE\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\\ZoneMap\\Ranges\\Range10003"
+    - key: "HKEY_LOCAL_MACHINE\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\\ZoneMap\\Ranges\\Range10004"
       vname: ":Range"
       vtype: "String"
       vdata: "{{ airquest_defaults.drive_letter }}:\\"
 
+    - key: "HKEY_LOCAL_MACHINE\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\\ZoneMap\\Ranges\\Range10005"
+      vname: ":Range"
+      vtype: "String"
+      vdata: "{{ airquest_defaults.test_ip_range }}"
+
+    - key: "HKEY_LOCAL_MACHINE\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\\ZoneMap\\Ranges\\Range10006"
+      vname: ":Range"
+      vtype: "String"
+      vdata: "{{ airquest_defaults.prod_ip_range }}"
+
+    - key: "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System"
+      vname: "EnableLinkedConnections"
+      vtype: "Dword"
+      vdata: "1"
 
     - key: "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\AppCompatFlags\\Layers"
       vname: "C:\\Windows\\System32\\Taskmgr.exe"

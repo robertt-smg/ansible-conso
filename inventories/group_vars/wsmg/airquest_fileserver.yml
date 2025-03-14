@@ -8,3 +8,5 @@ airquest_defaults_wsmg_group:
   share: proquest
   local_path: "d:\\proquest"
   user: aq@SMG-TST-W01
+  test_ip_range: "192.168.121.0-192.168.121.255"
+  prod_ip_range: "10.1.121.0-10.1.121.255"

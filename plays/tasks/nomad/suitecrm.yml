@@ -31,6 +31,7 @@
     - cache
     - log
     - backup
+    - scripts
 
 - name: Manage Nomad job file {{ nomad_suitecrm.job_name }}
   template:
@@ -63,7 +64,7 @@
 
 - name: Check SuiteCRM service status
   uri:
-    url: "http://{{ nomad_advertise_address }}:{{ suitecrm.external_port }}/health"
+    url: "http://{{ nomad_advertise_address }}:{{ suitecrm.external_port }}/#/Login"
     method: GET
     status_code: 200
   ignore_errors: true
