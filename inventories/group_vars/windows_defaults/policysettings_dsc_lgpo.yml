@@ -124,7 +124,7 @@ policy_settings_lgpo_cAdministrativeTemplateSetting:
 
 # https://admx.help/HKLM/Software/Policies/Microsoft/Windows/CurrentVersion/Internet%20Settings/ZoneMap
 #HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\\ZoneMap' 
-    - key: "SOFTWARE\\Policies\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\\ZoneMap"
+    - key: "HKEY_LOCAL_MACHINESOFTWARE\\SOFTWARE\\Policies\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\\ZoneMap"
       vname: "UNCAsIntranet"
       vtype: "Dword"
       vdata: "1"

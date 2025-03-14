@@ -37,7 +37,7 @@ listen stats
 
 frontend ft_http_api
         bind :8080
-        bind :443 ssl crt /data/certs/live/server.pem
+        bind :443 ssl crt /data/certs/live/server.pem  verify none
 
         http-request set-src hdr(x-forwarded-for)
         http-request track-sc0 src table per_ip_rates

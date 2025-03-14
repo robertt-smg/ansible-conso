@@ -75,6 +75,7 @@ function get_certs() {
         --path "${CERT_PATH}" \
         $STAGING \
         --accept-tos \
+        --key-type rsa2048 \
         --pem \
         $DOMAIN_ARGS \
         run 
@@ -99,7 +100,8 @@ function deploy() {
     fi
     CERT_PATH_LIVE="${CERT_PATH}/live"
     [ ! -d  "${CERT_PATH_LIVE}" ] && mkdir -p "${CERT_PATH_LIVE}"
-    cp "${CERT_PATH}/certificates/${FIRST_DOMAIN}.pem" "${CERT_PATH_LIVE}/server.pem"
+    cat "${CERT_PATH}/certificates/${FIRST_DOMAIN}.key "${CERT_PATH}/certificates/${FIRST_DOMAIN}.crt >server.pem
+
     cp "${CERT_PATH}/certificates/${FIRST_DOMAIN}.key" "${CERT_PATH_LIVE}/server.key"
     cp "${CERT_PATH}/certificates/${FIRST_DOMAIN}.crt" "${CERT_PATH_LIVE}/server.crt"
     cp "${CERT_PATH}/certificates/${FIRST_DOMAIN}.issuer.crt" "${CERT_PATH_LIVE}/server.issuer.crt"

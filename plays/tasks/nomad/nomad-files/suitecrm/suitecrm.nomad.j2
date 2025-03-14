@@ -60,9 +60,9 @@ job "{{ job_name }}" {
           SUITECRM_EMAIL="{{ suitecrm.email }}"
           SUITECRM_SMTP_HOST="{{ suitecrm.smtp.host }}"
           SUITECRM_SMTP_PORT_NUMBER="{{ suitecrm.smtp.port }}"
-          #// SUITECRM_SMTP_USER="{{ suitecrm.smtp.user }}"
-          #// SUITECRM_SMTP_PASSWORD="{{ suitecrm.smtp.password }}"
-          #// SUITECRM_SMTP_PROTOCOL="{{ suitecrm.smtp.protocol }}"
+          SUITECRM_SMTP_USER="{{ suitecrm.smtp.user }}"
+          SUITECRM_SMTP_PASSWORD="{{ suitecrm.smtp.password }}"
+          SUITECRM_SMTP_PROTOCOL="{{ suitecrm.smtp.protocol }}"
           SUITECRM_SMTP_NOTIFY_ADDRESS="{{ suitecrm.notify.address }}"
           SUITECRM_SMTP_NOTIFY_NAME="{{ suitecrm.notify.name }}"
           
@@ -81,9 +81,9 @@ job "{{ job_name }}" {
         volumes = [
             "{{ suitecrm.app_volume }}/cache:/bitnami/suitecrm/cache",
             "{{ suitecrm.app_volume }}/config:/bitnami/suitecrm/config",
-            "{{ suitecrm.app_volume }}/log:/bitnami/suitecrm/logs"
+            "{{ suitecrm.app_volume }}/log:/bitnami/suitecrm/logs",
             "{{ suitecrm.app_volume }}/backup:/backups",
-            "{{ suitecrm.app_volume }}/scripts:/docker-entrypoint-init.d"
+            "{{ suitecrm.app_volume }}/scripts:/docker-entrypoint-init.d",
             "/etc/passwd:/etc/passwd:ro",
             "/etc/group:/etc/group:ro"
         ]
