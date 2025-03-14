@@ -18,52 +18,62 @@ airquest_fileserver_default:
       vname: "legalnoticetext"
 
   registry_present:
-    - key: "HKEY_LOCAL_MACHINE\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\\ZoneMap\\Ranges\\Range10000"
-      vname: "file"
+    - key: "HKEY_LOCAL_MACHINE\\Software\\Policies\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\\ZoneMap\\Ranges\\Range10000"
+      vname: "*"
       vtype: "Dword"
       vdata: 1
 
-    - key: "HKEY_LOCAL_MACHINE\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\\ZoneMap\\Ranges\\Range10000"
+    - key: "HKEY_LOCAL_MACHINE\\Software\\Policies\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\\ZoneMap\\Ranges\\Range10000"
       vname: ":Range"
       vtype: "String"
       vdata: "{{ airquest_defaults.host }}"
 
-    - key: "HKEY_LOCAL_MACHINE\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\\ZoneMap\\Ranges\\Range10001"
-      vname: "file"
+    - key: "HKEY_LOCAL_MACHINE\\Software\\Policies\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\\ZoneMap\\Ranges\\Range10001"
+      vname: "*"
       vtype: "Dword"
       vdata: 1
 
-    - key: "HKEY_LOCAL_MACHINE\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\\ZoneMap\\Ranges\\Range10001"
+    - key: "HKEY_LOCAL_MACHINE\\Software\\Policies\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\\ZoneMap\\Ranges\\Range10001"
       vname: ":Range"
       vtype: "String"
       vdata: "{{ airquest_defaults.host_ip }}"
 
-    - key: "HKEY_LOCAL_MACHINE\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\\ZoneMap\\Ranges\\Range10002"
-      vname: "file"
+    - key: "HKEY_LOCAL_MACHINE\\Software\\Policies\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\\ZoneMap\\Ranges\\Range10002"
+      vname: "*"
       vtype: "Dword"
       vdata: 1
 
-    - key: "HKEY_LOCAL_MACHINE\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\\ZoneMap\\Ranges\\Range10002"
+    - key: "HKEY_LOCAL_MACHINE\\Software\\Policies\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\\ZoneMap\\Ranges\\Range10002"
       vname: ":Range"
       vtype: "String"
       vdata: "{{ airquest_defaults.local_path }}"
 
-    - key: "HKEY_LOCAL_MACHINE\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\\ZoneMap\\Ranges\\Range10003"
-      vname: "file"
+    - key: "HKEY_LOCAL_MACHINE\\Software\\Policies\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\\ZoneMap\\Ranges\\Range10003"
+      vname: "*"
       vtype: "Dword"
       vdata: 1
 
-    - key: "HKEY_LOCAL_MACHINE\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\\ZoneMap\\Ranges\\Range10004"
+    - key: "HKEY_LOCAL_MACHINE\\Software\\Policies\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\\ZoneMap\\Ranges\\Range10003"
       vname: ":Range"
       vtype: "String"
       vdata: "{{ airquest_defaults.drive_letter }}:\\"
 
-    - key: "HKEY_LOCAL_MACHINE\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\\ZoneMap\\Ranges\\Range10005"
+    - key: "HKEY_LOCAL_MACHINE\\Software\\Policies\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\\ZoneMap\\Ranges\\Range10004"
+      vname: "*"
+      vtype: "Dword"
+      vdata: 1
+
+    - key: "HKEY_LOCAL_MACHINE\\Software\\Policies\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\\ZoneMap\\Ranges\\Range10004"
       vname: ":Range"
       vtype: "String"
       vdata: "{{ airquest_defaults.test_ip_range }}"
 
-    - key: "HKEY_LOCAL_MACHINE\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\\ZoneMap\\Ranges\\Range10006"
+    - key: "HKEY_LOCAL_MACHINE\\Software\\Policies\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\\ZoneMap\\Ranges\\Range10005"
+      vname: "*"
+      vtype: "Dword"
+      vdata: 1
+
+    - key: "HKEY_LOCAL_MACHINE\\Software\\Policies\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\\ZoneMap\\Ranges\\Range10005"
       vname: ":Range"
       vtype: "String"
       vdata: "{{ airquest_defaults.prod_ip_range }}"

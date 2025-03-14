@@ -19,8 +19,16 @@
 
 - name: Copy 241214_Datenschutzhinweise.pdf to /var/www/html
   copy:
-    src: files/241214_Datenschutzhinweise.pdf
+    src: 241214_Datenschutzhinweise.pdf
     dest: /var/www/html/241214_Datenschutzhinweise.pdf
+    owner: www-data
+    group: www-data
+    mode: '0644'
+
+- name: Copy FTI_Ticketshop_new_col_pos_RGB.png to /var/www/html
+  copy:
+    src: FTI_Ticketshop_new_col_pos_RGB.png
+    dest: /var/www/html/FTI_Ticketshop_new_col_pos_RGB.png
     owner: www-data
     group: www-data
     mode: '0644'

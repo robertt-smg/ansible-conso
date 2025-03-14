@@ -19,14 +19,26 @@
   include_tasks: win-tasks/roles.yml
   when: winserver_roles_enabled is defined
 
+- name: Check if CloudSOE hardening has already been applied
+  win_stat:
+    path: C:\cloudSOE_hardening.done
+  register: cloudsoe_hardening_done
+
 - name: Include tasks for ISM hardening based on CloudSOE project
   include_tasks: win-tasks/cloudsoe_hardening.yml
+  when: not cloudsoe_hardening_done.stat.exists
+
+- name: Create CloudSOE hardening completion marker file
+  win_file:
+    path: C:\cloudSOE_hardening.done
+    state: touch
+  when: not cloudsoe_hardening_done.stat.exists
 
 - name: Include update Local Group Policies
   include_tasks: win-tasks/policy_settings_ps.yml
 
-- name: Install icinga2 client on windows
-  include_tasks: win-tasks/icinga2.yml
+#- name: Install icinga2 client on windows
+#  include_tasks: win-tasks/icinga2.yml
 
 - name: Configure Defender
   include_tasks: win-tasks/defender.yml

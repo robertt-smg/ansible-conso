@@ -1,99 +1,1633 @@
+- name: Setup logging
+  block:
+    - name: Create log directory with restricted permissions
+      ansible.windows.win_file:
+        path: "c:\\Windows\\Temp\\airquest_logs"
+        state: directory
 
+    - name: Set log directory permissions
+      ansible.windows.win_acl:
+        path: "c:\\Windows\\Temp\\airquest_logs"
+        user: Administrators
+        rights: FullControl
+        type: allow
+        inherit: None
+        propagation: None
+
+    - name: Create log file
+      ansible.windows.win_file:
+        path: "c:\\Windows\\Temp\\airquest_logs\\setup.log"
+        state: touch
+      register: log_file
+
+    - name: Initialize logging system
+      ansible.windows.win_shell: |
+        function Compress-OldLogs {
+            param([string]$LogDir)
+            $MaxLogs = 5
+            $OldLogs = Get-ChildItem $LogDir -Filter "*.log" | 
+                Where-Object { -not $_.PSIsContainer } |
+                Sort-Object LastWriteTime -Descending |
+                Select-Object -Skip $MaxLogs
+            
+            foreach ($Log in $OldLogs) {
+                try {
+                    $Archive = $Log.FullName -replace '\.log$', '.zip'
+                    Compress-Archive -Path $Log.FullName -DestinationPath $Archive -Force
+                    Remove-Item $Log.FullName -Force
+                }
+                catch {
+                    Write-Warning "Failed to compress log file $($Log.Name): $_"
+                }
+            }
+        }
+
+        $LogDir = "c:\Windows\Temp\airquest_logs"
+        $CurrentLog = Join-Path $LogDir "setup_$(Get-Date -Format 'yyyyMMdd_HHmmss').log"
+        
+        # Rotate and compress old logs
+        Compress-OldLogs -LogDir $LogDir
+        
+        # Initialize new log file
+        $LogEntry = @{
+            'StartTime' = (Get-Date -Format 'yyyy-MM-dd HH:mm:ss')
+            'ComputerName' = $env:COMPUTERNAME
+            'UserName' = $env:USERNAME
+            'WindowsVersion' = [System.Environment]::OSVersion.Version.ToString()
+            'Events' = @()
+            'LogRotation' = @{
+                'MaxLogs' = 5
+                'CompressionEnabled' = $true
+                'RotationTime' = (Get-Date -Format 'yyyy-MM-dd HH:mm:ss')
+            }
+        }
+        
+        ConvertTo-Json $LogEntry -Depth 10 | Set-Content $CurrentLog
+        
+        # Create symlink for current log
+        $CurrentLink = Join-Path $LogDir "setup.log"
+        if (Test-Path $CurrentLink) {
+            Remove-Item $CurrentLink -Force
+        }
+        New-Item -ItemType SymbolicLink -Path $CurrentLink -Target $CurrentLog
+      when: log_file.changed
+
+- name: Check Windows features and system requirements
+  ansible.windows.win_command: >
+    powershell.exe -ExecutionPolicy ByPass -Command "
+    $Features = @{
+        'SMB' = $false
+        'GroupPolicy' = $false
+        'PowerShell' = $false
+        'DotNet' = $false
+        'Memory' = $false
+        'DiskSpace' = $false
+    }
+    
+    try {
+        # Check SMB feature
+        $SMBFeature = Get-WindowsFeature FS-SMB* -ErrorAction Stop | Where-Object Installed
+        $Features.SMB = $SMBFeature.Count -gt 0
+    } catch {
+        Write-Warning 'Failed to check SMB feature'
+    }
+    
+    # Check Group Policy
+    $Features.GroupPolicy = Test-Path $env:SystemRoot\\System32\\GroupPolicy
+    
+    # Check PowerShell version
+    $Features.PowerShell = $PSVersionTable.PSVersion.Major -ge 5
+    
+    # Check .NET Framework
+    $Features.DotNet = [System.Runtime.InteropServices.RuntimeInformation]::FrameworkDescription -match '4\\.[5-9]|[5-9]\\.'
+    
+    # Check available memory (minimum 2GB)
+    $Memory = Get-CimInstance Win32_ComputerSystem
+    $Features.Memory = ($Memory.TotalPhysicalMemory/1GB) -ge 2
+    
+    # Check available disk space on D: (minimum 1GB)
+    $DiskD = Get-PSDrive D -ErrorAction SilentlyContinue
+    $Features.DiskSpace = $DiskD -and ($DiskD.Free/1GB) -ge 1
+    
+    ConvertTo-Json $Features"
+  register: windows_features
+  changed_when: false
+  failed_when: false
+
+- name: Validate Windows features and requirements
+  ansible.builtin.assert:
+    that:
+      - (windows_features.stdout | from_json).SMB
+      - (windows_features.stdout | from_json).GroupPolicy
+      - (windows_features.stdout | from_json).PowerShell
+      - (windows_features.stdout | from_json).DotNet
+      - (windows_features.stdout | from_json).Memory
+      - (windows_features.stdout | from_json).DiskSpace
+    fail_msg: "Missing required features or system requirements"
+    success_msg: "All required features and system requirements are met"
+
+- name: Manage backup directories
+  block:
+    - name: Create backup directory
+      ansible.windows.win_file:
+        path: "c:\\Windows\\Temp\\airquest_backup\\{{ ansible_date_time.date }}"
+        state: directory
+
+    - name: Clean old backups
+      ansible.windows.win_shell: |
+        $BackupRoot = "c:\Windows\Temp\airquest_backup"
+        $MaxBackups = 5
+        $Backups = Get-ChildItem $BackupRoot | Sort-Object CreationTime -Descending
+        if ($Backups.Count -gt $MaxBackups) {
+            $Backups | Select-Object -Skip $MaxBackups | Remove-Item -Recurse -Force
+        }
+      ignore_errors: true
+
+    - name: Set backup directory permissions
+      ansible.windows.win_acl:
+        path: "c:\\Windows\\Temp\\airquest_backup"
+        user: Administrators
+        rights: FullControl
+        type: allow
+        inherit: ContainerInherit,ObjectInherit
+        propagation: None
+
+- name: Backup existing configuration
+  block:
+    - name: Backup SMB configuration
+      ansible.windows.win_shell: |
+        Get-SmbClientConfiguration | Export-Clixml "c:\Windows\Temp\airquest_backup\{{ ansible_date_time.date }}\smb_config.xml"
+      ignore_errors: true
+
+    - name: Backup registry keys
+      ansible.windows.win_shell: |
+        $BackupPath = "c:\Windows\Temp\airquest_backup\{{ ansible_date_time.date }}\registry_backup.reg"
+        foreach ($Key in {{ airquest_fileserver.registry_present | to_json }}) {
+            $KeyPath = $Key.key -replace 'HKLM:', 'HKEY_LOCAL_MACHINE'
+            reg export $KeyPath "$BackupPath" /y
+        }
+      ignore_errors: true
+
+    - name: Backup existing scripts
+      ansible.windows.win_shell: |
+        $BackupPath = "c:\Windows\Temp\airquest_backup\{{ ansible_date_time.date }}\scripts"
+        New-Item -ItemType Directory -Path $BackupPath -Force
+        Copy-Item "$env:SystemRoot\System32\GroupPolicy\User\Scripts\*" $BackupPath -Recurse -ErrorAction SilentlyContinue
+      ignore_errors: true
+  ignore_errors: true
+
+- name: Validate required variables
+  ansible.builtin.assert:
+    that:
+      - airquest_defaults.drive_letter is defined
+      - airquest_defaults.host_ip is defined
+      - airquest_defaults.user is defined
+      - airquest_defaults.password is defined
+      - airquest_fileserver.registry_present is defined
+      - airquest_fileserver.registry_absent is defined
+    fail_msg: "Missing required variables"
+    success_msg: "All required variables are present"
+
+- name: Ensure batch directory exists
+  ansible.windows.win_file:
+    path: "c:\\batch"
+    state: directory
+
+- name: Set batch directory permissions
+  ansible.windows.win_acl:
+    path: "c:\\batch"
+    user: Administrators
+    rights: FullControl
+    type: allow
+    inherit: ContainerInherit,ObjectInherit
+    propagation: None
+
+- name: Check if batch file exists
+  ansible.windows.win_stat:
+    path: "c:\\batch\\q.cmd"
+  register: batch_file_stat
+
+- name: Check network connectivity and drive availability
+  ansible.windows.win_command: >
+    powershell.exe -ExecutionPolicy ByPass -Command "
+    $Results = @{
+        'DriveAvailable' = $false
+        'NetworkReachable' = $false
+        'PortAccessible' = $false
+    }
+    
+    # Check if drive letter is available
+    $Results.DriveAvailable = -not (Get-PSDrive {{ airquest_defaults.drive_letter }} -ErrorAction SilentlyContinue)
+    
+    # Test network connectivity
+    $Results.NetworkReachable = Test-Connection -ComputerName {{ airquest_defaults.host_ip }} -Count 1 -Quiet
+    
+    # Test SMB port
+    $TCPClient = New-Object System.Net.Sockets.TcpClient
+    try {
+        $TCPClient.Connect('{{ airquest_defaults.host_ip }}', 445)
+        $Results.PortAccessible = $TCPClient.Connected
+    } catch {
+        Write-Warning 'SMB port test failed'
+    } finally {
+        $TCPClient.Close()
+    }
+    
+    ConvertTo-Json $Results"
+  register: network_check
+  changed_when: false
+  failed_when: false
+
+- name: Validate network connectivity
+  ansible.builtin.assert:
+    that:
+      - (network_check.stdout | from_json).DriveAvailable
+      - (network_check.stdout | from_json).NetworkReachable
+      - (network_check.stdout | from_json).PortAccessible
+    fail_msg: "Network connectivity check failed"
+    success_msg: "Network connectivity check passed"
+
+- name: Create secure credential store
+  ansible.windows.win_shell: |
+    try {
+        $ErrorActionPreference = 'Stop'
+        $CredPath = "c:\batch\airquest.cred"
+        
+        # Create a random key for additional encryption
+        $KeyFile = "c:\batch\airquest.key"
+        $KeyBytes = New-Object byte[] 32
+        [System.Security.Cryptography.RNGCryptoServiceProvider]::Create().GetBytes($KeyBytes)
+        $Key = [System.Convert]::ToBase64String($KeyBytes)
+        $Key | Set-Content $KeyFile
+        
+        # Encrypt the password with the random key
+        $SecurePassword = ConvertTo-SecureString "{{ airquest_defaults.password }}" -AsPlainText -Force
+        $EncryptedPassword = ConvertFrom-SecureString $SecurePassword -Key $KeyBytes
+        
+        # Create and export the credential
+        $Credential = @{
+            'Username' = "{{ airquest_defaults.user }}"
+            'Password' = $EncryptedPassword
+            'Created' = Get-Date -Format 'yyyy-MM-dd HH:mm:ss'
+            'Machine' = $env:COMPUTERNAME
+        }
+        
+        $Credential | ConvertTo-Json | Set-Content $CredPath
+        Write-Host "Credential store created successfully"
+    }
+    catch {
+        Write-Error "Failed to create credential store: $_"
+        if (Test-Path $CredPath) { Remove-Item $CredPath -Force }
+        if (Test-Path $KeyFile) { Remove-Item $KeyFile -Force }
+        exit 1
+    }
+  no_log: true
+
+- name: Set credential store permissions
+  ansible.windows.win_acl:
+    path: "c:\\batch\\airquest.cred"
+    user: Administrators
+    rights: FullControl
+    type: allow
+    inherit: None
+    propagation: None
+
+- name: Create batch file for network drive mapping
+  ansible.windows.win_copy:
+    dest: "c:\\batch\\q.cmd"
+    content: |
+      @echo off
+      echo Checking existing drive mappings...
+      net use {{ airquest_defaults.drive_letter }}: /delete /y 2>nul
+      echo Mapping network drive...
+      
+      powershell.exe -ExecutionPolicy Bypass -Command "
+        # Load credentials
+        $CredPath = "c:\batch\airquest.cred"
+        $KeyFile = "c:\batch\airquest.key"
+        if (-not (Test-Path $CredPath) -or -not (Test-Path $KeyFile)) {
+            throw "Credential store or key file not found"
+        }
+        
+        $Key = Get-Content $KeyFile
+        $KeyBytes = [System.Convert]::FromBase64String($Key)
+        $Credential = Get-Content $CredPath | ConvertFrom-Json
+        $SecurePassword = ConvertTo-SecureString $Credential.Password -Key $KeyBytes
+        $NetworkCred = New-Object System.Management.Automation.PSCredential ($Credential.Username, $SecurePassword)
+        $Username = $NetworkCred.UserName
+        $Password = $NetworkCred.GetNetworkCredential().Password
+        
+        $RetryCount = 3
+        $RetryDelay = 5
+        
+        do {
+            Write-Host 'Attempting to map network drive...'
+            $Result = net use {{ airquest_defaults.drive_letter }}: \\{{ airquest_defaults.host_ip }}\proquest.neu /user:$Username $Password /PERSISTENT:YES 2>&1
+            if ($LASTEXITCODE -eq 0) {
+                Write-Host 'Network drive mapped successfully'
+                break
+            }
+            Write-Host "Failed to map drive, attempts remaining: $RetryCount"
+            $RetryCount--
+            if ($RetryCount -gt 0) {
+                Write-Host "Waiting $RetryDelay seconds before retry..."
+                Start-Sleep -Seconds $RetryDelay
+            }
+        } while ($RetryCount -gt 0)
+        
+        if ($LASTEXITCODE -ne 0) {
+            Write-Host 'All mapping attempts failed'
+            exit 1
+        }
+        
+        Write-Host 'Testing network connection...'
+        if (-not (Test-Path '{{ airquest_defaults.drive_letter }}:\')) {
+            Write-Host 'Drive mapped but access test failed'
+            net use {{ airquest_defaults.drive_letter }}: /delete /y
+            exit 1
+        }
+        Write-Host 'Network drive access test successful'
+      "
+      exit /b %errorlevel%
+  when: not batch_file_stat.stat.exists
+
+- name: Set batch file permissions
+  ansible.windows.win_acl:
+    path: "c:\\batch\\q.cmd"
+    user: Administrators
+    rights: FullControl
+    type: allow
+    inherit: None
+    propagation: None
+  when: not batch_file_stat.stat.exists
+    
 - name: Set registry keys for airQuest
-  win_dsc:
-        resource_name: "Registry"
-        Ensure: Present
-        key: "{{ item.key }}"
-        ValueName: "{{ item.vname }}"
-        ValueType: "{{ item.vtype }}" 
-        ValueData: "{{ item.vdata }}" 
+  ansible.windows.win_dsc:
+    resource_name: "Registry"
+    Ensure: Present
+    key: "{{ item.key }}"
+    ValueName: "{{ item.vname }}"
+    ValueType: "{{ item.vtype }}" 
+    ValueData: "{{ item.vdata }}" 
   with_items: "{{ airquest_fileserver.registry_present }}"
+  register: reg_present_result
+  ignore_errors: true
 
 - name: Delete registry keys for airQuest
-  win_dsc:
-        resource_name: "Registry"
-        Force: true
-        Ensure: Absent
-        key: "{{ item.key }}"
-        ValueName: "{{ item.vname }}"
+  ansible.windows.win_dsc:
+    resource_name: "Registry"
+    Force: true
+    Ensure: Absent
+    key: "{{ item.key }}"
+    ValueName: "{{ item.vname }}"
   with_items: "{{ airquest_fileserver.registry_absent }}"
+  when: reg_present_result is success
+  ignore_errors: true
 
-- name: Create Logon Script Directory
-  win_file:
-    path: "{{ ansible_facts.env.SystemRoot }}\\System32\\GroupPolicy\\User\\Scripts\\Logon"
+- name: Configure Group Policy Logon Scripts
+  block:
+    - name: Create Logon Script Directories
+      ansible.windows.win_file:
+        path: "{{ item }}"
+        state: directory
+        owner: Everyone
+        recurse: yes
+      with_items:
+        - "{{ ansible_facts.env.SystemRoot }}\\System32\\GroupPolicy\\User\\Scripts\\Logon"
+        - "{{ ansible_facts.env.SystemRoot }}\\System32\\GroupPolicyUser\\Scripts\\Logon"
+      register: logon_dirs_result
+
+    - name: Create secure credential store for logon scripts
+      ansible.windows.win_shell: |
+        try {
+            $ErrorActionPreference = 'Stop'
+            $LogonCredPath = "{{ ansible_facts.env.SystemRoot }}\System32\GroupPolicy\User\Scripts\airquest.cred"
+            $LogonKeyFile = "{{ ansible_facts.env.SystemRoot }}\System32\GroupPolicy\User\Scripts\airquest.key"
+            
+            # Create a random key for additional encryption
+            $KeyBytes = New-Object byte[] 32
+            [System.Security.Cryptography.RNGCryptoServiceProvider]::Create().GetBytes($KeyBytes)
+            $Key = [System.Convert]::ToBase64String($KeyBytes)
+            $Key | Set-Content $LogonKeyFile
+            
+            # Encrypt the password with the random key
+            $SecurePassword = ConvertTo-SecureString "{{ airquest_fileserver.password }}" -AsPlainText -Force
+            $EncryptedPassword = ConvertFrom-SecureString $SecurePassword -Key $KeyBytes
+            
+            # Create and export the credential
+            $Credential = @{
+                'Username' = "{{ airquest_fileserver.user }}@{{ airquest_fileserver.host }}"
+                'Password' = $EncryptedPassword
+                'Created' = Get-Date -Format 'yyyy-MM-dd HH:mm:ss'
+                'Machine' = $env:COMPUTERNAME
+                'Hash' = (Get-FileHash $LogonKeyFile).Hash
+            }
+            
+            $Credential | ConvertTo-Json | Set-Content $LogonCredPath
+            Write-Host "Logon credential store created successfully"
+        }
+        catch {
+            Write-Error "Failed to create logon credential store: $_"
+            if (Test-Path $LogonCredPath) { Remove-Item $LogonCredPath -Force }
+            if (Test-Path $LogonKeyFile) { Remove-Item $LogonKeyFile -Force }
+            exit 1
+        }
+      no_log: true
+
+    - name: Set logon credential store permissions
+      ansible.windows.win_acl:
+        path: "{{ ansible_facts.env.SystemRoot }}\\System32\\GroupPolicy\\User\\Scripts\\airquest.cred"
+        user: Everyone
+        rights: Read
+        type: allow
+        inherit: None
+        propagation: None
+
+    - name: Create Logon Scripts
+      ansible.windows.win_copy:
+        dest: "{{ item }}\\mount_airquest.cmd"
+        content: |
+          @echo off
+          echo Starting network drive mapping for {{ airquest_fileserver.drive_letter }}: at %DATE% %TIME%
+          
+          powershell.exe -ExecutionPolicy Bypass -Command "
+          try {
+              $ErrorActionPreference = 'Stop'
+              $LogFile = '$env:TEMP\airquest_logon.log'
+              
+              function Write-Log {
+                  param($Message)
+                  $Timestamp = Get-Date -Format 'yyyy-MM-dd HH:mm:ss'
+                  Add-Content -Path $LogFile -Value \"$Timestamp - $Message\"
+                  Write-Host $Message
+              }
+              
+              Write-Log 'Loading credentials...'
+              $Credential = Import-Clixml -Path '{{ ansible_facts.env.SystemRoot }}\System32\GroupPolicy\User\Scripts\airquest.cred'
+              $Username = $Credential.UserName
+              $Password = $Credential.GetNetworkCredential().Password
+              
+              Write-Log 'Checking existing drive mapping...'
+              $ExistingDrive = Get-PSDrive {{ airquest_fileserver.drive_letter }} -ErrorAction SilentlyContinue
+              if ($ExistingDrive) {
+                  Write-Log 'Removing existing drive mapping...'
+                  Remove-PSDrive -Name {{ airquest_fileserver.drive_letter }} -Force -ErrorAction SilentlyContinue
+                  net use {{ airquest_fileserver.drive_letter }}: /delete /y 2>&1 | Out-Null
+              }
+              
+              Write-Log 'Mapping network drive...'
+              $Result = net use {{ airquest_fileserver.drive_letter }}: \\\\{{ airquest_fileserver.host }}\\{{ airquest_fileserver.share }} /user:$Username $Password /PERSISTENT:YES /WRITETHROUGH 2>&1
+              if ($LASTEXITCODE -ne 0) {
+                  throw \"Failed to map drive: $Result\"
+              }
+              
+              Write-Log 'Testing drive access...'
+              if (-not (Test-Path '{{ airquest_fileserver.drive_letter }}:\')) {
+                  throw 'Drive mapped but access test failed'
+              }
+              
+              Write-Log 'Network drive mapped and tested successfully'
+          }
+          catch {
+              Write-Log \"ERROR: $_\"
+              exit 1
+          }"
+          exit /b %errorlevel%
+      with_items:
+        - "{{ ansible_facts.env.SystemRoot }}\\System32\\GroupPolicy\\User\\Scripts\\Logon"
+        - "{{ ansible_facts.env.SystemRoot }}\\System32\\GroupPolicyUser\\Scripts\\Logon"
+      when: logon_dirs_result is success
+
+    - name: Set Logon Scripts permissions
+      ansible.windows.win_acl:
+        path: "{{ item }}\\mount_airquest.cmd"
+        user: Everyone
+        rights: Read,Execute
+        type: allow
+        inherit: None
+        propagation: None
+      with_items:
+        - "{{ ansible_facts.env.SystemRoot }}\\System32\\GroupPolicy\\User\\Scripts\\Logon"
+        - "{{ ansible_facts.env.SystemRoot }}\\System32\\GroupPolicyUser\\Scripts\\Logon"
+      when: logon_dirs_result is success
+
+    - name: Create Group Policy Scripts.ini
+      ansible.windows.win_copy:
+        dest: "{{ item }}\\scripts.ini"
+        content: |
+          [Logon]
+          0CmdLine=mount_airquest.cmd
+          0Parameters=
+        create: yes
+      with_items:
+        - "{{ ansible_facts.env.SystemRoot }}\\System32\\GroupPolicy\\User\\Scripts"
+        - "{{ ansible_facts.env.SystemRoot }}\\System32\\GroupPolicyUser\\Scripts"
+      when: logon_dirs_result is success
+      register: scripts_ini_result
+
+    - name: Update Group Policy
+      ansible.windows.win_command: >
+        powershell.exe -ExecutionPolicy ByPass -Command "
+        Write-Host 'Updating Group Policy...'
+        gpupdate /force
+        if ($LASTEXITCODE -eq 0) {
+            Write-Host 'Group Policy update successful'
+        } else {
+            Write-Error 'Failed to update Group Policy'
+            exit 1
+        }"
+      when: scripts_ini_result is changed
+      register: gpo_update_result
+
+  when: airquest_defaults.automount is defined and airquest_defaults.automount
+  ignore_errors: true
+  register: gpo_config_result
+
+- name: Get current SMB Client Configuration
+  ansible.windows.win_command: powershell.exe -ExecutionPolicy ByPass -Command "Get-SmbClientConfiguration | ConvertTo-Json"
+  register: smb_config
+  changed_when: false
+  ignore_errors: true
+
+- name: Configure SMB Client Settings
+  ansible.windows.win_command: >
+    powershell.exe -ExecutionPolicy ByPass -Command "
+    try {
+        Write-Host 'Configuring SMB Client settings...'
+        $changes = @()
+        $config = Get-SmbClientConfiguration
+        
+        # Performance and reliability settings
+        $settings = @{
+            'OplocksDisabled' = $true
+            'UseOpportunisticLocking' = $false
+            'DirectoryCacheLifetime' = 0
+            'FileInfoCacheLifetime' = 0
+            'FileNotFoundCacheLifetime' = 0
+            'SessionTimeout' = 120
+            'EnableBandwidthThrottling' = $false
+            'EnableLargeMtu' = $true
+            'EnableMultiChannel' = $true
+            'KeepConn' = 600
+            'MaxCmds' = 50
+            'UseHighPerformance' = $true
+            'RequireSecuritySignature' = $true
+            'EnableSecuritySignature' = $true
+            'EnableCompression' = $true
+            'MaximumConnectionCountPerServer' = 32
+            'AsyncIO' = $true
+            'Smb2CreditsMin' = 512
+            'Smb2CreditsMax' = 8192
+            'DormantFileLimit' = 1000
+            'OutboundScaleFactorPerNetAdapter' = 4
+        }
+
+        # Network resilience settings
+        $NetAdapters = Get-NetAdapter | Where-Object Status -eq 'Up'
+        foreach ($Adapter in $NetAdapters) {
+            # Optimize network adapter settings
+            Set-NetAdapterAdvancedProperty -Name $Adapter.Name -RegistryKeyword "*FlowControl" -RegistryValue 0
+            Set-NetAdapterAdvancedProperty -Name $Adapter.Name -RegistryKeyword "*InterruptModeration" -RegistryValue 1
+            Set-NetAdapterAdvancedProperty -Name $Adapter.Name -RegistryKeyword "*LsoV2IPv4" -RegistryValue 1
+            Set-NetAdapterAdvancedProperty -Name $Adapter.Name -RegistryKeyword "*LsoV2IPv6" -RegistryValue 1
+            Set-NetAdapterAdvancedProperty -Name $Adapter.Name -RegistryKeyword "*NumRssQueues" -RegistryValue 8
+            Set-NetAdapterAdvancedProperty -Name $Adapter.Name -RegistryKeyword "*RssBaseProcNumber" -RegistryValue 1
+            
+            # Set QoS policy for SMB traffic
+            New-NetQosPolicy -Name "SMB" -SMB -Priority 1 -NetworkProfile All
+            Enable-NetAdapterQos -Name $Adapter.Name
+            Set-NetAdapterQos -Name $Adapter.Name -Enabled $true
+        }
+
+        # Advanced TCP/IP optimization
+        Set-NetTCPSetting -SettingName InternetCustom -AutoTuningLevelLocal Experimental
+        Set-NetTCPSetting -SettingName InternetCustom -ScalingHeuristics Disabled
+        Set-NetTCPSetting -SettingName InternetCustom -CongestionProvider DCTCP
+        Set-NetTCPSetting -SettingName InternetCustom -Timestamps Enabled
+        Set-NetTCPSetting -SettingName InternetCustom -InitialRto 2000
+        Set-NetTCPSetting -SettingName InternetCustom -MinRto 300
+        Set-NetTCPSetting -SettingName InternetCustom -DelayedAckTimeoutMs 10
+        Set-NetTCPSetting -SettingName InternetCustom -MemoryPressureProtection Enabled
+
+        # Network adapter optimization with error handling
+        foreach ($Adapter in $NetAdapters) {
+            try {
+                # Backup current adapter settings
+                $BackupPath = "c:\Windows\Temp\airquest_backup\{{ ansible_date_time.date }}\adapter_$($Adapter.Name).json"
+                $CurrentSettings = Get-NetAdapterAdvancedProperty -Name $Adapter.Name | 
+                    Select-Object RegistryKeyword, RegistryValue |
+                    ConvertTo-Json
+                $CurrentSettings | Set-Content $BackupPath
+
+                # Optimize receive/transmit buffers with validation
+                $BufferSettings = @{
+                    "*ReceiveBuffers" = 4096
+                    "*TransmitBuffers" = 4096
+                }
+
+                foreach ($Setting in $BufferSettings.GetEnumerator()) {
+                    $Current = Get-NetAdapterAdvancedProperty -Name $Adapter.Name -RegistryKeyword $Setting.Key -ErrorAction SilentlyContinue
+                    if ($Current.RegistryValue -ne $Setting.Value) {
+                        Set-NetAdapterAdvancedProperty -Name $Adapter.Name -RegistryKeyword $Setting.Key -RegistryValue $Setting.Value
+                        
+                        # Validate change
+                        $Updated = Get-NetAdapterAdvancedProperty -Name $Adapter.Name -RegistryKeyword $Setting.Key
+                        if ($Updated.RegistryValue -ne $Setting.Value) {
+                            throw "Failed to set $($Setting.Key) to $($Setting.Value)"
+                        }
+                    }
+                }
+
+                # Advanced adapter optimization
+                $OptimizationSettings = @{
+                    "*IPChecksumOffloadIPv4" = 3
+                    "*TCPChecksumOffloadIPv4" = 3
+                    "*TCPChecksumOffloadIPv6" = 3
+                    "*UDPChecksumOffloadIPv4" = 3
+                    "*UDPChecksumOffloadIPv6" = 3
+                    "*LsoV2IPv4" = 1
+                    "*LsoV2IPv6" = 1
+                    "*RSS" = 1
+                    "*NumRssQueues" = 8
+                }
+
+                foreach ($Setting in $OptimizationSettings.GetEnumerator()) {
+                    Set-NetAdapterAdvancedProperty -Name $Adapter.Name -RegistryKeyword $Setting.Key -RegistryValue $Setting.Value -ErrorAction Stop
+                }
+            
+            # Enable jumbo frames for better throughput
+            Set-NetAdapterAdvancedProperty -Name $Adapter.Name -RegistryKeyword "*JumboPacket" -RegistryValue 9014
+            
+            # Optimize coalescing parameters
+            Set-NetAdapterAdvancedProperty -Name $Adapter.Name -RegistryKeyword "*RxCoalescingTicks" -RegistryValue 100
+            Set-NetAdapterAdvancedProperty -Name $Adapter.Name -RegistryKeyword "*TxCoalescingTicks" -RegistryValue 100
+            
+            # Configure RSS for better CPU utilization
+            $Processors = (Get-CimInstance Win32_ComputerSystem).NumberOfLogicalProcessors
+            $RssQueues = [Math]::Min($Processors, 16)  # Cap at 16 queues
+            Set-NetAdapterAdvancedProperty -Name $Adapter.Name -RegistryKeyword "*NumRssQueues" -RegistryValue $RssQueues
+        }
+
+        # Configure network QoS and connection pooling
+        Set-NetQosPolicy -Name "SMBPriority" -SMB -PriorityValue8021Action 3 -NetworkProfile All
+        Set-SmbBandwidthLimit -Category Default -BytesPerSecond 0
+        Set-SmbClientConfiguration -ConnectionCountPerRssQueue 4
+        Set-SmbClientConfiguration -EnableBandwidthThrottling $false
+        Set-SmbClientConfiguration -MaximumConnectionCountPerServer 32
+
+        # Configure advanced failover and resilience settings
+        $FailoverSettings = @{
+            'AutoDisconnectTimeout' = 0  # Disable auto-disconnect
+            'RequireSecuritySignature' = $true
+            'ValidateAliasNotCircular' = $true
+            'EnableLargeMtu' = $true
+            'EnableMultiChannel' = $true
+            'ReconnectBackoffTime' = 3  # Seconds between reconnection attempts
+            'MaximumConnectionCountPerServer' = 32
+            'KeepConn' = 600  # Keep connections alive for 10 minutes
+            'EnableBandwidthThrottling' = $false
+            'MaximumConnectionCountPerSession' = 8
+            'AsyncIO' = $true
+            'Smb2CreditsMin' = 512
+            'Smb2CreditsMax' = 8192
+            'MaxChannels' = 32  # Maximum number of channels per session
+            'ValidateShareScope' = $true
+            'ValidateTargetName' = $true
+            'RequirePrivacy' = $true
+            'RequireMutualAuthentication' = $true
+            'EnableInsecureGuestLogons' = $false
+            'WindowsSizeThreshold' = 64KB  # Threshold for using larger windows
+            'DormantFileLimit' = 1000
+            'OutboundScaleFactorPerNetAdapter' = 4
+        }
+
+        foreach ($Setting in $FailoverSettings.GetEnumerator()) {
+            try {
+                Set-SmbClientConfiguration -$($Setting.Key) $Setting.Value -Force
+            }
+            catch {
+                Write-Warning "Failed to set $($Setting.Key): $_"
+            }
+        }
+
+        # Configure connection pooling and load balancing
+        $LoadBalanceSettings = @{
+            'ConnectionCountPerRssQueue' = 4
+            'MaximumConnectionCountPerServer' = 32
+            'MaximumConnectionCountPerSession' = 8
+        }
+
+        foreach ($Setting in $LoadBalanceSettings.GetEnumerator()) {
+            try {
+                Set-SmbClientConfiguration -$($Setting.Key) $Setting.Value -Force
+            }
+            catch {
+                Write-Warning "Failed to set load balance setting $($Setting.Key): $_"
+            }
+        }
+
+        # Configure auto-recovery
+        $RecoverySettings = @{
+            'EnableAutomaticReconnect' = $true
+            'AutoReconnectRetryCount' = 3
+            'AutoReconnectRetryInterval' = 5  # Seconds
+            'EnableRecovery' = $true
+            'RecoveryTimeout' = 60  # Seconds
+        }
+
+        foreach ($Setting in $RecoverySettings.GetEnumerator()) {
+            try {
+                Set-SmbClientConfiguration -$($Setting.Key) $Setting.Value -Force
+            }
+            catch {
+                Write-Warning "Failed to set recovery setting $($Setting.Key): $_"
+            }
+        }
+
+        # Configure network QoS for SMB traffic
+        try {
+            # Create QoS policy for SMB traffic
+            New-NetQosPolicy -Name "SMBTraffic" -SMB -Priority 1 -NetworkProfile All
+            
+            # Configure bandwidth management
+            Set-NetQosPolicy -Name "SMBTraffic" -MinBandwidthWeight 50
+            Set-NetQosPolicy -Name "SMBTraffic" -MaxBandwidthWeight 80
+            
+            # Configure traffic prioritization
+            Set-NetQosTrafficClass -Name "SMB" -Priority 2 -BandwidthPercentage 60
+            
+            # Enable QoS on all active network adapters
+            Get-NetAdapter | Where-Object Status -eq 'Up' | ForEach-Object {
+                Enable-NetAdapterQos -Name $_.Name
+                Set-NetAdapterQos -Name $_.Name -Enabled $true
+            }
+        }
+        catch {
+            Write-Warning "Failed to configure QoS settings: $_"
+        }
+        
+        foreach ($setting in $settings.GetEnumerator()) {
+            $propertyName = $setting.Key
+            $targetValue = $setting.Value
+            
+            if ($config.$propertyName -ne $targetValue) {
+                $params = @{
+                    $propertyName = $targetValue
+                    'Force' = $true
+                }
+                Set-SmbClientConfiguration @params
+                $changes += "$propertyName set to $targetValue"
+            }
+        }
+        
+        # Configure SMB encryption
+        Set-SmbClientConfiguration -RequireSecuritySignature $true -Force
+        $changes += 'Security signature required'
+        
+        # Configure SMB multichannel for better performance
+        $NetAdapter = Get-NetAdapter | Where-Object Status -eq 'Up'
+        if ($NetAdapter.Count -gt 1) {
+            Enable-SmbClientMultiChannel -Force
+            $changes += 'Multichannel enabled'
+        }
+        
+        if ($changes.Count -gt 0) {
+            Write-Host 'Applied changes:'
+            $changes | ForEach-Object { Write-Host (' - ' + $_) }
+        } else {
+            Write-Host 'No changes needed - all settings already correct'
+        }
+    } catch {
+        Write-Error ('Failed to configure SMB settings: ' + $_.Exception.Message)
+        Write-Error $_.ScriptStackTrace
+        exit 1
+    }"
+  args:
+    chdir: C:\
+  when: smb_config is success
+  register: smb_config_result
+
+- name: Check if Data directory exists
+  ansible.windows.win_stat:
+    path: D:\Data
+  register: data_dir_check
+
+- name: Ensure Data directory exists
+  ansible.windows.win_file:
+    path: D:\Data
     state: directory
-    owner: Everyone
-    recurse: yes
-  when: airquest_defaults.automount is defined and airquest_defaults.automount
+  when: not data_dir_check.stat.exists
+  register: data_dir_result
+  ignore_errors: true
 
-- name: Create Logon Script
-  win_copy:
-    dest: "{{ ansible_facts.env.SystemRoot }}\\System32\\GroupPolicy\\User\\Scripts\\Logon\\mount_airquest.cmd"
-    content: |
-      net use {{ airquest_fileserver.drive_letter }}: \\\\{{ airquest_fileserver.host }}\\{{ airquest_fileserver.share }} /user:{{ airquest_fileserver.user }}@{{ airquest_fileserver.host }} {{ airquest_fileserver.password }} /WRITETHROUGH
-  when: airquest_defaults.automount is defined and airquest_defaults.automount
-
-- name: Create Logon Script Directory 2
-  win_file:
-    path: "{{ ansible_facts.env.SystemRoot }}\\System32\\GroupPolicyUser\\Scripts\\Logon"
-    state: directory
-    owner: Everyone
-    recurse: yes
-  when: airquest_defaults.automount is defined and airquest_defaults.automount
-
-- name: Create Logon Script 2
-  win_copy:
-    dest: "{{ ansible_facts.env.SystemRoot }}\\System32\\GroupPolicyUser\\Scripts\\Logon\\mount_airquest.cmd"
-    content: |
-      net use {{ airquest_fileserver.drive_letter }}: \\\\{{ airquest_fileserver.host }}\\{{ airquest_fileserver.share }} /user:{{ airquest_fileserver.user }}@{{ airquest_fileserver.host }} {{ airquest_fileserver.password }} /WRITETHROUGH
-  when: airquest_defaults.automount is defined and airquest_defaults.automount
-
-- name: Disable oplocks client
-  win_command: >
-    powershell.exe -ExecutionPolicy ByPass -Command "Set-SmbClientConfiguration -oplocksdisabled $true -Force"
-  args:
-    chdir: C:\
-
-- name: Set SMB Client Configuration
-  win_command: >
-    powershell.exe -ExecutionPolicy ByPass -Command "Set-SmbClientConfiguration -useopportunisticlocking $false -Force"
-  args:
-    chdir: C:\
-
-- name: Set Directory Cache Lifetime
-  win_command: >
-    powershell.exe -ExecutionPolicy ByPass -Command "Set-SmbClientConfiguration -DirectoryCacheLifetime 0 -Force"
-  args:
-    chdir: C:\
-
-- name: Set File Info Cache Lifetime
-  win_command: >
-    powershell.exe -ExecutionPolicy ByPass -Command "Set-SmbClientConfiguration -FileInfoCacheLifetime 0 -Force"
-  args:
-    chdir: C:\
-
-- name: Set File Not Found Cache Lifetime
-  win_command: >
-    powershell.exe -ExecutionPolicy ByPass -Command "Set-SmbClientConfiguration -FileNotFoundCacheLifetime 0 -Force"
-  args:
-    chdir: C:\
-
-- name: Set Session Timeout
-  win_command: >
-    powershell.exe -ExecutionPolicy ByPass -Command "Set-SmbClientConfiguration -SessionTimeout 120 -Force"
-  args:
-    chdir: C:\
+- name: Check if AQ-TEMP directory exists
+  ansible.windows.win_stat:
+    path: D:\Data\AQ-TEMP
+  register: aqtemp_dir_check
+  when: data_dir_result is success or data_dir_check.stat.exists
 
 - name: Create AQ-TEMP directory
   ansible.windows.win_file:
     path: D:\Data\AQ-TEMP
     state: directory
+  when: (data_dir_result is success or data_dir_check.stat.exists) and (not aqtemp_dir_check.stat.exists)
     
 - name: Set permissions on Data directory
-  ansible.windows.win_acl:
-    path: D:\Data
-    user: Everyone
-    rights: FullControl
-    type: allow
-    inherit: ContainerInherit,ObjectInherit
-    propagation: None
+  block:
+    - name: Remove existing ACL on Data directory
+      ansible.windows.win_acl:
+        path: D:\Data
+        user: Everyone
+        rights: FullControl
+        type: allow
+        state: absent
+        inherit: ContainerInherit,ObjectInherit
+        propagation: None
+      ignore_errors: true
+
+    - name: Set new ACL on Data directory
+      ansible.windows.win_acl:
+        path: D:\Data
+        user: Everyone
+        rights: FullControl
+        type: allow
+        inherit: ContainerInherit,ObjectInherit
+        propagation: None
+      register: acl_result
+  when: data_dir_result is success or data_dir_check.stat.exists
+  ignore_errors: true
+
+- name: Set permissions on AQ-TEMP directory
+  block:
+    - name: Remove existing ACL on AQ-TEMP directory
+      ansible.windows.win_acl:
+        path: D:\Data\AQ-TEMP
+        user: Everyone
+        rights: FullControl
+        type: allow
+        state: absent
+        inherit: ContainerInherit,ObjectInherit
+        propagation: None
+      ignore_errors: true
+
+    - name: Set new ACL on AQ-TEMP directory
+      ansible.windows.win_acl:
+        path: D:\Data\AQ-TEMP
+        user: Everyone
+        rights: FullControl
+        type: allow
+        inherit: ContainerInherit,ObjectInherit
+        propagation: None
+  when: (data_dir_result is success or data_dir_check.stat.exists) and (aqtemp_dir_check.stat is defined and aqtemp_dir_check.stat.exists)
+
+- name: Verify configuration
+  block:
+    - name: Check network drive mapping
+      ansible.windows.win_command: powershell.exe -ExecutionPolicy ByPass -Command "Get-PSDrive {{ airquest_defaults.drive_letter }} -ErrorAction SilentlyContinue"
+      register: final_drive_check
+      changed_when: false
+      failed_when: false
+
+    - name: Check SMB Client Configuration
+      ansible.windows.win_command: powershell.exe -ExecutionPolicy ByPass -Command "Get-SmbClientConfiguration | ConvertTo-Json"
+      register: final_smb_config
+      changed_when: false
+      failed_when: false
+
+    - name: Check AQ-TEMP directory
+      ansible.windows.win_stat:
+        path: D:\Data\AQ-TEMP
+      register: final_aqtemp_check
+
+    - name: Display configuration status
+      ansible.builtin.debug:
+        msg: |
+          Configuration Status:
+          - Network Drive: {{ 'OK' if final_drive_check.rc == 0 else 'Not mapped' }}
+          - SMB Settings: {{ 'OK' if final_smb_config.rc == 0 else 'Error' }}
+          - AQ-TEMP Directory: {{ 'OK' if final_aqtemp_check.stat.exists else 'Missing' }}
+          - Group Policy Scripts: {{ 'OK' if gpo_config_result is success else 'Error' }}
+  ignore_errors: true
+
+- name: Cleanup and restore on failure
+  block:
+    - name: Remove incomplete batch file and credentials
+      ansible.windows.win_shell: |
+        # Remove batch file
+        if (Test-Path "c:\batch\q.cmd") {
+            Remove-Item "c:\batch\q.cmd" -Force
+        }
+        # Remove credential store
+        if (Test-Path "c:\batch\airquest.cred") {
+            Remove-Item "c:\batch\airquest.cred" -Force
+        }
+        # Remove logon script credential store
+        $LogonCredPath = "$env:SystemRoot\System32\GroupPolicy\User\Scripts\airquest.cred"
+        if (Test-Path $LogonCredPath) {
+            Remove-Item $LogonCredPath -Force
+        }
+      when: batch_file_stat.stat.exists and final_drive_check.rc != 0
+
+    - name: Remove incomplete AQ-TEMP directory
+      ansible.windows.win_file:
+        path: D:\Data\AQ-TEMP
+        state: absent
+      when: final_aqtemp_check.stat.exists and not acl_result is success
+
+    - name: Secure cleanup of sensitive files
+      ansible.windows.win_shell: |
+        function Remove-SecureFile {
+            param([string]$Path)
+            if (Test-Path $Path) {
+                try {
+                    # Overwrite file with random data before deletion
+                    $Buffer = New-Object byte[] (1MB)
+                    $Random = New-Object System.Security.Cryptography.RNGCryptoServiceProvider
+                    $Random.GetBytes($Buffer)
+                    [System.IO.File]::WriteAllBytes($Path, $Buffer)
+                    Remove-Item $Path -Force
+                }
+                catch {
+                    Write-Warning "Failed to securely delete $Path"
+                    Remove-Item $Path -Force -ErrorAction SilentlyContinue
+                }
+            }
+        }
+
+        # Clean up credential files
+        Get-ChildItem -Path "c:\batch\*.cred","c:\batch\*.key" -ErrorAction SilentlyContinue | ForEach-Object {
+            Remove-SecureFile $_.FullName
+        }
+        Get-ChildItem -Path "$env:SystemRoot\System32\GroupPolicy\User\Scripts\*.cred" -ErrorAction SilentlyContinue | ForEach-Object {
+            Remove-SecureFile $_.FullName
+        }
+
+        # Clean up logs containing sensitive data
+        Get-ChildItem "$env:TEMP\airquest_*.log" -ErrorAction SilentlyContinue | ForEach-Object {
+            # Redact sensitive information before deletion
+            $Content = Get-Content $_.FullName -Raw
+            $RedactedContent = $Content -replace '(?<=Password=)[^;}\s]+', '********'
+            $RedactedContent | Set-Content $_.FullName
+            Remove-SecureFile $_.FullName
+        }
+
+        # Clean up any remaining temporary files
+        Get-ChildItem -Path "$env:TEMP\airquest_*" -ErrorAction SilentlyContinue | Remove-Item -Force -Recurse
+      ignore_errors: true
+
+    - name: Restore SMB configuration from backup
+      ansible.windows.win_shell: |
+        $BackupFile = "c:\Windows\Temp\airquest_backup\{{ ansible_date_time.date }}\smb_config.xml"
+        if (Test-Path $BackupFile) {
+            $Config = Import-Clixml $BackupFile
+            Set-SmbClientConfiguration -OplockDisabled $Config.OplocksDisabled -Force
+            Set-SmbClientConfiguration -UseOpportunisticLocking $Config.UseOpportunisticLocking -Force
+            Set-SmbClientConfiguration -DirectoryCacheLifetime $Config.DirectoryCacheLifetime -Force
+            Set-SmbClientConfiguration -FileInfoCacheLifetime $Config.FileInfoCacheLifetime -Force
+            Set-SmbClientConfiguration -FileNotFoundCacheLifetime $Config.FileNotFoundCacheLifetime -Force
+            Set-SmbClientConfiguration -SessionTimeout $Config.SessionTimeout -Force
+        }
+      ignore_errors: true
+      when: smb_config_result is failed
+
+    - name: Restore registry settings from backup
+      ansible.windows.win_shell: |
+        $BackupFile = "c:\Windows\Temp\airquest_backup\{{ ansible_date_time.date }}\registry_backup.reg"
+        if (Test-Path $BackupFile) {
+            reg import $BackupFile
+        }
+      ignore_errors: true
+      when: reg_present_result is failed
+
+    - name: Restore Group Policy scripts from backup
+      ansible.windows.win_shell: |
+        $BackupPath = "c:\Windows\Temp\airquest_backup\{{ ansible_date_time.date }}\scripts"
+        if (Test-Path $BackupPath) {
+            Copy-Item "$BackupPath\*" "$env:SystemRoot\System32\GroupPolicy\User\Scripts\" -Recurse -Force
+            gpupdate /force
+        }
+      ignore_errors: true
+      when: gpo_config_result is failed
+  when: >
+    (final_drive_check.rc != 0) or
+    (final_smb_config.rc != 0) or
+    (not final_aqtemp_check.stat.exists) or
+    (not gpo_config_result is success)
+  ignore_errors: true
+
+- name: Final validation
+  block:
+    - name: Validate all components
+      ansible.windows.win_command: >
+        powershell.exe -ExecutionPolicy ByPass -Command "
+        $ValidationResults = @{
+            'DriveMapping' = $false
+            'SMBSettings' = $false
+            'Directories' = $false
+            'GroupPolicy' = $false
+            'Registry' = $false
+            'Permissions' = $false
+        }
+
+        function Write-ValidationLog {
+            param([string]$Component, [string]$Status, [string]$Details)
+            $LogEntry = @{
+                'Timestamp' = (Get-Date -Format 'yyyy-MM-dd HH:mm:ss')
+                'Component' = $Component
+                'Status' = $Status
+                'Details' = $Details
+            }
+            Add-Content -Path "c:\Windows\Temp\airquest_logs\setup.log" -Value (ConvertTo-Json $LogEntry)
+        }
+
+        try {
+            # Check drive mapping
+            Write-Host "Checking drive mapping..."
+            $DriveMapping = Get-PSDrive {{ airquest_defaults.drive_letter }} -ErrorAction SilentlyContinue
+            if ($DriveMapping) {
+                $ValidationResults.DriveMapping = $true
+                Write-ValidationLog "DriveMapping" "Success" "Drive {{ airquest_defaults.drive_letter }}: mapped successfully"
+            } else {
+                Write-ValidationLog "DriveMapping" "Failed" "Drive {{ airquest_defaults.drive_letter }}: not found"
+            }
+
+            # Check SMB settings
+            Write-Host "Checking SMB settings..."
+            $SMBConfig = Get-SmbClientConfiguration
+            $SMBValidation = @{
+                'OplocksDisabled' = $SMBConfig.OplocksDisabled -eq $true
+                'UseOpportunisticLocking' = $SMBConfig.UseOpportunisticLocking -eq $false
+                'DirectoryCacheLifetime' = $SMBConfig.DirectoryCacheLifetime -eq 0
+                'FileInfoCacheLifetime' = $SMBConfig.FileInfoCacheLifetime -eq 0
+                'FileNotFoundCacheLifetime' = $SMBConfig.FileNotFoundCacheLifetime -eq 0
+                'SessionTimeout' = $SMBConfig.SessionTimeout -eq 120
+            }
+            $ValidationResults.SMBSettings = $SMBValidation.Values -notcontains $false
+            Write-ValidationLog "SMBSettings" ($ValidationResults.SMBSettings ? "Success" : "Failed") (ConvertTo-Json $SMBValidation)
+
+            # Check directories
+            Write-Host "Checking directories..."
+            $Dirs = @{
+                'Data' = Test-Path 'D:\Data'
+                'AQ-TEMP' = Test-Path 'D:\Data\AQ-TEMP'
+            }
+            $ValidationResults.Directories = $Dirs.Values -notcontains $false
+            Write-ValidationLog "Directories" ($ValidationResults.Directories ? "Success" : "Failed") (ConvertTo-Json $Dirs)
+
+            # Check Group Policy scripts
+            Write-Host "Checking Group Policy scripts..."
+            $GPScripts = @{
+                'PolicyScript1' = Test-Path "$env:SystemRoot\System32\GroupPolicy\User\Scripts\Logon\mount_airquest.cmd"
+                'PolicyScript2' = Test-Path "$env:SystemRoot\System32\GroupPolicyUser\Scripts\Logon\mount_airquest.cmd"
+            }
+            $ValidationResults.GroupPolicy = $GPScripts.Values -notcontains $false
+            Write-ValidationLog "GroupPolicy" ($ValidationResults.GroupPolicy ? "Success" : "Failed") (ConvertTo-Json $GPScripts)
+
+            # Check permissions
+            Write-Host "Checking permissions..."
+            $AQTempAcl = Get-Acl 'D:\Data\AQ-TEMP'
+            $PermissionCheck = $AQTempAcl.Access | Where-Object { 
+                $_.IdentityReference -eq 'Everyone' -and 
+                $_.FileSystemRights -eq 'FullControl' 
+            }
+            $ValidationResults.Permissions = $null -ne $PermissionCheck
+            Write-ValidationLog "Permissions" ($ValidationResults.Permissions ? "Success" : "Failed") "AQ-TEMP directory permissions"
+
+            # Check registry
+            Write-Host "Checking registry settings..."
+            $RegValidation = @{}
+            foreach ($Key in {{ airquest_fileserver.registry_present | to_json }}) {
+                $RegValue = Get-ItemProperty -Path $Key.key -Name $Key.vname -ErrorAction SilentlyContinue
+                $RegValidation[$Key.vname] = $null -ne $RegValue -and $RegValue.$($Key.vname) -eq $Key.vdata
+            }
+            $ValidationResults.Registry = $RegValidation.Values -notcontains $false
+            Write-ValidationLog "Registry" ($ValidationResults.Registry ? "Success" : "Failed") (ConvertTo-Json $RegValidation)
+
+        } catch {
+            Write-Error "Validation error: $($_.Exception.Message)"
+            Write-ValidationLog "Error" "Failed" $_.Exception.Message
+            exit 1
+        }
+
+        ConvertTo-Json $ValidationResults"
+      register: final_validation
+      changed_when: false
+      failed_when: false
+
+    - name: Display final validation results
+      ansible.builtin.debug:
+        msg: |
+          Final Validation Results:
+          {% for key, value in (final_validation.stdout | from_json).items() %}
+          - {{ key }}: {{ 'OK' if value else 'Failed' }}
+          {% endfor %}
+
+    - name: Write final validation results to log
+      ansible.windows.win_shell: |
+        $FinalResults = @{
+            'Timestamp' = (Get-Date -Format 'yyyy-MM-dd HH:mm:ss')
+            'Event' = 'FinalValidation'
+            'Results' = @{}
+        }
+        $ValidationData = {{ final_validation.stdout | to_json }}
+        foreach ($key in $ValidationData.Keys) {
+            $FinalResults.Results[$key] = @{
+                'Status' = $ValidationData[$key] ? 'Success' : 'Failed'
+                'Validated' = (Get-Date -Format 'yyyy-MM-dd HH:mm:ss')
+            }
+        }
+        $LogContent = Get-Content "c:\Windows\Temp\airquest_logs\setup.log" | ConvertFrom-Json
+        $LogContent.Events += $FinalResults
+        ConvertTo-Json $LogContent -Depth 10 | Set-Content "c:\Windows\Temp\airquest_logs\setup.log"
+      when: log_file is success
+
+    - name: Assert all validations passed
+      ansible.builtin.assert:
+        that: item.value
+        fail_msg: "Validation failed for {{ item.key }}"
+        success_msg: "All validations passed successfully"
+      with_dict: "{{ final_validation.stdout | from_json }}"
+  ignore_errors: true
+
+- name: Configure monitoring and health checks
+  block:
+    - name: Create scheduled health check task
+      ansible.windows.win_shell: |
+        $TaskName = "AirQuest Health Check"
+        $TaskPath = "\AirQuest\"
+        $TaskDescription = "Performs periodic health checks of AirQuest network drive and related components"
+        
+        # Create action to run PowerShell script
+        $ActionScript = @'
+        $LogPath = "c:\Windows\Temp\airquest_logs\health_check.log"
+        $MaxLogSize = 10MB
+        
+        # Rotate log if too large
+        if ((Test-Path $LogPath) -and (Get-Item $LogPath).Length -gt $MaxLogSize) {
+            Move-Item $LogPath "$LogPath.old" -Force
+        }
+        
+        # Performance thresholds
+        $Thresholds = @{
+            'MinMemoryMB' = 1024
+            'MaxCPUPercent' = 80
+            'MaxDiskQueueLength' = 2
+            'MaxNetworkLatencyMS' = 100
+        }
+        
+        # Email notification settings
+        $EmailSettings = @{
+            'SMTPServer' = "{{ smtp_server | default('smtp.company.com') }}"
+            'From' = "airquest-monitor@{{ ansible_fqdn }}"
+            'To' = "{{ notification_email | default('it-support@company.com') }}"
+            'Subject' = "AirQuest Health Check Alert on $env:COMPUTERNAME"
+        }
+        
+        function Send-HealthAlert {
+            param($Message)
+            try {
+                $Body = @"
+                Server: $env:COMPUTERNAME
+                Time: $(Get-Date)
+                Alert: $Message
+                
+                Please check the system as soon as possible.
+                Log Location: $LogPath
+"@
+                Send-MailMessage @EmailSettings -Body $Body -ErrorAction Stop
+            }
+            catch {
+                Write-Warning "Failed to send email alert: $_"
+            }
+        }
+        
+        # Run the health check
+        $Results = & "c:\batch\health_check.ps1"
+        $HealthData = $Results | ConvertFrom-Json
+        
+        # Check thresholds and take action
+        if ($HealthData.SystemState.Memory.Available -lt $Thresholds.MinMemoryMB) {
+            Send-HealthAlert "Low memory: $($HealthData.SystemState.Memory.Available)MB available"
+        }
+        
+        if ($HealthData.SystemState.CPU.Usage -gt $Thresholds.MaxCPUPercent) {
+            Send-HealthAlert "High CPU usage: $($HealthData.SystemState.CPU.Usage)%"
+        }
+        
+        if ($HealthData.SystemState.Disk.QueueLength -gt $Thresholds.MaxDiskQueueLength) {
+            Send-HealthAlert "High disk queue length: $($HealthData.SystemState.Disk.QueueLength)"
+        }
+        
+        if (-not $HealthData.NetworkDrive.Success) {
+            # Attempt recovery
+            Write-Output "$(Get-Date) - Attempting to recover network drive..."
+            & "c:\batch\q.cmd"
+            if ($LASTEXITCODE -ne 0) {
+                Send-HealthAlert "Network drive recovery failed: $($HealthData.NetworkDrive.Details)"
+            }
+        }
+        
+        if ($HealthData.SMBConnection.Details.Latency -gt $Thresholds.MaxNetworkLatencyMS) {
+            Send-HealthAlert "High network latency: $($HealthData.SMBConnection.Details.Latency)ms"
+        }
+        
+        # Log results
+        $HealthData | ConvertTo-Json -Depth 10 | Add-Content $LogPath
+'@ | Set-Content "c:\batch\health_check.ps1"
+        
+        # Create the task
+        $Action = New-ScheduledTaskAction -Execute "powershell.exe" -Argument "-ExecutionPolicy Bypass -File c:\batch\health_check.ps1"
+        $Trigger = New-ScheduledTaskTrigger -Once -At (Get-Date) -RepetitionInterval (New-TimeSpan -Minutes 15)
+        $Settings = New-ScheduledTaskSettingsSet -ExecutionTimeLimit (New-TimeSpan -Minutes 5) -RestartCount 3 -RestartInterval (New-TimeSpan -Minutes 1)
+        $Principal = New-ScheduledTaskPrincipal -UserId "SYSTEM" -LogonType ServiceAccount -RunLevel Highest
+        
+        # Register the task
+        Register-ScheduledTask -TaskName $TaskName -TaskPath $TaskPath -Action $Action -Trigger $Trigger -Settings $Settings -Principal $Principal -Description $TaskDescription -Force
+      ignore_errors: true
+
+    - name: Run initial health check
+      ansible.windows.win_command: >
+        powershell.exe -ExecutionPolicy ByPass -Command "
+        function Test-NetworkDrive {
+            param($DriveLetter)
+            try {
+                $Drive = Get-PSDrive $DriveLetter -ErrorAction Stop
+                $TestFile = Join-Path $($Drive.Root) 'airquest_test.txt'
+                Set-Content $TestFile 'Test' -ErrorAction Stop
+                Remove-Item $TestFile -ErrorAction Stop
+                return @{ Success = $true; Details = 'Drive is writable' }
+            }
+            catch {
+                return @{ Success = $false; Details = $_.Exception.Message }
+            }
+        }
+
+        function Test-SMBConnection {
+            param($Server)
+            try {
+                $Result = Test-NetConnection -ComputerName $Server -Port 445 -InformationLevel Detailed
+                return @{
+                    Success = $Result.TcpTestSucceeded
+                    Details = @{
+                        'Latency' = $Result.PingReplyDetails.RoundtripTime
+                        'NameResolution' = $Result.NameResolutionSucceeded
+                        'RouteFound' = $Result.RouteFound
+                    }
+                }
+            }
+            catch {
+                return @{ Success = $false; Details = $_.Exception.Message }
+            }
+        }
+
+        function Test-Credentials {
+            param($CredPath, $KeyPath)
+            try {
+                if (-not (Test-Path $CredPath) -or -not (Test-Path $KeyPath)) {
+                    return @{ Success = $false; Details = 'Credential files not found' }
+                }
+                $StoredHash = (Get-Content $CredPath | ConvertFrom-Json).Hash
+                $CurrentHash = (Get-FileHash $KeyPath).Hash
+                return @{
+                    Success = ($StoredHash -eq $CurrentHash)
+                    Details = if ($StoredHash -eq $CurrentHash) { 'Credential integrity verified' } else { 'Credential hash mismatch' }
+                }
+            }
+            catch {
+                return @{ Success = $false; Details = $_.Exception.Message }
+            }
+        }
+
+        $HealthCheck = @{
+            'Timestamp' = Get-Date -Format 'yyyy-MM-dd HH:mm:ss'
+            'NetworkDrive' = Test-NetworkDrive -DriveLetter '{{ airquest_defaults.drive_letter }}'
+            'SMBConnection' = Test-SMBConnection -Server '{{ airquest_defaults.host_ip }}'
+            'BatchCredentials' = Test-Credentials -CredPath 'c:\batch\airquest.cred' -KeyPath 'c:\batch\airquest.key'
+            'LogonCredentials' = Test-Credentials -CredPath '$env:SystemRoot\System32\GroupPolicy\User\Scripts\airquest.cred' -KeyPath '$env:SystemRoot\System32\GroupPolicy\User\Scripts\airquest.key'
+            'SMBSettings' = Get-SmbClientConfiguration | Select-Object OplocksDisabled, UseOpportunisticLocking, DirectoryCacheLifetime, FileInfoCacheLifetime, SessionTimeout
+            'SystemState' = @{
+                'Memory' = @{
+                    'Available' = [math]::Round((Get-Counter '\Memory\Available MBytes').CounterSamples.CookedValue, 2)
+                    'PageFaults' = [math]::Round((Get-Counter '\Memory\Page Faults/sec').CounterSamples.CookedValue, 2)
+                    'CommittedBytes' = [math]::Round((Get-Counter '\Memory\Committed Bytes').CounterSamples.CookedValue / 1MB, 2)
+                    'CacheBytes' = [math]::Round((Get-Counter '\Memory\Cache Bytes').CounterSamples.CookedValue / 1MB, 2)
+                    'PoolNonpagedBytes' = [math]::Round((Get-Counter '\Memory\Pool Nonpaged Bytes').CounterSamples.CookedValue / 1MB, 2)
+                }
+                'CPU' = @{
+                    'Usage' = [math]::Round((Get-Counter '\Processor(_Total)\% Processor Time').CounterSamples.CookedValue, 2)
+                    'QueueLength' = [math]::Round((Get-Counter '\System\Processor Queue Length').CounterSamples.CookedValue, 2)
+                    'Interrupts' = [math]::Round((Get-Counter '\Processor(_Total)\% Interrupt Time').CounterSamples.CookedValue, 2)
+                    'DPCs' = [math]::Round((Get-Counter '\Processor(_Total)\% DPC Time').CounterSamples.CookedValue, 2)
+                }
+                'Disk' = @{
+                    'QueueLength' = [math]::Round((Get-Counter '\PhysicalDisk(_Total)\Avg. Disk Queue Length').CounterSamples.CookedValue, 2)
+                    'ReadLatency' = [math]::Round((Get-Counter '\PhysicalDisk(_Total)\Avg. Disk sec/Read').CounterSamples.CookedValue * 1000, 2)
+                    'WriteLatency' = [math]::Round((Get-Counter '\PhysicalDisk(_Total)\Avg. Disk sec/Write').CounterSamples.CookedValue * 1000, 2)
+                    'IOPs' = [math]::Round((Get-Counter '\PhysicalDisk(_Total)\Disk Transfers/sec').CounterSamples.CookedValue, 2)
+                }
+                'Network' = @{
+                    'Connections' = @(Get-NetTCPConnection | Where-Object State -eq 'Established').Count
+                    'TCPRetransmits' = [math]::Round((Get-Counter '\TCPv4\Segments Retransmitted/sec').CounterSamples.CookedValue, 2)
+                    'NetworkErrors' = [math]::Round((Get-Counter '\Network Interface(*)\Packets Received Errors').CounterSamples.CookedValue, 2)
+                    'NetworkUtilization' = @{}
+                }
+            }
+
+            # Get network utilization for each adapter
+            foreach ($Adapter in (Get-NetAdapter | Where-Object Status -eq 'Up')) {
+                $BytesTotal = (Get-Counter "\Network Interface($($Adapter.Name))\Bytes Total/sec").CounterSamples.CookedValue
+                $LinkSpeed = $Adapter.LinkSpeed -replace '[^0-9.]'
+                $LinkSpeedBps = switch -Regex ($Adapter.LinkSpeed) {
+                    'Gbps$' { [double]$LinkSpeed * 1e9 }
+                    'Mbps$' { [double]$LinkSpeed * 1e6 }
+                    'Kbps$' { [double]$LinkSpeed * 1e3 }
+                    default { [double]$LinkSpeed }
+                }
+                $UtilizationPercent = if ($LinkSpeedBps -gt 0) {
+                    [math]::Round(($BytesTotal * 8) / $LinkSpeedBps * 100, 2)
+                } else { 0 }
+                
+                $HealthCheck.SystemState.Network.NetworkUtilization[$Adapter.Name] = @{
+                    'LinkSpeed' = $Adapter.LinkSpeed
+                    'BytesPerSec' = [math]::Round($BytesTotal, 2)
+                    'UtilizationPercent' = $UtilizationPercent
+                }
+            }
+
+            # Get SMB statistics
+            $HealthCheck.SMBStats = @{
+                'Sessions' = (Get-SmbSession).Count
+                'OpenFiles' = (Get-SmbOpenFile).Count
+                'Connections' = @(Get-SmbConnection).Count
+                'MultiChannel' = (Get-SmbMultichannelConnection).Count
+                'ClientConfiguration' = Get-SmbClientConfiguration | Select-Object -Property @(
+                    'EnableMultiChannel',
+                    'EnableLargeMtu',
+                    'EnableBandwidthThrottling',
+                    'MaximumConnectionCountPerServer',
+                    'OplocksDisabled',
+                    'RequireSecuritySignature',
+                    'UseOpportunisticLocking'
+                )
+            }
+        }
+
+        # Write health check results to log
+        $LogEntry = @{
+            'Timestamp' = $HealthCheck.Timestamp
+            'Type' = 'HealthCheck'
+            'Results' = $HealthCheck
+        }
+        Add-Content -Path 'c:\Windows\Temp\airquest_logs\setup.log' -Value (ConvertTo-Json $LogEntry -Depth 10)
+
+        # Return results
+        ConvertTo-Json $HealthCheck -Depth 10"
+      register: health_check
+      changed_when: false
+      failed_when: false
+
+    - name: Display health check results
+      ansible.builtin.debug:
+        msg: |
+          Health Check Results:
+          {% set hc = health_check.stdout | from_json %}
+          - Network Drive: {{ 'OK' if hc.NetworkDrive.Success else 'Failed - ' + hc.NetworkDrive.Details }}
+          - SMB Connection: {{ 'OK' if hc.SMBConnection.Success else 'Failed - ' + hc.SMBConnection.Details }}
+          - Batch Credentials: {{ 'OK' if hc.BatchCredentials.Success else 'Failed - ' + hc.BatchCredentials.Details }}
+          - Logon Credentials: {{ 'OK' if hc.LogonCredentials.Success else 'Failed - ' + hc.LogonCredentials.Details }}
+          System State:
+          Memory:
+          - Available: {{ hc.SystemState.Memory.Available }}MB
+          - Page Faults/sec: {{ hc.SystemState.Memory.PageFaults }}
+          - Committed: {{ hc.SystemState.Memory.CommittedBytes }}MB
+          - Cache: {{ hc.SystemState.Memory.CacheBytes }}MB
+          - Nonpaged Pool: {{ hc.SystemState.Memory.PoolNonpagedBytes }}MB
+
+          CPU:
+          - Usage: {{ hc.SystemState.CPU.Usage }}%
+          - Queue Length: {{ hc.SystemState.CPU.QueueLength }}
+          - Interrupt Time: {{ hc.SystemState.CPU.Interrupts }}%
+          - DPC Time: {{ hc.SystemState.CPU.DPCs }}%
+
+          Disk:
+          - Queue Length: {{ hc.SystemState.Disk.QueueLength }}
+          - Read Latency: {{ hc.SystemState.Disk.ReadLatency }}ms
+          - Write Latency: {{ hc.SystemState.Disk.WriteLatency }}ms
+          - IOPs: {{ hc.SystemState.Disk.IOPs }}
+
+          Network:
+          - Active Connections: {{ hc.SystemState.Network.Connections }}
+          - TCP Retransmits/sec: {{ hc.SystemState.Network.TCPRetransmits }}
+          - Network Errors: {{ hc.SystemState.Network.NetworkErrors }}
+          
+          Network Adapters:
+          {% for adapter, stats in hc.SystemState.Network.NetworkUtilization.items() %}
+          {{ adapter }}:
+            - Link Speed: {{ stats.LinkSpeed }}
+            - Throughput: {{ stats.BytesPerSec | round(2) }} B/s
+            - Utilization: {{ stats.UtilizationPercent }}%
+          {% endfor %}
+
+          SMB Statistics:
+          - Active Sessions: {{ hc.SMBStats.Sessions }}
+          - Open Files: {{ hc.SMBStats.OpenFiles }}
+          - Connections: {{ hc.SMBStats.Connections }}
+          - Multichannel Connections: {{ hc.SMBStats.MultiChannel }}
+          
+          SMB Configuration:
+          - Multichannel: {{ 'Enabled' if hc.SMBStats.ClientConfiguration.EnableMultiChannel else 'Disabled' }}
+          - Large MTU: {{ 'Enabled' if hc.SMBStats.ClientConfiguration.EnableLargeMtu else 'Disabled' }}
+          - Bandwidth Throttling: {{ 'Enabled' if hc.SMBStats.ClientConfiguration.EnableBandwidthThrottling else 'Disabled' }}
+          - Max Connections/Server: {{ hc.SMBStats.ClientConfiguration.MaximumConnectionCountPerServer }}
+          - Oplocks: {{ 'Disabled' if hc.SMBStats.ClientConfiguration.OplocksDisabled else 'Enabled' }}
+          - Security Signatures: {{ 'Required' if hc.SMBStats.ClientConfiguration.RequireSecuritySignature else 'Optional' }}
+          - Opportunistic Locking: {{ 'Enabled' if hc.SMBStats.ClientConfiguration.UseOpportunisticLocking else 'Disabled' }}
+
+    - name: Attempt recovery actions
+      ansible.windows.win_shell: |
+        function Invoke-RecoveryAction {
+            param(
+                [string]$Component,
+                [bool]$Status,
+                [string]$Details,
+                [scriptblock]$Action
+            )
+            
+            if (-not $Status) {
+                Write-Output "Recovery needed for $Component - $Details"
+                try {
+                    & $Action
+                    return $?
+                }
+                catch {
+                    Write-Warning "Recovery failed for $Component: $_"
+                    return $false
+                }
+            }
+            return $true
+        }
+
+        $HealthData = '{{ health_check.stdout }}' | ConvertFrom-Json
+        $RecoveryResults = @{}
+
+        # Network Drive Recovery
+        $RecoveryResults.NetworkDrive = Invoke-RecoveryAction -Component "NetworkDrive" `
+            -Status $HealthData.NetworkDrive.Success `
+            -Details $HealthData.NetworkDrive.Details `
+            -Action {
+                net use {{ airquest_defaults.drive_letter }}: /delete /y
+                Start-Sleep -Seconds 2
+                & "c:\batch\q.cmd"
+                $LASTEXITCODE -eq 0
+            }
+
+        # SMB Connection Recovery
+        $RecoveryResults.SMBConnection = Invoke-RecoveryAction -Component "SMBConnection" `
+            -Status $HealthData.SMBConnection.Success `
+            -Details ($HealthData.SMBConnection.Details | ConvertTo-Json) `
+            -Action {
+                # Reset SMB connection
+                Get-SmbConnection | Where-Object ServerName -eq '{{ airquest_defaults.host_ip }}' | Remove-SmbConnection -Force
+                Start-Sleep -Seconds 2
+                New-SmbMapping -LocalPath {{ airquest_defaults.drive_letter }}: -RemotePath \\{{ airquest_defaults.host_ip }}\{{ airquest_fileserver.share }} -Persistent $true
+                $?
+            }
+
+        # Credential Recovery
+        $RecoveryResults.Credentials = Invoke-RecoveryAction -Component "Credentials" `
+            -Status ($HealthData.BatchCredentials.Success -and $HealthData.LogonCredentials.Success) `
+            -Details "Credential verification failed" `
+            -Action {
+                # Recreate credentials
+                & "c:\batch\create_credentials.ps1"
+                $?
+            }
+
+        # Analyze error patterns
+        function Get-ErrorCorrelation {
+            param($LogPath)
+            try {
+                $LogEntries = Get-Content $LogPath | ForEach-Object { $_ | ConvertFrom-Json }
+                $ErrorPatterns = @{
+                    'NetworkErrors' = 0
+                    'CredentialErrors' = 0
+                    'PerformanceIssues' = 0
+                    'SecurityIssues' = 0
+                    'Correlations' = @{}
+                }
+
+                $RecentErrors = $LogEntries | Where-Object {
+                    $_.Type -in @('HealthCheck', 'RecoveryAction') -and
+                    ([datetime]::ParseExact($_.Timestamp, 'yyyy-MM-dd HH:mm:ss', $null)) -gt (Get-Date).AddHours(-24)
+                }
+
+                foreach ($Entry in $RecentErrors) {
+                    if ($Entry.Results.NetworkDrive -and -not $Entry.Results.NetworkDrive.Success) {
+                        $ErrorPatterns.NetworkErrors++
+                    }
+                    if ($Entry.Results.BatchCredentials -and -not $Entry.Results.BatchCredentials.Success) {
+                        $ErrorPatterns.CredentialErrors++
+                    }
+                    if ($Entry.Results.SystemState.Memory.Available -lt 1024 -or
+                        $Entry.Results.SystemState.CPU.Usage -gt 80) {
+                        $ErrorPatterns.PerformanceIssues++
+                    }
+                    if ($Entry.Results.SMBSettings.RequireSecuritySignature -eq $false) {
+                        $ErrorPatterns.SecurityIssues++
+                    }
+                }
+
+                # Analyze correlations
+                if ($ErrorPatterns.NetworkErrors -gt 0 -and $ErrorPatterns.PerformanceIssues -gt 0) {
+                    $ErrorPatterns.Correlations['Network-Performance'] = 'High'
+                }
+                if ($ErrorPatterns.CredentialErrors -gt 0 -and $ErrorPatterns.SecurityIssues -gt 0) {
+                    $ErrorPatterns.Correlations['Credential-Security'] = 'High'
+                }
+
+                return $ErrorPatterns
+            }
+            catch {
+                Write-Warning "Error analyzing patterns: $_"
+                return $null
+            }
+        }
+
+        # Get error correlation analysis
+        $ErrorAnalysis = Get-ErrorCorrelation -LogPath 'c:\Windows\Temp\airquest_logs\setup.log'
+
+        # Create performance baseline if it doesn't exist
+        $BaselinePath = 'c:\Windows\Temp\airquest_logs\performance_baseline.json'
+        if (-not (Test-Path $BaselinePath)) {
+            $Baseline = @{
+                'Created' = Get-Date -Format 'yyyy-MM-dd HH:mm:ss'
+                'NetworkLatency' = $HealthData.SMBConnection.Details.Latency
+                'MemoryAvailable' = $HealthData.SystemState.Memory.Available
+                'CPUUsage' = $HealthData.SystemState.CPU.Usage
+                'DiskQueueLength' = $HealthData.SystemState.Disk.QueueLength
+            }
+            ConvertTo-Json $Baseline | Set-Content $BaselinePath
+        }
+
+        # Compare with baseline
+        $Baseline = Get-Content $BaselinePath | ConvertFrom-Json
+        $PerformanceComparison = @{
+            'NetworkLatencyChange' = [math]::Round(($HealthData.SMBConnection.Details.Latency - $Baseline.NetworkLatency) / $Baseline.NetworkLatency * 100, 2)
+            'MemoryAvailableChange' = [math]::Round(($HealthData.SystemState.Memory.Available - $Baseline.MemoryAvailable) / $Baseline.MemoryAvailable * 100, 2)
+            'CPUUsageChange' = [math]::Round(($HealthData.SystemState.CPU.Usage - $Baseline.CPUUsage) / $Baseline.CPUUsage * 100, 2)
+            'DiskQueueLengthChange' = [math]::Round(($HealthData.SystemState.Disk.QueueLength - $Baseline.DiskQueueLength) / $Baseline.DiskQueueLength * 100, 2)
+        }
+
+        # Log enhanced results
+        $LogEntry = @{
+            'Timestamp' = Get-Date -Format 'yyyy-MM-dd HH:mm:ss'
+            'Type' = 'RecoveryAction'
+            'Results' = $RecoveryResults
+            'ErrorAnalysis' = $ErrorAnalysis
+            'PerformanceComparison' = $PerformanceComparison
+        }
+        Add-Content -Path 'c:\Windows\Temp\airquest_logs\setup.log' -Value (ConvertTo-Json $LogEntry -Depth 10)
+
+        # Return enhanced results
+        @{
+            'RecoveryResults' = $RecoveryResults
+            'ErrorAnalysis' = $ErrorAnalysis
+            'PerformanceComparison' = $PerformanceComparison
+        } | ConvertTo-Json -Depth 10
+      register: recovery_results
+      when: not (health_check.stdout | from_json).NetworkDrive.Success or
+            not (health_check.stdout | from_json).SMBConnection.Success or
+            not (health_check.stdout | from_json).BatchCredentials.Success or
+            not (health_check.stdout | from_json).LogonCredentials.Success
+      ignore_errors: true
+
+    - name: Display enhanced results
+      ansible.builtin.debug:
+        msg: |
+          Recovery Actions Results:
+          {% if recovery_results.skipped is defined %}
+          No recovery actions needed
+          {% else %}
+          {% set results = recovery_results.stdout | from_json %}
+          Recovery Status:
+          - Network Drive: {{ 'Recovered' if results.RecoveryResults.NetworkDrive else 'Failed' }}
+          - SMB Connection: {{ 'Recovered' if results.RecoveryResults.SMBConnection else 'Failed' }}
+          - Credentials: {{ 'Recovered' if results.RecoveryResults.Credentials else 'Failed' }}
+
+          Error Analysis (Last 24 Hours):
+          - Network Errors: {{ results.ErrorAnalysis.NetworkErrors }}
+          - Credential Errors: {{ results.ErrorAnalysis.CredentialErrors }}
+          - Performance Issues: {{ results.ErrorAnalysis.PerformanceIssues }}
+          - Security Issues: {{ results.ErrorAnalysis.SecurityIssues }}
+
+          Error Correlations:
+          {% for correlation, level in results.ErrorAnalysis.Correlations.items() %}
+          - {{ correlation }}: {{ level }}
+          {% endfor %}
+
+          Performance Changes (vs Baseline):
+          - Network Latency: {{ results.PerformanceComparison.NetworkLatencyChange }}% change
+          - Memory Available: {{ results.PerformanceComparison.MemoryAvailableChange }}% change
+          - CPU Usage: {{ results.PerformanceComparison.CPUUsageChange }}% change
+          - Disk Queue Length: {{ results.PerformanceComparison.DiskQueueLengthChange }}% change
+          {% endif %}
