@@ -100,7 +100,7 @@ function deploy() {
     fi
     CERT_PATH_LIVE="${CERT_PATH}/live"
     [ ! -d  "${CERT_PATH_LIVE}" ] && mkdir -p "${CERT_PATH_LIVE}"
-    cat "${CERT_PATH}/certificates/${FIRST_DOMAIN}.key "${CERT_PATH}/certificates/${FIRST_DOMAIN}.crt >server.pem
+    cat "${CERT_PATH}/certificates/${FIRST_DOMAIN}.key" "${CERT_PATH}/certificates/${FIRST_DOMAIN}.crt" >server.pem
 
     cp "${CERT_PATH}/certificates/${FIRST_DOMAIN}.key" "${CERT_PATH_LIVE}/server.key"
     cp "${CERT_PATH}/certificates/${FIRST_DOMAIN}.crt" "${CERT_PATH_LIVE}/server.crt"
