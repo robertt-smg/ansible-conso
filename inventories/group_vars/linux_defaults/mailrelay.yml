@@ -18,6 +18,13 @@ mailrelay_opensmtpd_monitoring_linux_users:
   - monitoring@smg-air-conso.de
   - devops@smg-air-conso.de
   
+cnf_mailrelay_alias_map_users_default:
+  - root
+  - www-data
+  - mysql
+  - apache
+  - "root@{{ mailrelay_opensmtpd_mailname }}"
+
 # List of relay information
 mailrelay_opensmtpd_relays_default:
   - alias: smg-air-conso.de

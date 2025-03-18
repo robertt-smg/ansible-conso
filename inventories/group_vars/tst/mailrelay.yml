@@ -1,0 +1,7 @@
+cnf_mailrelay_alias_map_users_test:
+  - root@smg-air-conso.de
+  - root@smg-tst-l01
+  - root@smg-tst-l02
+  - root@smg-tst-db1
+  - root@smg-tst-l02.smg-conso.vm
+  - monitoring@example.com

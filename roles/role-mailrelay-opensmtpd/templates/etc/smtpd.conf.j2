@@ -1,7 +1,5 @@
 # {{ ansible_managed }}
 
-
-
 ## BASICS
 {% if mailrelay_opensmtpd_smtpd_conf_bounce_warn_interval != False %}
 # Send a warning if mail remains in queue for more than 5 minutes
@@ -12,30 +10,31 @@ queue encryption {{ mailrelay_opensmtpd_conf_queue_encryption }}
 # Maximum mail size
 smtp max-message-size {{ mailrelay_opensmtpd_conf_max_message_size }}
 
-
-
 ## TABLES
 table relay_secrets file:/etc/smtpd/tables/relay_secrets
 table monitoring_recipients file:/etc/smtpd/tables/monitoring_recipients
 table monitoring_from file:/etc/smtpd/tables/monitoring_from
 
-{% if mailrelay_replace_domain is defined and mailrelay_replace_domain %}
-## FILTER
-filter replace_domain proc-exec "/etc/smtpd/scripts/filter_domain.sh"
+{% if mailrelay_alias_map_users_to_default is defined %}
+## USER ALIASES
+# Table with sender addresses to be rewritten
+table sender_rewrite file:/etc/smtpd/tables/sender_rewrite
+
+
+# Define a filter to rewrite sender addresses
+filter "rewrite_sender" phase mail-from match mail-from <sender_rewrite> rewrite "{{ default_email_from }}"
 
 {% endif %}
 
 ## LISTEN
 # Only listen on loopback and local socket
-listen on lo port 25 hostname {{ mailrelay_opensmtpd_mailname }} {% if mailrelay_replace_domain is defined and mailrelay_replace_domain %} filter replace_domain{% endif %}
+listen on lo port 25 hostname {{ mailrelay_opensmtpd_mailname }} {% if mailrelay_alias_map_users_to_default is defined %}  filter rewrite_sender {% endif %}
 
-listen on socket mask-src tag "socket" {% if mailrelay_replace_domain is defined and mailrelay_replace_domain %} filter replace_domain{% endif %}
+listen on socket mask-src tag "socket" {% if mailrelay_alias_map_users_to_default is defined %}  filter rewrite_sender {% endif %}
 
 {% if mailrelay_listen_on_interface is defined %}
-listen on {{ mailrelay_listen_on_interface }} port 25 hostname {{ mailrelay_opensmtpd_mailname }} {% if mailrelay_replace_domain is defined and mailrelay_replace_domain %} filter replace_domain{% endif %}
-
+listen on {{ mailrelay_listen_on_interface }} port 25 hostname {{ mailrelay_opensmtpd_mailname }} {% if mailrelay_alias_map_users_to_default is defined %}  filter rewrite_sender {% endif %}
 {% endif %}
-
 
 {% if mailrelay_to_matrix is defined and mailrelay_to_matrix %}
 ## ACTION
@@ -66,8 +65,6 @@ action "relay_{{ mailrelay_opensmtpd_relay['alias'] }}" \
 
 {% endfor %}
 
-
-
 ## MATCH
 {% if mailrelay_to_matrix is defined and mailrelay_to_matrix %}
 # Forward monitoring mails to matrix
@@ -79,7 +76,6 @@ match from local mail-from <monitoring_from> for rcpt-to <monitoring_recipients>
 {% for mailrelay_opensmtpd_relay_from in mailrelay_opensmtpd_relay['from'] %}
 match from local mail-from "{{ mailrelay_opensmtpd_relay_from }}" for any action "relay_{{ mailrelay_opensmtpd_relay['alias'] }}"
 {% endfor %}
-
 {% endfor %}
 
 # Catchall to monitoring for all other mails

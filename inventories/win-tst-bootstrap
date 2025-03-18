@@ -18,3 +18,9 @@ wminiaq1
 
 [windows_bootstrap:children]
 wsmg
+
+[win_tst:children]
+fserver1
+wserver1
+wserver2
+wminiaq1

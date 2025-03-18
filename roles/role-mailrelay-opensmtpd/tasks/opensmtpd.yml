@@ -45,22 +45,6 @@
   loop_control:
     loop_var: mailrelay_opensmtpd_scripts_directory_item
 
-- name: create log directory for filters
-  file:
-    state: directory
-    name: "/var/log/opensmtpd"
-    owner: root
-    group: opensmtpd
-    mode: "0660"
-
-- name: filter script /etc/smtpd/scripts/
-  template:
-    src: templates/etc/scripts/filter_domain.sh.j2
-    dest: /etc/smtpd/scripts/filter_domain.sh
-    owner: root
-    group: opensmtpd
-    mode: "0777"
-  notify: restart opensmtpd
 
 - name: template /etc/smtpd/tables/relay_secrets
   template:
@@ -74,6 +58,8 @@
     - relay_secrets
     - monitoring_from
     - monitoring_recipients
+    - sender_rewrite
+
   loop_control:
     loop_var: opensmtpd_mailrelay_table_item
 

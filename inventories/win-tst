@@ -16,3 +16,8 @@ wserver1
 wserver2
 wminiaq1
 
+[win_tst:children]
+fserver1
+wserver1
+wserver2
+wminiaq1

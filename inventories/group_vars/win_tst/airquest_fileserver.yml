@@ -1,12 +1,12 @@
 ## See https://stackoverflow.com/questions/16221250/add-a-key-to-hkey-current-user-for-all-users
 ## to add registry setting per user once
 
-airquest_defaults_wserver1:
+airquest_defaults_q_drive:
   enabled: true
   automount: false
-  host: SMG-TST-W01
-  host_ip: 192.168.121.51
+  host: LT-SMG4446
+  host_ip: 192.168.121.1
   drive_letter: Q
-  share: proquest
+  share: proquest.neu
   local_path: "d:\\proquest"
-  user: SMG-TST-W01\SA_AQUSER1
+  user: quh

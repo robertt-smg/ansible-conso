@@ -11,3 +11,6 @@ internal_public_domain: smg-air-conso.de
 internal_public_domain_underscore: smg_air_conso_de
 
 default_email_from: technology@smg-air-conso.de
+
+mailrelay_alias_map_users_to_default: "{{ lookup('community.general.merge_variables', 'cnf_mailrelay_alias_map_users_', pattern_type='prefix', override='ignore') }}"
+
