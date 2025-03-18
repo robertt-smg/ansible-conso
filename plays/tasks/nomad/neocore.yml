@@ -67,6 +67,6 @@
     status_code: 200
   ignore_errors: true
   until: neocore_status.status == 200
-  retries: 12
+  retries: 4
   delay: 30
   register: neocore_status

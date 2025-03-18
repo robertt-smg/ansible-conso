@@ -5,7 +5,7 @@
 # Will be written into the header of all outgoing emails
 # Has to be an existing mailserver with a MX record
 mailrelay_opensmtpd_mailname: smg-air-conso.de
-
+mailrelay_replace_domain: true
 monitoring_email_sender: technology@smg-air-conso.de
 mailrelay_default_sender_user: 86b734001@smtp-brevo.com
 mailrelay_opensmtpd_monitoring_linux_users:
@@ -15,7 +15,7 @@ mailrelay_opensmtpd_monitoring_linux_users:
   - apache
   - "root@{{ mailrelay_opensmtpd_mailname }}"
   - "{{ monitoring_email_sender }}"
-  - monitoring@example.com
+  - monitoring@smg-air-conso.de
   - devops@smg-air-conso.de
   
 # List of relay information

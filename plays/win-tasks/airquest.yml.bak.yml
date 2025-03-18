@@ -1,0 +1,536 @@
+
+- name: Ensure batch directory exists
+  ansible.windows.win_file:
+    path: "c:\\batch"
+    state: directory
+
+- name: Set batch directory permissions
+  ansible.windows.win_acl:
+    path: "c:\\batch"
+    user: Administrators
+    rights: FullControl
+    type: allow
+    inherit: ContainerInherit,ObjectInherit
+    propagation: None
+
+- name: Check if batch file exists
+  ansible.windows.win_stat:
+    path: "c:\\batch\\q.cmd"
+  register: batch_file_stat
+
+- name: Create batch file for network drive mapping
+  ansible.windows.win_copy:
+    dest: "c:\\batch\\q.cmd"
+    content: |
+      @echo off
+      echo Checking existing drive mappings...
+      net use {{ airquest_defaults.drive_letter }}: /delete /y 2>nul
+      echo Mapping network drive...
+      
+  when: not batch_file_stat.stat.exists
+
+- name: Set batch file permissions
+  ansible.windows.win_acl:
+    path: "c:\\batch\\q.cmd"
+    user: Administrators
+    rights: FullControl
+    type: allow
+    inherit: None
+    propagation: None
+  when: not batch_file_stat.stat.exists
+    
+- name: Set registry keys for airQuest
+  ansible.windows.win_dsc:
+    resource_name: "Registry"
+    Ensure: Present
+    key: "{{ item.key }}"
+    ValueName: "{{ item.vname }}"
+    ValueType: "{{ item.vtype }}" 
+    ValueData: "{{ item.vdata }}" 
+  with_items: "{{ airquest_fileserver.registry_present }}"
+  register: reg_present_result
+  ignore_errors: true
+
+- name: Delete registry keys for airQuest
+  ansible.windows.win_dsc:
+    resource_name: "Registry"
+    Force: true
+    Ensure: Absent
+    key: "{{ item.key }}"
+    ValueName: "{{ item.vname }}"
+  with_items: "{{ airquest_fileserver.registry_absent }}"
+  when: reg_present_result is success
+  ignore_errors: true
+
+- name: Configure Group Policy Logon Scripts
+  block:
+    - name: Create Logon Script Directories
+      ansible.windows.win_file:
+        path: "{{ item }}"
+        state: directory
+        owner: Everyone
+        recurse: yes
+      with_items:
+        - "{{ ansible_facts.env.SystemRoot }}\\System32\\GroupPolicy\\User\\Scripts\\Logon"
+        - "{{ ansible_facts.env.SystemRoot }}\\System32\\GroupPolicyUser\\Scripts\\Logon"
+      register: logon_dirs_result
+
+    - name: Create secure credential store for logon scripts
+      ansible.windows.win_shell: |
+        try {
+            $ErrorActionPreference = 'Stop'
+            $LogonCredPath = "{{ ansible_facts.env.SystemRoot }}\System32\GroupPolicy\User\Scripts\airquest.cred"
+            $LogonKeyFile = "{{ ansible_facts.env.SystemRoot }}\System32\GroupPolicy\User\Scripts\airquest.key"
+            
+            # Create a random key for additional encryption
+            $KeyBytes = New-Object byte[] 32
+            [System.Security.Cryptography.RNGCryptoServiceProvider]::Create().GetBytes($KeyBytes)
+            $Key = [System.Convert]::ToBase64String($KeyBytes)
+            $Key | Set-Content $LogonKeyFile
+            
+            # Encrypt the password with the random key
+            $SecurePassword = ConvertTo-SecureString "{{ airquest_fileserver.password }}" -AsPlainText -Force
+            $EncryptedPassword = ConvertFrom-SecureString $SecurePassword -Key $KeyBytes
+            
+            # Create and export the credential
+            $Credential = @{
+                'Username' = "{{ airquest_fileserver.user }}@{{ airquest_fileserver.host }}"
+                'Password' = $EncryptedPassword
+                'Created' = Get-Date -Format 'yyyy-MM-dd HH:mm:ss'
+                'Machine' = $env:COMPUTERNAME
+                'Hash' = (Get-FileHash $LogonKeyFile).Hash
+            }
+            
+            $Credential | ConvertTo-Json | Set-Content $LogonCredPath
+            Write-Host "Logon credential store created successfully"
+        }
+        catch {
+            Write-Error "Failed to create logon credential store: $_"
+            if (Test-Path $LogonCredPath) { Remove-Item $LogonCredPath -Force }
+            if (Test-Path $LogonKeyFile) { Remove-Item $LogonKeyFile -Force }
+            exit 1
+        }
+      no_log: true
+
+    - name: Create Logon Scripts
+      ansible.windows.win_copy:
+        dest: "{{ item }}\\mount_airquest.cmd"
+        content: |
+          @echo off
+          echo Starting network drive mapping for {{ airquest_fileserver.drive_letter }}: at %DATE% %TIME%
+      with_items:
+        - "{{ ansible_facts.env.SystemRoot }}\\System32\\GroupPolicy\\User\\Scripts\\Logon"
+        - "{{ ansible_facts.env.SystemRoot }}\\System32\\GroupPolicyUser\\Scripts\\Logon"
+      when: logon_dirs_result is success
+
+    - name: Set Logon Scripts permissions
+      ansible.windows.win_acl:
+        path: "{{ item }}\\mount_airquest.cmd"
+        user: Everyone
+        rights: Read,Execute
+        type: allow
+        inherit: None
+        propagation: None
+      with_items:
+        - "{{ ansible_facts.env.SystemRoot }}\\System32\\GroupPolicy\\User\\Scripts\\Logon"
+        - "{{ ansible_facts.env.SystemRoot }}\\System32\\GroupPolicyUser\\Scripts\\Logon"
+      when: logon_dirs_result is success
+
+    - name: Create Group Policy Scripts.ini
+      ansible.windows.win_copy:
+        dest: "{{ item }}\\scripts.ini"
+        content: |
+          [Logon]
+          0CmdLine=mount_airquest.cmd
+          0Parameters=
+        create: yes
+      with_items:
+        - "{{ ansible_facts.env.SystemRoot }}\\System32\\GroupPolicy\\User\\Scripts"
+        - "{{ ansible_facts.env.SystemRoot }}\\System32\\GroupPolicyUser\\Scripts"
+      when: logon_dirs_result is success
+      register: scripts_ini_result
+
+    - name: Update Group Policy
+      ansible.windows.win_command: >
+        powershell.exe -ExecutionPolicy ByPass -Command "
+        Write-Host 'Updating Group Policy...'
+        gpupdate /force
+        if ($LASTEXITCODE -eq 0) {
+            Write-Host 'Group Policy update successful'
+        } else {
+            Write-Error 'Failed to update Group Policy'
+            exit 1
+        }"
+      when: scripts_ini_result is changed
+      register: gpo_update_result
+
+  when: airquest_defaults.automount is defined and airquest_defaults.automount
+  ignore_errors: true
+  register: gpo_config_result
+
+- name: Get current SMB Client Configuration
+  ansible.windows.win_command: powershell.exe -ExecutionPolicy ByPass -Command "Get-SmbClientConfiguration | ConvertTo-Json"
+  register: smb_config
+  changed_when: false
+  ignore_errors: true
+
+- name: Configure SMB Client Settings
+  ansible.windows.win_command: >
+    powershell.exe -ExecutionPolicy ByPass -Command "
+    try {
+        Write-Host 'Configuring SMB Client settings...'
+        $changes = @()
+        $config = Get-SmbClientConfiguration
+        
+        # Performance and reliability settings
+        $settings = @{
+            'OplocksDisabled' = $true
+            'UseOpportunisticLocking' = $false
+            'DirectoryCacheLifetime' = 0
+            'FileInfoCacheLifetime' = 0
+            'FileNotFoundCacheLifetime' = 0
+            'SessionTimeout' = 120
+            'EnableBandwidthThrottling' = $false
+            'EnableLargeMtu' = $true
+            'EnableMultiChannel' = $true
+            'KeepConn' = 600
+            'MaxCmds' = 50
+            'UseHighPerformance' = $true
+            'RequireSecuritySignature' = $true
+            'EnableSecuritySignature' = $true
+            'EnableCompression' = $true
+            'MaximumConnectionCountPerServer' = 32
+            'AsyncIO' = $true
+            'Smb2CreditsMin' = 512
+            'Smb2CreditsMax' = 8192
+            'DormantFileLimit' = 1000
+            'OutboundScaleFactorPerNetAdapter' = 4
+        }
+
+        # Network resilience settings
+        $NetAdapters = Get-NetAdapter | Where-Object Status -eq 'Up'
+        foreach ($Adapter in $NetAdapters) {
+            # Optimize network adapter settings
+            Set-NetAdapterAdvancedProperty -Name $Adapter.Name -RegistryKeyword "*FlowControl" -RegistryValue 0
+            Set-NetAdapterAdvancedProperty -Name $Adapter.Name -RegistryKeyword "*InterruptModeration" -RegistryValue 1
+            Set-NetAdapterAdvancedProperty -Name $Adapter.Name -RegistryKeyword "*LsoV2IPv4" -RegistryValue 1
+            Set-NetAdapterAdvancedProperty -Name $Adapter.Name -RegistryKeyword "*LsoV2IPv6" -RegistryValue 1
+            Set-NetAdapterAdvancedProperty -Name $Adapter.Name -RegistryKeyword "*NumRssQueues" -RegistryValue 8
+            Set-NetAdapterAdvancedProperty -Name $Adapter.Name -RegistryKeyword "*RssBaseProcNumber" -RegistryValue 1
+            
+            # Set QoS policy for SMB traffic
+            New-NetQosPolicy -Name "SMB" -SMB -Priority 1 -NetworkProfile All
+            Enable-NetAdapterQos -Name $Adapter.Name
+            Set-NetAdapterQos -Name $Adapter.Name -Enabled $true
+        }
+
+        # Advanced TCP/IP optimization
+        Set-NetTCPSetting -SettingName InternetCustom -AutoTuningLevelLocal Experimental
+        Set-NetTCPSetting -SettingName InternetCustom -ScalingHeuristics Disabled
+        Set-NetTCPSetting -SettingName InternetCustom -CongestionProvider DCTCP
+        Set-NetTCPSetting -SettingName InternetCustom -Timestamps Enabled
+        Set-NetTCPSetting -SettingName InternetCustom -InitialRto 2000
+        Set-NetTCPSetting -SettingName InternetCustom -MinRto 300
+        Set-NetTCPSetting -SettingName InternetCustom -DelayedAckTimeoutMs 10
+        Set-NetTCPSetting -SettingName InternetCustom -MemoryPressureProtection Enabled
+
+        # Network adapter optimization with error handling
+        foreach ($Adapter in $NetAdapters) {
+            try {
+                # Backup current adapter settings
+                $BackupPath = "c:\Windows\Temp\airquest_backup\{{ ansible_date_time.date }}\adapter_$($Adapter.Name).json"
+                $CurrentSettings = Get-NetAdapterAdvancedProperty -Name $Adapter.Name | 
+                    Select-Object RegistryKeyword, RegistryValue |
+                    ConvertTo-Json
+                $CurrentSettings | Set-Content $BackupPath
+
+                # Optimize receive/transmit buffers with validation
+                $BufferSettings = @{
+                    "*ReceiveBuffers" = 4096
+                    "*TransmitBuffers" = 4096
+                }
+
+                foreach ($Setting in $BufferSettings.GetEnumerator()) {
+                    $Current = Get-NetAdapterAdvancedProperty -Name $Adapter.Name -RegistryKeyword $Setting.Key -ErrorAction SilentlyContinue
+                    if ($Current.RegistryValue -ne $Setting.Value) {
+                        Set-NetAdapterAdvancedProperty -Name $Adapter.Name -RegistryKeyword $Setting.Key -RegistryValue $Setting.Value
+                        
+                        # Validate change
+                        $Updated = Get-NetAdapterAdvancedProperty -Name $Adapter.Name -RegistryKeyword $Setting.Key
+                        if ($Updated.RegistryValue -ne $Setting.Value) {
+                            throw "Failed to set $($Setting.Key) to $($Setting.Value)"
+                        }
+                    }
+                }
+
+                # Advanced adapter optimization
+                $OptimizationSettings = @{
+                    "*IPChecksumOffloadIPv4" = 3
+                    "*TCPChecksumOffloadIPv4" = 3
+                    "*TCPChecksumOffloadIPv6" = 3
+                    "*UDPChecksumOffloadIPv4" = 3
+                    "*UDPChecksumOffloadIPv6" = 3
+                    "*LsoV2IPv4" = 1
+                    "*LsoV2IPv6" = 1
+                    "*RSS" = 1
+                    "*NumRssQueues" = 8
+                }
+
+                foreach ($Setting in $OptimizationSettings.GetEnumerator()) {
+                    Set-NetAdapterAdvancedProperty -Name $Adapter.Name -RegistryKeyword $Setting.Key -RegistryValue $Setting.Value -ErrorAction Stop
+                }
+            
+            # Enable jumbo frames for better throughput
+            Set-NetAdapterAdvancedProperty -Name $Adapter.Name -RegistryKeyword "*JumboPacket" -RegistryValue 9014
+            
+            # Optimize coalescing parameters
+            Set-NetAdapterAdvancedProperty -Name $Adapter.Name -RegistryKeyword "*RxCoalescingTicks" -RegistryValue 100
+            Set-NetAdapterAdvancedProperty -Name $Adapter.Name -RegistryKeyword "*TxCoalescingTicks" -RegistryValue 100
+            
+            # Configure RSS for better CPU utilization
+            $Processors = (Get-CimInstance Win32_ComputerSystem).NumberOfLogicalProcessors
+            $RssQueues = [Math]::Min($Processors, 16)  # Cap at 16 queues
+            Set-NetAdapterAdvancedProperty -Name $Adapter.Name -RegistryKeyword "*NumRssQueues" -RegistryValue $RssQueues
+        }
+
+        # Configure network QoS and connection pooling
+        Set-NetQosPolicy -Name "SMBPriority" -SMB -PriorityValue8021Action 3 -NetworkProfile All
+        Set-SmbBandwidthLimit -Category Default -BytesPerSecond 0
+        Set-SmbClientConfiguration -ConnectionCountPerRssQueue 4
+        Set-SmbClientConfiguration -EnableBandwidthThrottling $false
+        Set-SmbClientConfiguration -MaximumConnectionCountPerServer 32
+
+        # Configure advanced failover and resilience settings
+        $FailoverSettings = @{
+            'AutoDisconnectTimeout' = 0  # Disable auto-disconnect
+            'RequireSecuritySignature' = $true
+            'ValidateAliasNotCircular' = $true
+            'EnableLargeMtu' = $true
+            'EnableMultiChannel' = $true
+            'ReconnectBackoffTime' = 3  # Seconds between reconnection attempts
+            'MaximumConnectionCountPerServer' = 32
+            'KeepConn' = 600  # Keep connections alive for 10 minutes
+            'EnableBandwidthThrottling' = $false
+            'MaximumConnectionCountPerSession' = 8
+            'AsyncIO' = $true
+            'Smb2CreditsMin' = 512
+            'Smb2CreditsMax' = 8192
+            'MaxChannels' = 32  # Maximum number of channels per session
+            'ValidateShareScope' = $true
+            'ValidateTargetName' = $true
+            'RequirePrivacy' = $true
+            'RequireMutualAuthentication' = $true
+            'EnableInsecureGuestLogons' = $false
+            'WindowsSizeThreshold' = 64KB  # Threshold for using larger windows
+            'DormantFileLimit' = 1000
+            'OutboundScaleFactorPerNetAdapter' = 4
+        }
+
+        foreach ($Setting in $FailoverSettings.GetEnumerator()) {
+            try {
+                Set-SmbClientConfiguration -$($Setting.Key) $Setting.Value -Force
+            }
+            catch {
+                Write-Warning "Failed to set $($Setting.Key): $_"
+            }
+        }
+
+        # Configure connection pooling and load balancing
+        $LoadBalanceSettings = @{
+            'ConnectionCountPerRssQueue' = 4
+            'MaximumConnectionCountPerServer' = 32
+            'MaximumConnectionCountPerSession' = 8
+        }
+
+        foreach ($Setting in $LoadBalanceSettings.GetEnumerator()) {
+            try {
+                Set-SmbClientConfiguration -$($Setting.Key) $Setting.Value -Force
+            }
+            catch {
+                Write-Warning "Failed to set load balance setting $($Setting.Key): $_"
+            }
+        }
+
+        # Configure auto-recovery
+        $RecoverySettings = @{
+            'EnableAutomaticReconnect' = $true
+            'AutoReconnectRetryCount' = 3
+            'AutoReconnectRetryInterval' = 5  # Seconds
+            'EnableRecovery' = $true
+            'RecoveryTimeout' = 60  # Seconds
+        }
+
+        foreach ($Setting in $RecoverySettings.GetEnumerator()) {
+            try {
+                Set-SmbClientConfiguration -$($Setting.Key) $Setting.Value -Force
+            }
+            catch {
+                Write-Warning "Failed to set recovery setting $($Setting.Key): $_"
+            }
+        }
+
+        # Configure network QoS for SMB traffic
+        try {
+            # Create QoS policy for SMB traffic
+            New-NetQosPolicy -Name "SMBTraffic" -SMB -Priority 1 -NetworkProfile All
+            
+            # Configure bandwidth management
+            Set-NetQosPolicy -Name "SMBTraffic" -MinBandwidthWeight 50
+            Set-NetQosPolicy -Name "SMBTraffic" -MaxBandwidthWeight 80
+            
+            # Configure traffic prioritization
+            Set-NetQosTrafficClass -Name "SMB" -Priority 2 -BandwidthPercentage 60
+            
+            # Enable QoS on all active network adapters
+            Get-NetAdapter | Where-Object Status -eq 'Up' | ForEach-Object {
+                Enable-NetAdapterQos -Name $_.Name
+                Set-NetAdapterQos -Name $_.Name -Enabled $true
+            }
+        }
+        catch {
+            Write-Warning "Failed to configure QoS settings: $_"
+        }
+        
+        foreach ($setting in $settings.GetEnumerator()) {
+            $propertyName = $setting.Key
+            $targetValue = $setting.Value
+            
+            if ($config.$propertyName -ne $targetValue) {
+                $params = @{
+                    $propertyName = $targetValue
+                    'Force' = $true
+                }
+                Set-SmbClientConfiguration @params
+                $changes += "$propertyName set to $targetValue"
+            }
+        }
+        
+        # Configure SMB encryption
+        Set-SmbClientConfiguration -RequireSecuritySignature $true -Force
+        $changes += 'Security signature required'
+        
+        # Configure SMB multichannel for better performance
+        $NetAdapter = Get-NetAdapter | Where-Object Status -eq 'Up'
+        if ($NetAdapter.Count -gt 1) {
+            Enable-SmbClientMultiChannel -Force
+            $changes += 'Multichannel enabled'
+        }
+        
+        if ($changes.Count -gt 0) {
+            Write-Host 'Applied changes:'
+            $changes | ForEach-Object { Write-Host (' - ' + $_) }
+        } else {
+            Write-Host 'No changes needed - all settings already correct'
+        }
+    } catch {
+        Write-Error ('Failed to configure SMB settings: ' + $_.Exception.Message)
+        Write-Error $_.ScriptStackTrace
+        exit 1
+    }"
+  args:
+    chdir: C:\
+  when: smb_config is success
+  register: smb_config_result
+
+- name: Check if Data directory exists
+  ansible.windows.win_stat:
+    path: D:\Data
+  register: data_dir_check
+
+- name: Ensure Data directory exists
+  ansible.windows.win_file:
+    path: D:\Data
+    state: directory
+  when: not data_dir_check.stat.exists
+  register: data_dir_result
+  ignore_errors: true
+
+- name: Check if AQ-TEMP directory exists
+  ansible.windows.win_stat:
+    path: D:\Data\AQ-TEMP
+  register: aqtemp_dir_check
+  when: data_dir_result is success or data_dir_check.stat.exists
+
+- name: Create AQ-TEMP directory
+  ansible.windows.win_file:
+    path: D:\Data\AQ-TEMP
+    state: directory
+  when: (data_dir_result is success or data_dir_check.stat.exists) and (not aqtemp_dir_check.stat.exists)
+    
+- name: Set permissions on Data directory
+  block:
+    - name: Remove existing ACL on Data directory
+      ansible.windows.win_acl:
+        path: D:\Data
+        user: Everyone
+        rights: FullControl
+        type: allow
+        state: absent
+        inherit: ContainerInherit,ObjectInherit
+        propagation: None
+      ignore_errors: true
+
+    - name: Set new ACL on Data directory
+      ansible.windows.win_acl:
+        path: D:\Data
+        user: Everyone
+        rights: FullControl
+        type: allow
+        inherit: ContainerInherit,ObjectInherit
+        propagation: None
+      register: acl_result
+  when: data_dir_result is success or data_dir_check.stat.exists
+  ignore_errors: true
+
+- name: Set permissions on AQ-TEMP directory
+  block:
+    - name: Remove existing ACL on AQ-TEMP directory
+      ansible.windows.win_acl:
+        path: D:\Data\AQ-TEMP
+        user: Everyone
+        rights: FullControl
+        type: allow
+        state: absent
+        inherit: ContainerInherit,ObjectInherit
+        propagation: None
+      ignore_errors: true
+
+    - name: Set new ACL on AQ-TEMP directory
+      ansible.windows.win_acl:
+        path: D:\Data\AQ-TEMP
+        user: Everyone
+        rights: FullControl
+        type: allow
+        inherit: ContainerInherit,ObjectInherit
+        propagation: None
+  when: (data_dir_result is success or data_dir_check.stat.exists) and (aqtemp_dir_check.stat is defined and aqtemp_dir_check.stat.exists)
+
+- name: Verify configuration
+  block:
+    - name: Check network drive mapping
+      ansible.windows.win_command: powershell.exe -ExecutionPolicy ByPass -Command "Get-PSDrive {{ airquest_defaults.drive_letter }} -ErrorAction SilentlyContinue"
+      register: final_drive_check
+      changed_when: false
+      failed_when: false
+
+    - name: Check SMB Client Configuration
+      ansible.windows.win_command: powershell.exe -ExecutionPolicy ByPass -Command "Get-SmbClientConfiguration | ConvertTo-Json"
+      register: final_smb_config
+      changed_when: false
+      failed_when: false
+
+    - name: Check AQ-TEMP directory
+      ansible.windows.win_stat:
+        path: D:\Data\AQ-TEMP
+      register: final_aqtemp_check
+
+    - name: Display configuration status
+      ansible.builtin.debug:
+        msg: |
+          Configuration Status:
+          - Network Drive: {{ 'OK' if final_drive_check.rc == 0 else 'Not mapped' }}
+          - SMB Settings: {{ 'OK' if final_smb_config.rc == 0 else 'Error' }}
+          - AQ-TEMP Directory: {{ 'OK' if final_aqtemp_check.stat.exists else 'Missing' }}
+          - Group Policy Scripts: {{ 'OK' if gpo_config_result is success else 'Error' }}
+  ignore_errors: true
+

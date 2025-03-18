@@ -1,0 +1,6 @@
+nullmailer_adminaddr: technology@smg-air-conso.de
+nullmailer_remotes: 
+  - "192.168.121.21 smtp"
+
+nullmailer_defaultdomain: smg-air-conso.de
+nullmailer_mailname: smg-air-conso.de

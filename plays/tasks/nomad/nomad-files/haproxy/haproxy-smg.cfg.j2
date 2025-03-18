@@ -54,6 +54,10 @@ frontend ft_http_api
         
         acl passbolt path_sub passbolt
 
+        acl is_crm_test hdr(host) -i airna.test.smg-air-conso.com
+        acl is_crm hdr(host) -i airna.smg-air-conso.com
+        use_backend suitecrm if is_crm_test or is_crm
+
         mode http
 
         use_backend passbolt if passbolt
@@ -80,5 +84,10 @@ backend passbolt
     http-response set-header Content-Security-Policy frame-ancestors\ %[var(txn.allowed_origins)];
     http-request set-header Access-Control-Allow-Private-Network true if { req.hdr(X-Access-Control-Allow-Private-Network) -m int 1 }
     server passbolt {{public_ip}}:2443 id 2443 check ssl verify none check port 2443
+
+backend suitecrm
+    mode http
+    balance roundrobin
+    server suitecrm_server  {{suitecrm.public_ip}}:{{ suitecrm.external_port }} check
 
 #eof - haproxy need empty LF

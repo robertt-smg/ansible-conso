@@ -1,5 +1,5 @@
 #!/bin/bash
-set -x
+#set -x
 echo "Start $(date) ..."
 
 SCRIPT="$(readlink -f -- $0)"
@@ -70,6 +70,7 @@ function build_domain_string() {
 function get_certs() {
     echo ${FUNCNAME[0]}
     # Run lego with AutoDNS provider for easyssl stage
+    export LEGO_DEBUG_ACME_HTTP_CLIENT=true
     lego --email "${EMAIL}" \
         --dns autodns \
         --path "${CERT_PATH}" \
@@ -100,17 +101,21 @@ function deploy() {
     fi
     CERT_PATH_LIVE="${CERT_PATH}/live"
     [ ! -d  "${CERT_PATH_LIVE}" ] && mkdir -p "${CERT_PATH_LIVE}"
-    cat "${CERT_PATH}/certificates/${FIRST_DOMAIN}.key" "${CERT_PATH}/certificates/${FIRST_DOMAIN}.crt" >server.pem
+    echo Build ${CERT_PATH_LIVE}/server.pem from "${CERT_PATH}/certificates/${FIRST_DOMAIN}.key" "${CERT_PATH}/certificates/${FIRST_DOMAIN}.crt"
+    cat "${CERT_PATH}/certificates/${FIRST_DOMAIN}.key" "${CERT_PATH}/certificates/${FIRST_DOMAIN}.crt" >${CERT_PATH_LIVE}/server.pem
 
+    echo Copy current files to ${CERT_PATH_LIVE}/
     cp "${CERT_PATH}/certificates/${FIRST_DOMAIN}.key" "${CERT_PATH_LIVE}/server.key"
     cp "${CERT_PATH}/certificates/${FIRST_DOMAIN}.crt" "${CERT_PATH_LIVE}/server.crt"
     cp "${CERT_PATH}/certificates/${FIRST_DOMAIN}.issuer.crt" "${CERT_PATH_LIVE}/server.issuer.crt"
     cp "${CERT_PATH}/certificates/${FIRST_DOMAIN}.json" "${CERT_PATH_LIVE}/server.json"
 
+    echo deploy to haPorxy ${HAPROXY_HOST_ADMIN}
     echo -e "set ssl cert ${CERT_PATH_LIVE}/server.pem <<\n$(cat ${CERT_PATH_LIVE}/server.pem)\n" | socat tcp-connect:${HAPROXY_HOST_ADMIN} -
     echo "show ssl cert" | socat tcp-connect:${HAPROXY_HOST_ADMIN} -
     echo "commit ssl cert ${CERT_PATH_LIVE}/server.pem" | socat tcp-connect:${HAPROXY_HOST_ADMIN} -
 
+    echo "Dump current cert --------------"
     openssl x509 -in ${CERT_PATH_LIVE}/server.pem -text -noout
 }
 function main() {

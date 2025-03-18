@@ -22,16 +22,40 @@
   file:
     path: "{{ suitecrm.app_volume }}/{{ item }}"
     state: directory
-    owner: www-data
-    group: www-data
+    owner: 1
+    group: 1
     mode: "0775"
     recurse: yes
   loop:
-    - data
-    - cache
-    - log
+    - OAuth2
     - backup
     - scripts
+    - data
+
+# => https://hub.docker.com/r/bitnami/suitecrm
+- name: Copy api private.key
+  copy:
+    src: nomad-files/suitecrm/private.key
+    dest: "{{ suitecrm.app_volume }}/OAuth2/private.key"
+    owner: 1
+    group: 1
+    mode: "0640"
+
+- name: Copy api public.key
+  copy:
+    src: nomad-files/suitecrm/deploy_oath_key.sh
+    dest:  "{{ suitecrm.app_volume }}/OAuth2/public.key"
+    owner: 1
+    group: 1
+    mode: "0777"
+
+- name: Copy deploy_oauth_keys
+  copy:
+    src: nomad-files/suitecrm/deploy_oath_key.sh
+    dest: "{{ suitecrm.app_volume }}/scripts/deploy_oath_key.sh"
+    owner: 1
+    group: 1
+    mode: "0640"
 
 - name: Manage Nomad job file {{ nomad_suitecrm.job_name }}
   template:

@@ -24,18 +24,6 @@
   loop_control:
     loop_var: mailrelay_opensmtpd_config_directory_item
 
-- name: create config directories for smtp-to-matrix
-  file:
-    state: directory
-    name: "{{ mailrelay_opensmtpd_config_directory_item }}"
-    owner: root
-    group: opensmtpd
-    mode: "0750"
-  with_items:
-    - "/etc/smtpd/tables"
-  loop_control:
-    loop_var: mailrelay_opensmtpd_config_directory_item
-
 - name: template /etc/smtpd.conf
   template:
     src: templates/etc/smtpd.conf.j2
@@ -43,6 +31,35 @@
     owner: root
     group: opensmtpd
     mode: "0640"
+  notify: restart opensmtpd
+
+- name: create script directories for filters
+  file:
+    state: directory
+    name: "{{ mailrelay_opensmtpd_scripts_directory_item }}"
+    owner: root
+    group: opensmtpd
+    mode: "0750"
+  with_items:
+    - "/etc/smtpd/scripts"
+  loop_control:
+    loop_var: mailrelay_opensmtpd_scripts_directory_item
+
+- name: create log directory for filters
+  file:
+    state: directory
+    name: "/var/log/opensmtpd"
+    owner: root
+    group: opensmtpd
+    mode: "0660"
+
+- name: filter script /etc/smtpd/scripts/
+  template:
+    src: templates/etc/scripts/filter_domain.sh.j2
+    dest: /etc/smtpd/scripts/filter_domain.sh
+    owner: root
+    group: opensmtpd
+    mode: "0777"
   notify: restart opensmtpd
 
 - name: template /etc/smtpd/tables/relay_secrets
@@ -68,3 +85,12 @@
     group: root
     mode: 0644
   notify: restart opensmtpd
+
+- name: Configure rsyslog for OpenSMTPD
+  template:
+    src: templates/etc/rsyslog.d/opensmtpd.conf.j2
+    dest: /etc/rsyslog.d/opensmtpd.conf
+    owner: root
+    group: root
+    mode: "0644"
+  notify: restart rsyslog

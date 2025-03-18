@@ -1,6 +1,5 @@
 cnf_suitecrm_default:
   port: 8080
-  external_port: 1080
   cpu: 4096
   memory: 8192
   memory_hard_limit: 37570

@@ -1,3 +1,2 @@
-nullmailer_adminaddr: technology@smg-air-conso.de
-nullmailer_remotes: 
-  - "192.168.121.21 smtp"
+nullmailer:  "{{ lookup('community.general.merge_variables', 'cnf_nullmailer_', pattern_type='prefix', override='ignore') }}"
+

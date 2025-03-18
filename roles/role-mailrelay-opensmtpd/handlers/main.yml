@@ -13,3 +13,9 @@
     name: smtp-to-matrix
     state: restarted
     enabled: True
+
+- name: restart rsyslog
+  systemd:
+    name: rsyslog
+    state: restarted
+    enabled: True

@@ -1,0 +1,73 @@
+#!/bin/sh
+# OpenSMTPD filter to replace sender domain with configured mailname
+# This script follows the OpenSMTPD filter protocol
+DEBUG=1
+# Log function for debugging
+log() {
+    if [ -n "$DEBUG" ]; then
+        echo "$(date +%Y-%m-%d_%H:%M:%S) $@" >> /var/log/opensmtpd/filter_domain.log
+    fi
+}
+
+replace_sender_domain() {
+    log "replace_sender_domain:" $*
+    # Extract the sender address from the line
+    sender=$(echo "$1" | grep -o 'mail-from|[^|]*' | cut -d'|' -f2)
+    
+    if [ -n "$sender" ]; then
+        # Extract username part (before @)
+        username=$(echo "$sender" | cut -d'@' -f1)
+        
+        # Create new sender with original username and configured domain
+        new_sender="${username}@{{ mailrelay_opensmtpd_mailname }}"
+        
+        # Replace the sender in the original line
+        echo "$1" | sed "s|mail-from|$sender|mail-from|$new_sender|"
+    else
+        # If no sender found, return the line unchanged
+        echo "$1"
+    fi
+}
+log "## Start: $*"
+# Process the filter protocol
+while read -r line; do
+    cmd=$(echo "$line" | cut -d'|' -f1)
+    log "line: $line"
+    case "$cmd" in
+
+        "config")
+            case "$line" in        # Register for mail-from events
+                "config|ready")
+                    log "config: register|filter|smtp-in|mail-from"
+                    echo "register|filter|smtp-in|mail-from"
+                    log "config: register|ready"
+                    echo "register|ready"
+                    ;;
+                "*")
+                    log "... ignored ..."
+                    ;;
+            esac
+            ;;
+        "filter")
+            # Process the filter event
+            log "filter: $line"
+
+            event=$(echo "$line" | cut -d'|' -f5)
+            if [ "$event" = "mail-from" ]; then
+                # Replace sender domain
+                replace_sender_domain "$line"
+            else
+                # Pass through other events unchanged
+                log "filter-echo: $line"
+                echo "$line"
+            fi
+            ;;
+        *)
+            # Pass through other commands unchanged
+            log "echo: $line"
+            echo "$line"
+            ;;
+    esac
+done
+
+log "## End: $*"

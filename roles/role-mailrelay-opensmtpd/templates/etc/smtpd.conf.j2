@@ -19,14 +19,21 @@ table relay_secrets file:/etc/smtpd/tables/relay_secrets
 table monitoring_recipients file:/etc/smtpd/tables/monitoring_recipients
 table monitoring_from file:/etc/smtpd/tables/monitoring_from
 
+{% if mailrelay_replace_domain is defined and mailrelay_replace_domain %}
+## FILTER
+filter replace_domain proc-exec "/etc/smtpd/scripts/filter_domain.sh"
 
+{% endif %}
 
 ## LISTEN
 # Only listen on loopback and local socket
-listen on lo port 25 hostname {{ mailrelay_opensmtpd_mailname }}
-listen on socket mask-src tag "socket"
+listen on lo port 25 hostname {{ mailrelay_opensmtpd_mailname }} {% if mailrelay_replace_domain is defined and mailrelay_replace_domain %} filter replace_domain{% endif %}
+
+listen on socket mask-src tag "socket" {% if mailrelay_replace_domain is defined and mailrelay_replace_domain %} filter replace_domain{% endif %}
+
 {% if mailrelay_listen_on_interface is defined %}
-listen on {{ mailrelay_listen_on_interface }} port 25 hostname {{ mailrelay_opensmtpd_mailname }}
+listen on {{ mailrelay_listen_on_interface }} port 25 hostname {{ mailrelay_opensmtpd_mailname }} {% if mailrelay_replace_domain is defined and mailrelay_replace_domain %} filter replace_domain{% endif %}
+
 {% endif %}
 
 

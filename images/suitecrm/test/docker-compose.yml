@@ -28,9 +28,20 @@ services:
       - SUITECRM_DATABASE_USER=bn_suitecrm
       - SUITECRM_DATABASE_NAME=bitnami_suitecrm
       - SUITECRM_DATABASE_PASSWORD=bitnami123
-      # ALLOW_EMPTY_PASSWORD is recommended only for development.
-      - ALLOW_EMPTY_PASSWORD=yes
-    #volumes:
+
+      - SUITECRM_USERNAME=adm
+      - SUITECRM_PASSWORD=adm1234
+      - SUITECRM_EMAIL= technology@smg-air-conso.de
+      # mailgateway on SMG-TST-L01 if you ssh and port forward
+      #- SUITECRM_SMTP_HOST=192.168.121.1
+      #- SUITECRM_SMTP_PORT_NUMBER=2125 
+
+      #- SUITECRM_SMTP_USER=""
+      #- SUITECRM_SMTP_PASSWORD=""
+      #- SUITECRM_SMTP_PROTOCOL=tls
+      - SUITECRM_SMTP_NOTIFY_ADDRESS="technology@smg-air-conso.de"
+      - SUITECRM_SMTP_NOTIFY_NAME="Technology SMG Air Conso"    
+      #volumes:
       #- ./data:/bitnami/suitecrm
     depends_on:
       - mariadb
