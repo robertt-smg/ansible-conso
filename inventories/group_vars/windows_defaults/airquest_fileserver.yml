@@ -18,65 +18,35 @@ airquest_fileserver_default:
       vname: "legalnoticetext"
 
   registry_present:
+    - key: "HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced"
+      vname: "HideFileExt"
+      vtype: "Dword"
+      vdata: 0
+# HKLM\software\microsoft\windows\current version\explorer\advanced\folder
+    - key: "HKEY_LOCAL_MACHINE\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced"
+      vname: "HideFileExt"
+      vtype: "Dword"
+      vdata: 0
+
+    - key: "HKEY_LOCAL_MACHINE\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced\\Folder"
+      vname: "HideFileExt"
+      vtype: "Dword"
+      vdata: 0
+
     - key: "HKEY_LOCAL_MACHINE\\Software\\Policies\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\\ZoneMap\\Ranges\\Range10000"
-      vname: "*"
+      vname: "file"
       vtype: "Dword"
       vdata: 1
 
     - key: "HKEY_LOCAL_MACHINE\\Software\\Policies\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\\ZoneMap\\Ranges\\Range10000"
-      vname: ":Range"
-      vtype: "String"
-      vdata: "{{ airquest_defaults.host }}"
-
-    - key: "HKEY_LOCAL_MACHINE\\Software\\Policies\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\\ZoneMap\\Ranges\\Range10001"
-      vname: "*"
-      vtype: "Dword"
-      vdata: 1
-
-    - key: "HKEY_LOCAL_MACHINE\\Software\\Policies\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\\ZoneMap\\Ranges\\Range10001"
       vname: ":Range"
       vtype: "String"
       vdata: "{{ airquest_defaults.host_ip }}"
 
-    - key: "HKEY_LOCAL_MACHINE\\Software\\Policies\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\\ZoneMap\\Ranges\\Range10002"
-      vname: "*"
-      vtype: "Dword"
-      vdata: 1
-
-    - key: "HKEY_LOCAL_MACHINE\\Software\\Policies\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\\ZoneMap\\Ranges\\Range10002"
-      vname: ":Range"
+    - key: "HKEY_LOCAL_MACHINE\\Software\\Policies\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\\ZoneMapKey"
+      vname: "file://{{ airquest_defaults.host_ip }}"
       vtype: "String"
-      vdata: "{{ airquest_defaults.local_path }}"
-
-    - key: "HKEY_LOCAL_MACHINE\\Software\\Policies\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\\ZoneMap\\Ranges\\Range10003"
-      vname: "*"
-      vtype: "Dword"
       vdata: 1
-
-    - key: "HKEY_LOCAL_MACHINE\\Software\\Policies\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\\ZoneMap\\Ranges\\Range10003"
-      vname: ":Range"
-      vtype: "String"
-      vdata: "{{ airquest_defaults.drive_letter }}:\\"
-
-    - key: "HKEY_LOCAL_MACHINE\\Software\\Policies\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\\ZoneMap\\Ranges\\Range10004"
-      vname: "*"
-      vtype: "Dword"
-      vdata: 1
-
-    - key: "HKEY_LOCAL_MACHINE\\Software\\Policies\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\\ZoneMap\\Ranges\\Range10004"
-      vname: ":Range"
-      vtype: "String"
-      vdata: "{{ airquest_defaults.test_ip_range }}"
-
-    - key: "HKEY_LOCAL_MACHINE\\Software\\Policies\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\\ZoneMap\\Ranges\\Range10005"
-      vname: "*"
-      vtype: "Dword"
-      vdata: 1
-
-    - key: "HKEY_LOCAL_MACHINE\\Software\\Policies\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\\ZoneMap\\Ranges\\Range10005"
-      vname: ":Range"
-      vtype: "String"
-      vdata: "{{ airquest_defaults.prod_ip_range }}"
 
     - key: "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System"
       vname: "EnableLinkedConnections"

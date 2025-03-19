@@ -30,9 +30,7 @@
     type: allow
     inherit: None
     propagation: None
-  when: not batch_file_stat.stat.exists
-
-
+  
 - name: Set registry keys for airQuest
   win_dsc:
         resource_name: "Registry"

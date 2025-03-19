@@ -18,6 +18,35 @@ policy_settings_lgpo_cAdministrativeTemplateSetting:
       keyvaluename: "Software\\Policies\\Microsoft\\Windows\\Windows Search\\AllowCortana"
       data: "0"
       type: "Dword"
+
+# -------------------------------------------
+# HKCU\Software\Policies\Microsoft\Windows\CurrentVersion\Internet Settings\ListBox_Support_ZoneMapKey
+    - policytype: "Machine"
+      keyvaluename: "Software\\Policies\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\\ListBox_Support_ZoneMapKey"
+      data: "1"
+      type: "Dword"
+
+    - policytype: "Machine"
+      keyvaluename: "Software\\Policies\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\\ZoneMap\\Ranges\\Range10000\\file"
+      type: "Dword"
+      data: 1
+
+    - policytype: "Machine"
+      keyvaluename: "Software\\Policies\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\\ZoneMap\\Ranges\\Range10000\\:Range"
+      type: "String"
+      data: "{{ airquest_defaults.host_ip }}"
+
+    - policytype: "Machine"
+      keyvaluename: "Software\\Policies\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\\ZoneMapKey\\file://{{ airquest_defaults.host_ip }}"
+      type: "String"
+      data: 1
+
+    - policytype: "Machine"
+      keyvaluename: "Software\\Policies\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\\ZoneMap\\UNCAsIntranet"
+      type: "Dword"
+      data: 1
+
+# -------------------------------------------      
     
 #Policies\Microsoft\Windows\Windows Search!AllowSearchToUseLocation
     - policytype: "Machine"
