@@ -4,7 +4,7 @@ source curl-test.secrets.sh
 while true; do
     curl --location -X POST $URL \
     --header 'Content-Type: text/xml; charset=utf-8' \
-    --header 'Authorization: ${AUTHORIZATION}' \
+    --header "Authorization: ${AUTHORIZATION}" \
     --data-raw '<ping/>' \
     -w "@curl-format.txt" -o /dev/null
     sleep 1

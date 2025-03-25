@@ -1,0 +1,2 @@
+nullmailer_remotes: 
+  - "192.168.121.21 smtp" ## TODO Change to prod IP

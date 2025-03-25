@@ -121,7 +121,7 @@ function hyper_v_build() {
 			-NetAddress \"${VMIpAddress}/24\" \
 			-NetGateway \"192.168.121.2\" \
 			-NameServers \"192.168.121.2,1.1.1.1,8.8.4.4\" \
-			-DomainName \"smg-conso.vm\" \
+			-DomainName \"smg-air-conso.de\" \
 			-VMMachine_StoragePath \"\$env:ProgramData\hyperv-vm-provisioning\""
 	fi
 }

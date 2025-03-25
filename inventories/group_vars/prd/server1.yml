@@ -1,4 +1,0 @@
-certbot_server1_prd:
-  domain: prd.la-cuna.icu
-  renew_cron: "0 5 * * *"
-  testing: false

@@ -1,0 +1,4 @@
+certbot_server1_tst:
+  domain: test.smg-air-conso.de
+  renew_cron: "15 6 * * *"
+  testing: false

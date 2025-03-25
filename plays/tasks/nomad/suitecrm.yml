@@ -43,7 +43,7 @@
 
 - name: Copy api public.key
   copy:
-    src: nomad-files/suitecrm/deploy_oath_key.sh
+    src: nomad-files/suitecrm/public.key
     dest:  "{{ suitecrm.app_volume }}/OAuth2/public.key"
     owner: 1
     group: 1

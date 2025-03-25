@@ -22,7 +22,7 @@ table sender_rewrite file:/etc/smtpd/tables/sender_rewrite
 
 
 # Define a filter to rewrite sender addresses
-filter "rewrite_sender" phase mail-from match mail-from <sender_rewrite> rewrite "{{ default_email_from }}"
+filter "rewrite_sender" phase mail-from match mail-from <sender_rewrite> rewrite "<{{ default_email_from }}>"
 
 {% endif %}
 

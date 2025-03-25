@@ -1,0 +1,7 @@
+cnf_suitecrm_tst:
+  public_ip: 192.168.121.22
+  external_port: 1080
+  smtp:
+    host: 192.168.121.22 # TODO - change to prod IP
+  db:
+    host: 192.168.121.1 # TODO - change to prod IP

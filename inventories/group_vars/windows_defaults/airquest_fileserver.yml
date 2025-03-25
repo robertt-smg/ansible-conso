@@ -1,8 +1,11 @@
 airquest_fileserver_default:
   host: "{{ airquest_defaults.host }}"
   host_ip: "{{ airquest_defaults.host_ip }}"
+  host_ip_dev: "{{ airquest_defaults.host_ip_dev }}"
   drive_letter: "{{ airquest_defaults.drive_letter }}" 
+  drive_letter_dev: "{{ airquest_defaults.drive_letter_dev }}" 
   share: "{{ airquest_defaults.share }}"
+  share_dev: "{{ airquest_defaults.share_dev }}"
   local_path: "{{ airquest_defaults.local_path }}"
   user: "{{ airquest_defaults.user }}"
   password: "{{ airquest_defaults.password }}"

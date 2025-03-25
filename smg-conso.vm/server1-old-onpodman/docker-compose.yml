@@ -1,7 +1,7 @@
 version: '3'
 services:
   
-  smg-conso.vm:
+  smg-air-conso.de:
     env_file: .env
     security_opt:
       - label=disable
@@ -9,7 +9,7 @@ services:
     image: ${GITHUB_REGISTRY}/${GITHUB_OWNER}/ubuntu-test-vm:latest
     container_name: server1-smg-conso
     hostname: server1
-    domainname: smg-conso.vm
+    domainname: smg-air-conso.de
     cap_add:
         - NET_ADMIN
         - SYS_ADMIN
@@ -23,7 +23,7 @@ services:
       - SUDO_ACCESS=true
       - PASSWORD_ACCESS=true
       - SERVERNAME=server1
-      - DOMAIN=smg-conso.vm
+      - DOMAIN=smg-air-conso.de
     
     devices:
     - /dev/fuse:/dev/fuse

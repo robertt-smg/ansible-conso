@@ -12,7 +12,7 @@
     inherit: ContainerInherit,ObjectInherit
     propagation: None
 
-- name: Create batch file for network drive mapping
+- name: "Create batch file for network drive mapping PRD"
   ansible.windows.win_copy:
     dest: "c:\\batch\\q.cmd"
     content: |
@@ -21,7 +21,17 @@
       net use {{ airquest_fileserver.drive_letter }}: /delete /y 2>nul
       echo Mapping network drive...
       net use {{ airquest_fileserver.drive_letter }}: \\{{ airquest_fileserver.host_ip }}\{{ airquest_fileserver.share }} /user:{{ airquest_fileserver.user }} {{ airquest_fileserver.password }} /WRITETHROUGH
-  
+
+- name: "Create batch file for network drive mapping DEV"
+  ansible.windows.win_copy:
+    dest: "c:\\batch\\s.cmd"
+    content: |
+      @echo off
+      echo Checking existing drive mappings...
+      net use {{ airquest_fileserver.drive_letter_dev }}: /delete /y 2>nul
+      echo Mapping network drive...
+      net use {{ airquest_fileserver.drive_letter_dev }}: \\{{ airquest_fileserver.host_ip_dev }}\{{ airquest_fileserver.share_dev }} /user:{{ airquest_fileserver.user }} {{ airquest_fileserver.password }} /WRITETHROUGH
+
 - name: Set batch file permissions
   ansible.windows.win_acl:
     path: "c:\\batch\\q.cmd"

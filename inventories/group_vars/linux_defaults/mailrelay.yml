@@ -23,7 +23,6 @@ cnf_mailrelay_alias_map_users_default:
   - www-data
   - mysql
   - apache
-  - "root@{{ mailrelay_opensmtpd_mailname }}"
 
 # List of relay information
 mailrelay_opensmtpd_relays_default:

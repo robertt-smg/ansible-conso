@@ -154,7 +154,7 @@
                 </datasource>
                 <datasource jndi-name="java:jboss/datasources/neoCoreDS" pool-name="neoCoreDS" enabled="true" use-ccm="false">
                     <!-- connection-url>jdbc:mysql://fti-muc01-aqn11.fti.int:3306/neocore?useUnicode=true&amp;amp;characterEncoding=UTF-8</connection-url -->
-					<connection-url>jdbc:mysql://aqdb1.prd.muc01.fti.int:3306/neocore?useUnicode=true&amp;amp;characterEncoding=UTF-8</connection-url>
+					<connection-url>jdbc:mysql://neocore_db_server:3306/neocore?useUnicode=true&amp;amp;characterEncoding=UTF-8</connection-url>
                     <driver>mysql</driver>
                     <pool>
                         <max-pool-size>25</max-pool-size>

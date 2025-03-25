@@ -5,21 +5,28 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Air Conso Bookmarsk</title>
     <link rel="stylesheet" href="style.css?nocache=1">
-    <script type="text/javascript" src="wiky/wiky.js"></script>
+    <script type="text/javascript" src="wiky/wiky.js?nocache=1"></script>
   </head>
   <body>
     <h3>Air Conso Bookmarks:</h3>
     
 <!-- Original Wiki markup PLEASE EDIT HERE -->
 <div id="input" style="display: none;">
-=Linux Servers=
+=Nomad Servers=
 [|*Server*|*Beschreibung*|*Test Env*|*Prod Env*|
 |Linux: lserver1|Passbolt - MariaDB Embeeded| [https://192.168.121.21:4646, Nomad Jobs] |[http://prod.ri, Nomad Jobs]|
-|Linux: lserver2|SuiteCRM| [https://192.168.121.22:4646, Nomad Jobs] |[http://prod.ri, Nomad Jobs]|]
-=Test Server - Nomad Endpoints=
-[|*Server*|*Beschreibung*|*Url*|
-|lserver1|haProxy Start|https://192.168.121.21|]
-|lserver2|SuiteCRM|http://192.168.121.22:1080/#/Login|]
+|Linux: lserver2|SuiteCRM| [https://192.168.121.22:4646, Nomad Jobs] |[http://prod.ri, Nomad Jobs]|
+|||||]
+= Server 1 =
+[|Env|*Beschreibung*|*Url*|
+|Test|haProxy Start|https://192.168.121.21|
+|Test|haProxy Status|http://192.168.121.21:8690|
+||||]
+= Server 2 =
+[|Env|*Beschreibung*|*Url*|
+| *This is text is Red* Test|SuiteCRM|http://192.168.121.22:1080/#/Login|
+|Test|haProxy Status|http://192.168.121.22:8690|
+||||]
 </div>
 <!-- DO NOT EDIT BELOW THIS LINE  -->    
     <!-- Converted HTML will appear here -->

@@ -1,0 +1,24 @@
+
+- name: Copy Advantage OLE DB
+  win_copy:
+    src: files/Advantage OLE DB Provider v12.0.msi
+    dest: c:\\windows\\temp\\Advantage OLE DB Provider v12.0.msi
+
+- name: Copy Advantage OLE DB INI
+  win_copy:
+    src: files/ads.ini
+    dest: c:\\windows\\system32\\ads.ini
+ 
+- name: Install Advantage OLE DB
+  ansible.windows.win_package:
+    path: c:\windows\temp\Advantage OLE DB Provider v12.0.msi
+    log_path: c:\windows\temp\Advantage OLE DB Provider v12.0.log
+    # Computer\HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall
+    product_id: '{5F006356-33B2-417C-8454-80138846C2B9}'  # Replace with actual product ID from the MSI
+  register: install_result
+  ignore_errors: true
+
+- name: Display error if installation failed
+  debug:
+    msg: "Installation failed: {{ install_result }}"
+  when: install_result is failed

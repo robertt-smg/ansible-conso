@@ -59,3 +59,7 @@
 - name: Install FoxPro for airQuest
   include_tasks: win-tasks/foxpro.yml
   when: airquest_defaults.enabled is defined and airquest_defaults.enabled  
+
+- name: Install Advantage OLDEDB for FoxPro
+  include_tasks: win-tasks/advantage_oledb.yml
+  when: airquest_defaults.advantage_oldedb is defined and airquest_defaults.advantage_oldedb  

@@ -16,12 +16,12 @@ var Wiky = {
        "Wiky.rules.post",
      ],
      pre: [
-       { rex:/(\r?\n)/g, tmplt:"\xB6" },  // replace line breaks with '¶' ..
+       { rex:/(\r?\n)/g, tmplt:"\xB6" },  // replace line breaks with 'ï¿½' ..
      ],
      post: [
        { rex:/(^\xB6)|(\xB6$)/g, tmplt:"" },  // .. remove linebreaks at BOS and EOS ..
        { rex:/@([0-9]+)@/g, tmplt:function($0,$1){return Wiky.restore($1);} }, // resolve blocks ..
-       { rex:/\xB6/g, tmplt:"\n" } // replace '¶' with line breaks ..
+       { rex:/\xB6/g, tmplt:"\n" } // replace 'ï¿½' with line breaks ..
      ],
      nonwikiblocks: [
        { rex:/\\([%])/g, tmplt:function($0,$1){return Wiky.store($1);} },
@@ -62,7 +62,7 @@ var Wiky = {
        { rex:/\(-(.+?)-\)/g, tmplt:"<del>$1</del>" },
        { rex:/\?([^ \t\f\v\xB6]+)\((.+)\)\?/g, tmplt:"<abbr title=\"$2\">$1</abbr>" },  // .. abbreviation ..
        { rex:/\[(?:\{([^}]*)\})?[Ii]ma?ge?\:([^ ,\]]*)(?:[, ]([^\]]*))?\]/g, tmplt:function($0,$1,$2,$3){return Wiky.store("<img"+Wiky.style($1)+" src=\""+$2+"\" alt=\""+($3?$3:$2)+"\" title=\""+($3?$3:$2)+"\"/>");} },  // wikimedia image style ..
-       { rex:/\[([^ ,]+)[, ]([^\]]*)\]/g, tmplt:function($0,$1,$2){return Wiky.store("<a href=\""+$1+"\">"+$2+"</a>");}},  // wiki block style uri's ..
+       { rex:/\[([^ ,]+)[, ]([^\]]*)\]/g, tmplt:function($0,$1,$2){return Wiky.store("<a target=\"_new\" href=\""+$1+"\">"+$2+"</a>");}},  // wiki block style uri's ..
        { rex:/(((http(s?))\:\/\/)?[A-Za-z0-9\._\/~\-:]+\.(?:png|jpg|jpeg|gif|bmp))/g, tmplt:function($0,$1,$2){return Wiky.store("<img src=\""+$1+"\" alt=\""+$1+"\"/>");} },  // simple images .. 
        { rex:/((mailto\:|javascript\:|(news|file|(ht|f)tp(s?))\:\/\/)[A-Za-z0-9\.:_\/~%\-+&#?!=()@\x80-\xB5\xB7\xFF]+)/g, tmplt:"<a href=\"$1\">$1</a>" }  // simple uri's .. 
      ],
@@ -96,11 +96,11 @@ var Wiky = {
        "Wiky.inverse.post"
      ],
      pre: [
-       { rex:/(\r?\n)/g, tmplt:"\xB6" }  // replace line breaks with '¶' ..
+       { rex:/(\r?\n)/g, tmplt:"\xB6" }  // replace line breaks with 'ï¿½' ..
      ],
      post: [
        { rex:/@([0-9]+)@/g, tmplt:function($0,$1){return Wiky.restore($1);} },  // resolve blocks ..
-       { rex:/\xB6/g, tmplt:"\n" }  // replace '¶' with line breaks ..
+       { rex:/\xB6/g, tmplt:"\n" }  // replace 'ï¿½' with line breaks ..
      ],
      nonwikiblocks: [
        { rex:/<pre([^>]*)>(.*?)<\/pre>/mgi, tmplt:function($0,$1,$2){return Wiky.store("["+Wiky.invStyle($1)+Wiky.invAttr($1,["lang"]).replace(/x\-/,"")+"%"+Wiky.apply($2, Wiky.hasAttr($1,"lang")?Wiky.inverse.lang[Wiky.attrVal($1,"lang").substr(2)]:Wiky.inverse.code)+"%]");} } //code block

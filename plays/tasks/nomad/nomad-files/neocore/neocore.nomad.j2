@@ -76,6 +76,10 @@ job "{{ job_name }}" {
          
         ports = [ "http_port", "http_admin_port" ]
         
+        extra_hosts = [
+          "neocore_db_server:{{ neocore.neocore_db_server}}",
+        ]
+        
       }
       service {
         name = "{{ job_name }}"
@@ -84,10 +88,10 @@ job "{{ job_name }}" {
          check {
           type     = "http"
           port     = "http_port"
-          path     = "/neoCore/XmlServlet"  # This should be updated to the appropriate path for your health check
+          path     = "/"  
           interval = "120s"
           timeout  = "30s"
-          method   = "POST"
+          method   = "GET"
           #headers = {
           #  "Content-Type"  = "text/xml; charset=utf-8"
           #  "Authorization" = "{{ neocore.authorization }}"
