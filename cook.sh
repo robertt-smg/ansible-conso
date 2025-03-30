@@ -31,6 +31,7 @@ usage() {
     echo "  <-b | -p > --dump_groups     Dump groups in test [ansible-playbook options e.g. --limit server1]"
     echo "  <-b | -p > --play <play>     Build differen playbook [ansible-playbook options e.g. --limit server1]"
     echo "  -w, --win-tst [ --bootstrap] Build Windows servers in test [ansible-playbook options e.g. --limit server1]"
+    echo "  -m, --win-prd [ --bootstrap] Build Windows servers in prod [ansible-playbook options e.g. --limit server1]"
     echo "  -v, --start-vm               Start virtual machine <server>"
     echo "  -h, --help                   Display this help message"
 }
@@ -112,6 +113,17 @@ build_on_win_test() {
     INVENTORY="win-tst"
     check_opts_and_run $*
 }
+build_on_win_prod() {
+    echo ${FUNCNAME[0]}
+
+    DEFAULT_PLAY="install-windows.yml"
+    DEFAULT_BOOTSTRAP_PLAY="bootstrap_win.yml"
+    IVGROUPS="groups-win"
+    check_ssh_agent
+
+    INVENTORY="win-prd"
+    check_opts_and_run $*
+}
 build_on_prod() {
     echo ${FUNCNAME[0]}
     DEFAULT_PLAY="install-linux.yml"
@@ -154,6 +166,9 @@ case "$opt" in
         ;;
     -w|-b|--win-tst)
         build_on_win_test $*
+        ;;
+    -m|--win-prd)
+        build_on_win_prod $*
         ;;
     -v|--start-vm)
         start_vm $*
