@@ -1,0 +1,8 @@
+---
+
+- name: Restart_nullmailer
+  ansible.builtin.systemd:
+    name: nullmailer
+    state: restarted
+    enabled: true
+  become: true

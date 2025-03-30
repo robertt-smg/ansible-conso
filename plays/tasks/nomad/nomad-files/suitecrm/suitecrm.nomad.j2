@@ -78,7 +78,7 @@ job "{{ job_name }}" {
           group = "suitecrm-php-apache"
         }
         extra_hosts = [
-          "smtp_host:{{ suitecrm.smtp.host }}",
+          "mail.smg-air-conso.com:{{ suitecrm.smtp.host }}",
         ]
         volumes = [
             "{{ suitecrm.app_volume }}/data:/bitnami/suitecrm",

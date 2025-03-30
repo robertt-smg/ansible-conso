@@ -12,3 +12,4 @@ users_list_ansible:
     group: ansible
     groups:
       - ansible
+      - daemon

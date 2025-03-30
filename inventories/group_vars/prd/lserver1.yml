@@ -1,4 +1,4 @@
 certbot_server1_prd:
-  domain: prd.la-cuna.icu
+  domain: smg-air-conso.de
   renew_cron: "0 5 * * *"
   testing: false

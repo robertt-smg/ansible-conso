@@ -1,0 +1,6 @@
+## See https://stackoverflow.com/questions/16221250/add-a-key-to-hkey-current-user-for-all-users
+## to add registry setting per user once
+
+airquest_defaults_strato_stg:
+  enabled: false
+ 

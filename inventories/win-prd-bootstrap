@@ -1,0 +1,29 @@
+[fserver1]
+fserver1.tst ansible_host=192.168.121.41 ansible_user=Administrator ansible_connection=winrm ansible_winrm_server_cert_validation=ignore connection_timeout=240
+
+[wserver1]
+wserver1.tst ansible_host=192.168.121.51 ansible_user=Administrator ansible_connection=winrm ansible_winrm_server_cert_validation=ignore connection_timeout=240
+
+[wserver2]
+wserver2.tst ansible_host=192.168.121.52 ansible_user=Administrator ansible_connection=winrm ansible_winrm_server_cert_validation=ignore connection_timeout=240
+
+[wminiaq1]
+wminiaq1.tst ansible_host=192.168.121.80 ansible_user=Administrator ansible_connection=winrm ansible_winrm_server_cert_validation=ignore connection_timeout=240
+
+[strato_stg]
+strato_stg.prd ansible_host=212.132.101.218 ansible_user=Administrator ansible_connection=ssh ansible_shell_type=cmd become_method=runas pipelining=false connection_timeout=240
+
+
+[wsmg:children]
+fserver1
+wserver1
+wserver2
+wminiaq1
+strato_stg
+
+[win_tst:children]
+fserver1
+wserver1
+wserver2
+wminiaq1
+strato_stg

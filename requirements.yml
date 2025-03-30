@@ -17,4 +17,5 @@ roles:
   - name: weareinteractive.apt
   - name: jborean93.win_openssh
   - name: claranet.mariadb
-  - name: lifeofguenter.nullmailer
+  # - name: lifeofguenter.nullmailer // updated in roles, added new allmailfrom
+  # - name: blunix.role-mailrelay-opensmtpd // updated in roles, removed matrix, added some listen addresses

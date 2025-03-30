@@ -1,0 +1,46 @@
+---
+
+- name: Prepare config dir
+  ansible.builtin.file:
+    path: /etc/nullmailer
+    state: directory
+    mode: '0755'
+  become: true
+
+- name: Configure generic mail settings
+  ansible.builtin.template:
+    src: mailname.j2
+    dest: /etc/mailname
+    mode: '644'
+  notify: Restart_nullmailer
+  become: true
+
+- name: Configure nullmailer
+  ansible.builtin.template:
+    src: '{{ item.name + ".j2" }}'
+    dest: /etc/nullmailer/{{ item.name }}
+    mode: '{{ item.mode | default("644") }}'
+    owner: '{{ item.owner | default("root") }}'
+    group: '{{ item.group | default("root") }}'
+  with_items:
+    - name: adminaddr
+    - name: defaultdomain
+    - name: defaulthost
+    - name: helohost
+    - name: idhost
+    - name: pausetime
+    - name: remotes
+    - name: allmailfrom
+      group: mail
+      mode: '640'
+    - name: sendtimeout
+  notify: Restart_nullmailer
+  become: true
+
+- name: Install
+  ansible.builtin.apt:
+    name: nullmailer
+    default_release: '{{ nullmailer_default_release }}'
+    update_cache: true
+    cache_valid_time: 3600
+  become: true

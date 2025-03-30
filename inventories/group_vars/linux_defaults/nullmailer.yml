@@ -2,3 +2,4 @@ nullmailer_adminaddr: technology@smg-air-conso.de
 
 nullmailer_defaultdomain: smg-air-conso.de
 nullmailer_mailname: smg-air-conso.de
+nullmailer_allmailfrom: technology@smg-air-conso.de
