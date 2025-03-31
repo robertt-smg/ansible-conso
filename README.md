@@ -2,7 +2,13 @@
 
 # Hyper-V Switch / WSL
 
-- Install VMWware Workstatiion player
+- Installiere VMWware Workstation player
+- Setze IP Addresse in VMNet8
+- %ALLUSERSPROFILE%\vmnetdhcp.conf  Anpassen / siehe ./VMWarePlayer/vmnetdhcp.conf
+- %ALLUSERSPROFILE%\vmnetnat.conf  Anpassen / siehe ./VMWarePlayer/vmnetdhcp.conf
+- registry HKLM\System\CurrentControlSet\Services\VMNetDHCP\Parameters\Virtuall
+- https://www.assono.de/blog/change-nat-vmnet8-subnet-in-vmware-player
+- Reboot
 - Create Switch in Hyper-V Manager "VM Bridge", External with "VMNet8"
 - evtl. Enable Forwarding on VMNet8: netsh interface ipv4 set interface 28 forwarding=enabled ()
 - In guest, before checking IP with host/ping turn firewall off !

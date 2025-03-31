@@ -11,7 +11,7 @@ VMPassword=$DefaultGuestAdminPassword
 VMMacAddress=00155D1ABC22
 VMIpAddress=192.168.218.22
 VMImageVersion=24.04
-
+VMProcessorCount=2
 is_windows
 
 function run() {
