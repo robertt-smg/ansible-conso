@@ -95,7 +95,7 @@ function hyper_v_build() {
 	echo ${FUNCNAME[0]}
 
 	VMMemory=${VMMemory:-8GB}
-	VMProcessorCount=${VMProcessorCount:4}
+	VMProcessorCount=${VMProcessorCount:-4}
 
 	if [ ! -f ${HYPER_V_BUILD_PATH}/New-HyperVCloudImageVM.ps1 ]; then
 		echo "Error: please clone github.com:robertt-smg/hyperv-vm-provisioning.git into  ${HYPER_V_BUILD_PATH}"
