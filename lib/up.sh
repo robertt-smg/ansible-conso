@@ -103,7 +103,12 @@ function hyper_v_build() {
 		echo "Windows Terminal (wt.exe) is installed."
 	else
 		echo "Warning: Windows Terminal (wt.exe) is not installed or not in PATH."
-		echo "Consider installing Windows Terminal for better console experience."
+		echo "Installing Windows Terminal from https://aka.ms/terminal or https://github.com/microsoft/terminal/releases"
+
+		echo "In  powershell ... "
+		echo "Invoke-WebRequest -Uri https://github.com/microsoft/microsoft-ui-xaml/releases/download/v2.8.6/Microsoft.UI.Xaml.2.8.x64.appx -OutFile $env:TEMP\Microsoft.UI.Xaml.2.8.x64.appx"
+		echo "Add-AppxPackage $env:TEMP\Microsoft.UI.Xaml.2.8.x64.appx"
+		echo "Add-Appxpackage -Path C:\Users\Administrator\Downloads\Microsoft.WindowsTerminal_1.22.10731.0_8wekyb3d8bbwe.msixbundle"
 	fi
 
 	if [ ! -f ${HYPER_V_BUILD_PATH}/New-HyperVCloudImageVM.ps1 ]; then
