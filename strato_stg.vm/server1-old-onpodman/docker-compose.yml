@@ -1,0 +1,69 @@
+version: '3'
+services:
+  
+  smg-air-conso.de:
+    env_file: .env
+    security_opt:
+      - label=disable
+    
+    image: ${GITHUB_REGISTRY}/${GITHUB_OWNER}/ubuntu-test-vm:latest
+    container_name: server1-smg-conso
+    hostname: server1
+    domainname: smg-air-conso.de
+    cap_add:
+        - NET_ADMIN
+        - SYS_ADMIN
+        - CAP_MKNOD
+    
+    restart: unless-stopped
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Berlin
+      - SUDO_ACCESS=true
+      - PASSWORD_ACCESS=true
+      - SERVERNAME=server1
+      - DOMAIN=smg-air-conso.de
+    
+    devices:
+    - /dev/fuse:/dev/fuse
+
+    ports:
+    - "127.0.0.90:22:22"
+    - "127.0.0.90:2222:22" # 22 can not be mapped into windows host as it is used by host system -permission denied
+    - "127.0.0.90:80:80"
+    - "127.0.0.90:443:443"
+    - "127.0.0.90:2443:2443"
+    - "127.0.0.90:2480:2480"
+    - "127.0.0.90:31222:31222"
+
+    volumes:
+    # Podman with a leaked Podman socket from the host
+    -  /run/podman:/run/podman
+    ## need to map DNS from WSL for podman pull to work
+    - /etc/resolv.conf:/etc/resolv.conf
+    - docker-090:/var/lib/docker
+    - swap-090:/swap
+    - signal-090:/signal
+    - ./tmp/:/tmp/local/
+
+    # need to call entrypoint, otherwise failes for unknown reason
+    entrypoint: /bin/bash
+    command: /docker-entrypoint.sh    
+
+    privileged: true
+
+    networks:
+      salt-vm:
+        ipv4_address: 192.168.11.90
+
+networks:
+  salt-vm:
+     external: true
+
+volumes:
+  signal-090:
+  docker-090:
+  swap-090:
+  
+  
