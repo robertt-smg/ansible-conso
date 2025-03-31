@@ -94,8 +94,17 @@ function up() {
 function hyper_v_build() {
 	echo ${FUNCNAME[0]}
 
+
 	VMMemory=${VMMemory:-8GB}
 	VMProcessorCount=${VMProcessorCount:-4}
+
+	# Check if Windows Terminal (wt.exe) is installed
+	if command -v wt.exe >/dev/null 2>&1; then
+		echo "Windows Terminal (wt.exe) is installed."
+	else
+		echo "Warning: Windows Terminal (wt.exe) is not installed or not in PATH."
+		echo "Consider installing Windows Terminal for better console experience."
+	fi
 
 	if [ ! -f ${HYPER_V_BUILD_PATH}/New-HyperVCloudImageVM.ps1 ]; then
 		echo "Error: please clone github.com:robertt-smg/hyperv-vm-provisioning.git into  ${HYPER_V_BUILD_PATH}"
