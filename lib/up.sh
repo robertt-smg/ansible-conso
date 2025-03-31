@@ -97,6 +97,9 @@ function hyper_v_build() {
 
 	VMMemory=${VMMemory:-8GB}
 	VMProcessorCount=${VMProcessorCount:-4}
+	# Extract the default gateway by replacing the last octet of the IP address with "2"
+	VMDefaultGatewayFromIP=$(echo $VMIpAddress | sed -E 's/([0-9]+\.[0-9]+\.[0-9]+\.)[0-9]+/\12/')
+	VMDefaultGateway=${VMDefaultGateway:-$VMDefaultGatewayFromIP}
 
 	# Check if Windows Terminal (wt.exe) is installed
 	if command -v wt.exe >/dev/null 2>&1; then
@@ -134,8 +137,8 @@ function hyper_v_build() {
 			-NetConfigType \"v2\" \
 			-NetNetmask \"255.255.255.0\" \
 			-NetAddress \"${VMIpAddress}/24\" \
-			-NetGateway \"192.168.121.2\" \
-			-NameServers \"192.168.121.2,1.1.1.1,8.8.4.4\" \
+			-NetGateway \"${VMDefaultGateway}\" \
+			-NameServers \"${VMDefaultGateway},1.1.1.1,8.8.4.4\" \
 			-DomainName \"smg-air-conso.de\" \
 			-VMMachine_StoragePath \"\$env:ProgramData\hyperv-vm-provisioning\""
 	fi
