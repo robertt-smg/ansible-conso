@@ -1,5 +1,5 @@
 cnf_neocore_tst:
-  public_ip: 192.168.121.21
+  public_ip: 172.16.115.21
   external_port: 2080
   external_admin_port: 2990
-  neocore_db_server: 192.168.121.1
+  neocore_db_server: 172.16.115.21

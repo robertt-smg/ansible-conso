@@ -1,4 +1,4 @@
 certbot_server1_prd:
-  domain: smg-air-conso.de
+  domain: smg-air-conso.com
   renew_cron: "0 5 * * *"
   testing: false
