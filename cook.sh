@@ -93,6 +93,8 @@ function check_opts_and_run() {
 # Build a server/s
 build_on_test() {
     echo ${FUNCNAME[0]}
+    is_linux
+
     DEFAULT_PLAY="install-linux.yml"
     IVGROUPS=groups
     
@@ -104,6 +106,7 @@ build_on_test() {
 # Build a server/s
 build_on_win_test() {
     echo ${FUNCNAME[0]}
+    is_linux
 
     DEFAULT_PLAY="install-windows.yml"
     DEFAULT_BOOTSTRAP_PLAY="bootstrap_win.yml"
@@ -115,6 +118,7 @@ build_on_win_test() {
 }
 build_on_win_prod() {
     echo ${FUNCNAME[0]}
+    is_linux
 
     DEFAULT_PLAY="install-windows.yml"
     DEFAULT_BOOTSTRAP_PLAY="bootstrap_win.yml"
@@ -126,6 +130,8 @@ build_on_win_prod() {
 }
 build_on_prod() {
     echo ${FUNCNAME[0]}
+    is_linux
+
     DEFAULT_PLAY="install-linux.yml"
     IVGROUPS=groups
     check_ssh_agent
