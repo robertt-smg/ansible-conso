@@ -1,19 +1,18 @@
-[server1]
-server1.prd ansible_host=server1.la-cuna.icu ansible_ssh_port=22 ansible_ssh_user=ansible
+[dbserver1]
+dbserver1.tst ansible_host=172.16.115.31 ansible_ssh_port=31222 ansible_ssh_user=ansible
+[lserver1]
+lserver1.tst ansible_host=172.16.115.21 ansible_ssh_port=31222 ansible_ssh_user=ansible
+[lserver2]
+lserver2.tst ansible_host=172.16.115.22 ansible_ssh_port=31222 ansible_ssh_user=ansible
 
 [fti1]
 fti1.tst ansible_host=212.227.100.30 ansible_ssh_port=22 ansible_ssh_user=ansible
 
 [prd:children]
-server1
+dbserver1
+lserver1
+lserver2
 fti1
-
-[tulip:children]
-server1
 
 [fti:children]
 fti1
-
-[tst:children]
-tulip
-fti

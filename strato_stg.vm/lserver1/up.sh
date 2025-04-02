@@ -12,6 +12,7 @@ VMMacAddress=00155D1ABC21
 VMIpAddress=172.16.115.21
 VMImageVersion=24.04
 VMProcessorCount=2
+VMMemory=3GB
 is_windows
 
 function run() {
