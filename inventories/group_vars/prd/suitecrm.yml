@@ -1,4 +1,4 @@
-cnf_suitecrm_tst:
+cnf_suitecrm_prd:
   public_ip: 172.16.115.22
   external_port: 1080
   smtp:

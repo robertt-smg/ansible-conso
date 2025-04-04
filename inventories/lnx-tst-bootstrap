@@ -16,6 +16,6 @@ lserver2
 [fti:children]
 fti1
 
-[world:children]
+[tst:children]
 lsmg
 fti

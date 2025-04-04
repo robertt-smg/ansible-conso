@@ -1,0 +1,8 @@
+nomad_passbolt:
+  enabled: false
+
+nomad_mariadb:
+  enabled: true
+
+nomad_suitecrm:
+  enabled: false

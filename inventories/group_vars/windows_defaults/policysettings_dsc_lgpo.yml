@@ -149,7 +149,7 @@ policy_settings_lgpo_cAdministrativeTemplateSetting:
     - key: "HKEY_LOCAL_MACHINESOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System"
       vname: "legalnoticetext"
       vtype: "String"
-      vdata: "The idea of Freibier in Bavaria is deeply religious..."
+      vdata: "Morgen gibts Freibier ..."
 
 # https://admx.help/HKLM/Software/Policies/Microsoft/Windows/CurrentVersion/Internet%20Settings/ZoneMap
 #HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\\ZoneMap' 
