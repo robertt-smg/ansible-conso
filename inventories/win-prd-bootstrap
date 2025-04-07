@@ -21,7 +21,7 @@ wserver2
 wminiaq1
 strato_stg
 
-[win_tst:children]
+[win_prd:children]
 fserver1
 wserver1
 wserver2

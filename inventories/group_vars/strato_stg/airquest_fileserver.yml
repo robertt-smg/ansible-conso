@@ -2,5 +2,5 @@
 ## to add registry setting per user once
 
 airquest_defaults_strato_stg:
-  enabled: false
+  enabled: true
  

@@ -1,0 +1,5 @@
+certbot_prd:
+  staging: false
+
+lego_acme_prd:
+  use_staging: 0

@@ -11,7 +11,7 @@ linux_defaults
 linux_defaults
 
 [mariadb_server:children]
-lserver2
+lserver1
 
 [mariadb_server_secrets:children]
 mariadb_server

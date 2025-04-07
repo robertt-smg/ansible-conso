@@ -1,0 +1,11 @@
+policy_settings_registry_windows_update:
+## --------------------------------------------
+    registry:
+
+# https://gpsearch.azurewebsites.net:/Default.aspx?PolicyID=2513
+# HKLM\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services
+
+    - key: "HKEY_LOCAL_MACHINESOFTWARE\\SOFTWARE\\Policies\\Microsoft\\Windows NT\\Terminal Services"
+      vname: "fDisableCdm"
+      vtype: "Dword"
+      vdata: "0"

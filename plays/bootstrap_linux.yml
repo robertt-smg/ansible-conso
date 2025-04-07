@@ -39,6 +39,35 @@
       validate: /usr/sbin/visudo -cf %s      
 
   tasks:
+  - name: Backup /etc/default/grub
+    copy:
+      src: /etc/default/grub
+      dest: /etc/default/grub.bak
+      remote_src: yes
+
+  - name: Update GRUB_CMDLINE_LINUX in /etc/default/grub
+    lineinfile:
+      path: /etc/default/grub
+      regexp: '^GRUB_CMDLINE_LINUX='
+      line: 'GRUB_CMDLINE_LINUX="ipv6.disable=1"'
+      backrefs: yes
+
+  - name: Run update-grub
+    command: update-grub
+
+  - name: Backup /etc/modprobe.d/blacklist.conf
+    copy:
+      src: /etc/modprobe.d/blacklist.conf
+      dest: /etc/modprobe.d/blacklist.conf.bak
+      remote_src: yes
+
+  - name: Add blacklist ipv6 to /etc/modprobe.d/blacklist.conf
+    lineinfile:
+      path: /etc/modprobe.d/blacklist.conf
+      line: 'blacklist ipv6'
+      create: yes
+      state: present
+      
   - name: install geerlingguy.security
     include_role:
       name: geerlingguy.security

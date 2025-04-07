@@ -1,6 +1,6 @@
 cnf_mariadb_server1:
     server:
-      id: 2233
+      id: 2133
     cpu: 4096
     memory: 8192
     db_volume: /var/lib/mariadb

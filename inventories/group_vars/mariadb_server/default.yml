@@ -11,3 +11,5 @@ cnf_mariadb_default:
   
   purge_binlog_days: 5
   purge_schedule: "18 2 * * * *"  
+
+  job_name: "mariadb-server"

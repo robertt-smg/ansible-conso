@@ -59,7 +59,7 @@
     server_id: "{{ mariadb.server.id }}"
   register: mariadb_cnf_changed
 
-- name: Create 90_mysql_custom.cnf file {{ nomad_mariadb.job_name }}
+- name: Create_90_mysql_custom.cnf_file_{{ nomad_mariadb.job_name }}
   template:
     src: nomad-files/mariadb/mysql.cnf.j2
     dest: "{{ nomad_data_dir }}/jobs/{{ nomad_mariadb.job_name }}/cnf/90_mysql_custom.cnf"

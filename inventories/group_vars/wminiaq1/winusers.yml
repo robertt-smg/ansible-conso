@@ -1,9 +1,9 @@
 winusers_list_wminiaq:
   SA_AQUSER1:
-    password: "password1"
+    password_never_expires: true
 
   SA_AQUSER2:
-    password: "password1"
+    password_never_expires: true
 
   RA_AQUSER1:
-    password: "password1"
+    password_never_expires: true

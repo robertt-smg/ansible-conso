@@ -52,7 +52,7 @@ frontend ft_http_api
         acl ip path_end -i ip
         acl ip path_end -i ip/
         
-        acl passbolt path_sub passbolt
+        # acl passbolt path_sub passbolt
 
         acl is_crm_test hdr(host) -i airna.test.smg-air-conso.com
         acl is_crm hdr(host) -i airna.smg-air-conso.com
@@ -64,7 +64,7 @@ frontend ft_http_api
 
         mode http
 
-        use_backend passbolt if passbolt
+        # use_backend passbolt if passbolt
         default_backend welcome
 
 backend welcome
@@ -81,13 +81,13 @@ backend welcome
 backend per_ip_rates
     stick-table type ip size 1m expire 10m store http_req_rate(10s) 
 
-backend passbolt
-    mode http
+#backend passbolt
+#    mode http
 
-    timeout server  120s
-    http-response set-header Content-Security-Policy frame-ancestors\ %[var(txn.allowed_origins)];
-    http-request set-header Access-Control-Allow-Private-Network true if { req.hdr(X-Access-Control-Allow-Private-Network) -m int 1 }
-    server passbolt {{public_ip}}:2443 id 2443 check ssl verify none check port 2443
+#    timeout server  120s
+#    http-response set-header Content-Security-Policy frame-ancestors\ %[var(txn.allowed_origins)];
+#    http-request set-header Access-Control-Allow-Private-Network true if { req.hdr(X-Access-Control-Allow-Private-Network) -m int 1 }
+#    server passbolt {{public_ip}}:2443 id 2443 check ssl verify none check port 2443
 
 backend suitecrm
     mode http

@@ -10,7 +10,6 @@ mysql:
         collation-server: utf8_general_ci
         default-time-zone: 'Europe/Berlin'
         expire_logs_days: 10
-        federated: 1
 
         log-queries-not-using-indexes: noarg_present
         long_query_time: 25

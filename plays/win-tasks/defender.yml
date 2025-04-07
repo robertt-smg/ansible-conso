@@ -1,11 +1,14 @@
 - name: Add ExclusionProcess to Windows Defender exclusion list
   win_shell: powershell.exe -ExecutionPolicy ByPass -Command "Add-MpPreference -ExclusionProcess '{{ item }}' -Force"
   with_items: "{{ defender_list.ExclusionProcess }}"
+  ignore_errors: yes
 
 - name: Add ExclusionExtension to Windows Defender exclusion list
   win_shell: powershell.exe -ExecutionPolicy ByPass -Command "Add-MpPreference -ExclusionExtension '{{ item }}' -Force"
   with_items: "{{ defender_list.ExclusionExtension }}"
+  ignore_errors: yes
 
 - name: Add ExclusionPath to Windows Defender exclusion list
   win_shell: powershell.exe -ExecutionPolicy ByPass -Command "Add-MpPreference -ExclusionPath '{{ item }}' -Force"
-  with_items: "{{ defender_list.ExclusionPath }}"  
+  with_items: "{{ defender_list.ExclusionPath }}"
+  ignore_errors: yes  

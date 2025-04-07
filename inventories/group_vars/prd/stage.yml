@@ -3,6 +3,7 @@ nomad_passbolt:
 
 nomad_mariadb:
   enabled: true
+  job_name: "mariadb-server"
 
 nomad_suitecrm:
   enabled: false

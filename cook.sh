@@ -82,7 +82,8 @@ function check_opts_and_run() {
         echo "Ansible playbook ${BOOTSTRAP_PLAY} execution completed. $logfile"
     else
         logfile=install-$(date +%Y-%m-%d-%H-%M-%S).log
-        ansible-playbook ${INVENTORY} ${SCRIPTPATH}/plays/${DEFAULT_PLAY} $* |& tee $logfile
+        set -x
+        ansible-playbook ${INVENTORY} $* ${SCRIPTPATH}/plays/${DEFAULT_PLAY} |& tee $logfile
         if [ $? -ne 0 ]; then
             echo "Ansible playbook ${DEFAULT_PLAY} execution failed. Exiting."
             exit 1

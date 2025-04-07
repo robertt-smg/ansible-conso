@@ -63,3 +63,8 @@
 - name: Install Advantage OLDEDB for FoxPro
   include_tasks: win-tasks/advantage_oledb.yml
   when: airquest_defaults.advantage_oldedb is defined and airquest_defaults.advantage_oldedb  
+
+- name: Copy AirnaCRM image to wallpaper
+  win_copy:
+    src: files/AirnaCRM_hand-3751159_960_720.jpg
+    dest: C:\\user\\public\\wallpaper.jpg
