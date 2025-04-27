@@ -1,0 +1,11 @@
+percona_server1:
+    server:
+      id: 1234
+    cpu: 4096
+    memory: 8192
+
+## percona db server
+## -------------------------
+nomad_percona:
+  enabled: true
+  job_name: "percona-db-server"

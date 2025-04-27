@@ -1,0 +1,3 @@
+## Enable nomad services for this server
+nomad_haproxy:
+  enabled: false

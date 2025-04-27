@@ -64,7 +64,13 @@
   include_tasks: win-tasks/advantage_oledb.yml
   when: airquest_defaults.advantage_oldedb is defined and airquest_defaults.advantage_oldedb  
 
+- name: Ensure destination directory for wallpaper exists
+  win_file:
+    path: C:\user\public
+    state: directory
+
 - name: Copy AirnaCRM image to wallpaper
   win_copy:
-    src: files/AirnaCRM_hand-3751159_960_720.jpg
+    src: files/{{ airquest_defaults.wallpaper.name }}
     dest: C:\\user\\public\\wallpaper.jpg
+  when: airquest_defaults.wallpaper.enabled is defined and airquest_defaults.wallpaper.enabled

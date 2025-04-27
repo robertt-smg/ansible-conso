@@ -61,6 +61,7 @@
     name: RDS-RD-Server
     state: present
   register: rds_rd_server_check
+  when: winserver_roles_enabled.rdpserver is defined and winserver_roles_enabled.rdpserver
 
 - name: Enable server RDS-RD-Server
   ansible.windows.win_feature:
@@ -77,6 +78,7 @@
     name: RDS-Licensing
     state: present
   register: rds_licensing_check
+  when: winserver_roles_enabled.rdpserver is defined and winserver_roles_enabled.rdpserver
 
 - name: Enable server RDS-Licensing
   ansible.windows.win_feature:
@@ -93,7 +95,8 @@
     name: Windows-Defender
     state: present
   register: windows_defender_check 
-
+  when: winserver_roles_enabled.defender is defined and winserver_roles_enabled.defender
+  
 - name: Enable Windows-Defender
   ansible.windows.win_feature:
     name:

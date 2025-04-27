@@ -8,6 +8,9 @@ lserver2.tst ansible_host=192.168.121.22 ansible_ssh_port=31222 ansible_ssh_user
 [fti1]
 fti1.tst ansible_host=192.168.121.8 ansible_ssh_port=31222 ansible_ssh_user=ansible
 
+[fti_app1]
+fti_app1.tst ansible_host=192.168.121.242 ansible_ssh_port=22 ansible_ssh_user=ansible
+
 [lsmg:children]
 dbserver1
 lserver1
@@ -15,6 +18,7 @@ lserver2
 
 [fti:children]
 fti1
+fti_app1
 
 [tst:children]
 lsmg

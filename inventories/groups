@@ -13,6 +13,9 @@ linux_defaults
 [mariadb_server:children]
 lserver1
 
+[percona_db_server:children]
+fti_app1
+
 [mariadb_server_secrets:children]
 mariadb_server
 

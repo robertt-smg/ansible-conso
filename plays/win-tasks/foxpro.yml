@@ -37,8 +37,10 @@
 
 - name: Install MariaDB Connector ODBC 3.2.4
   ansible.windows.win_package:
-    path: https://downloads.mariadb.com/Connectors/odbc/connector-odbc-3.2.4/mariadb-connector-odbc-3.2.4-win32.msi
-    product_id: '{E3F2C208-8D40-4CA0-BC75-89BA63894B8E}'
+    # path: https://downloads.mariadb.com/Connectors/odbc/connector-odbc-3.2.4/mariadb-connector-odbc-3.2.4-win32.msi
+    #product_id: '{E3F2C208-8D40-4CA0-BC75-89BA63894B8E}'
+    path: https://downloads.mariadb.com/Connectors/odbc/connector-odbc-3.1.21/mariadb-connector-odbc-3.1.21-win32.msi
+    product_id: '{7378701A-F4AF-4C94-B5D4-EBD83816D8D6}'
     creates_path: 'C:\\Program Files (x86)\\MariaDB\\MariaDB ODBC Driver'
 
 - name: Download and Install MySQL Connector ODBC

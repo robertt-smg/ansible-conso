@@ -76,7 +76,7 @@ mysql:
         lower_case_table_names: 1
         max_allowed_packet: 16M  # Reduced to 16M
         max_binlog_size: 64M  # Reduced to 64M
-        max_connections: 50  # Reduced to 50
+        max_connections: 1500  
         max_heap_table_size: 16M  # Reduced to 16M
         net_read_timeout: 3600
         net_write_timeout: 3600

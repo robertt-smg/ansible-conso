@@ -10,6 +10,10 @@ wserver2.tst ansible_host=192.168.121.52 ansible_user=Administrator ansible_conn
 [wminiaq1]
 wminiaq1.tst ansible_host=192.168.121.80 ansible_user=Administrator ansible_connection=winrm ansible_winrm_server_cert_validation=ignore connection_timeout=240
 
+[fti_app2_w]
+wserver1.tst ansible_host=192.168.121.243 ansible_user=Administrator ansible_connection=winrm ansible_winrm_server_cert_validation=ignore connection_timeout=240
+
+
 [wsmg:children]
 fserver1
 wserver1
@@ -24,3 +28,6 @@ fserver1
 wserver1
 wserver2
 wminiaq1
+
+[fti:children]
+fti_app2_w

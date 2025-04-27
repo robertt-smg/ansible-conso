@@ -14,7 +14,7 @@ mysql:
         log-queries-not-using-indexes: noarg_present
         long_query_time: 25
         lower_case_table_names: 1
-        max_connections: 50  # Reduced to 50
+        max_connections: 1500  
         net_read_timeout: 3600
         net_write_timeout: 3600
 
@@ -22,3 +22,5 @@ mysql:
         slow_query_log_file: '/var/log/mysql/mysql-slow.log'
         slow_query_log: 'OFF'
         wait_timeout: 28800
+
+        sql_mode: "ALLOW_INVALID_DATES,NO_ENGINE_SUBSTITUTION"

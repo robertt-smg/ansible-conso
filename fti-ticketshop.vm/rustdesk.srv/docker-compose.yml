@@ -1,0 +1,40 @@
+services:
+  hbbs:
+    container_name: hbbs
+    image: rustdesk/rustdesk-server:latest
+    command: hbbs
+    volumes:
+      - ./data:/root
+    #network_mode: "host"
+    ports:
+      - 127.0.0.242:21114:21114
+      - 127.0.0.242:21115:21115
+      - 127.0.0.242:21116:21116
+      - 127.0.0.242:21118:21118
+
+    depends_on:
+      - hbbr
+    restart: unless-stopped
+    networks:
+      salt-vm:
+        ipv4_address: 192.168.11.242
+
+  hbbr:
+    container_name: hbbr
+    image: rustdesk/rustdesk-server:latest
+    command: hbbr
+    volumes:
+      - ./data:/root
+    #network_mode: "host"
+    ports:
+      - 127.0.0.243:21117:21117
+      - 127.0.0.243:21119:21119
+
+    restart: unless-stopped
+
+    networks:
+      salt-vm:
+        ipv4_address: 192.168.11.243
+networks:
+  salt-vm:
+     external: true

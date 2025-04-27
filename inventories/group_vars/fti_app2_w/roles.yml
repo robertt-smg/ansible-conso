@@ -1,0 +1,7 @@
+winserver_roles_enabled_fti_app2:
+  net35: true
+  net45: true
+  net46: true
+  port_sharing: true
+  rdpserver: false
+  defender: true

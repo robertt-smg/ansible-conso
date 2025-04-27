@@ -6,5 +6,8 @@ winusers_list_wserver1:
   SA_AQUSER2:
     password_never_expires: true
 
+  SA_AQUSER3:
+    password_never_expires: true
+
   RA_AQUSER1:
     password_never_expires: true
