@@ -19,8 +19,8 @@ job "{{ job_name }}" {
   update {
     max_parallel = 1
     min_healthy_time = "10s"
-    healthy_deadline = "30m"
-    progress_deadline = "32m"
+    healthy_deadline = "360m"
+    progress_deadline = "361m"
     auto_revert = false
     canary = 0
   }
@@ -33,11 +33,15 @@ job "{{ job_name }}" {
         static = {{ percona.external_port }} 
         to = {{ percona.port }} 
       }
+      port "percona_health_port" { 
+        static = 8000 
+        to = 8000
+      }
       mode = "host"
     }
     restart {
       # The number of attempts to run the job within the specified interval.
-      attempts = 0 # 10
+      attempts = 10
       interval = "5m"
 
       # The "delay" parameter specifies the duration to wait before restarting
@@ -63,6 +67,7 @@ job "{{ job_name }}" {
           DB_FLAVOR = "mysql"
           MYSQL_HOME = "/bitnami/mysql/conf"
           #MYSQL_USER = "root"
+          MYSQL_BIND_ADDRESS = "0.0.0.0"
           #MYSQL_PASSWORD = "{{ percona.server.root_password }}"
           MYSQL_AUTHENTICATION_PLUGIN = "caching_sha2_password"
       }
@@ -82,23 +87,18 @@ job "{{ job_name }}" {
           "SYS_NICE",
         ]
         volumes = [
-            #"{{ config_dir }}:/bitnami/mysql/conf",
-            #"{{ config_dir }}:/opt/bitnami/mysql/conf",
             "{{ percona.db_volume }}/mysql:/bitnami/mysql/data",
-            #"{{ config_dir }}:/etc/mysql",
-            #"{{ config_dir }}:/opt/bitnami/mysql/conf",
-            #"{{ percona.db_volume }}/tmp:/opt/bitnami/mysql/tmp",
-            "{{ config_dir }}:/etc/mysql/conf.d",
+            "{{ config_dir }}/cnf:/etc/mysql/conf.d",
 
             "{{ percona.db_volume }}/tmp:/var/lib/tmp",
             "{{ percona.db_volume }}/mysql:/var/lib/mysql",
-            "{{ percona.log_volume }}:/var/log/mysql",
-            "{{ config_dir }}:/etc/percona-server.conf.d",
-            "{{ config_dir }}:/etc/my.cnf.d",
+            "{{ percona.log_volume }}:/var/log/mysql/",
+            #"{{ config_dir }}/cnf:/etc/percona-server.conf.d",
+            #"{{ config_dir }}/cnf:/etc/my.cnf.d",
             "{{ config_dir }}/script:/script",
             "{{ percona.db_volume }}/tmp/initdb:/docker-entrypoint-initdb.d",
-            "/etc/passwd:/etc/passwd:ro",
-            "/etc/group:/etc/group:ro"
+            #"/etc/passwd:/etc/passwd:ro",
+            #"/etc/group:/etc/group:ro"
 
         ]
         {% if nomad_config_driver_is_docker is defined and nomad_config_driver_is_docker %}
@@ -107,7 +107,18 @@ job "{{ job_name }}" {
          
         ports = [ "percona_port" ]
       }
- 
+      service {
+        name = "{{ job_name }}"
+        port = "percona_health_port"
+        provider = "nomad"
+        check {
+          type     = "http"
+          port     = "percona_health_port"
+          path = "/healthweb.sh"
+          interval = "120s"
+          timeout  = "30s"
+        }
+      }
       logs {
          max_files     = 2
          max_file_size = 15

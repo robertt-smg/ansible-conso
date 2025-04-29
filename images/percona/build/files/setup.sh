@@ -7,7 +7,11 @@ export TZ=Europe/Berlin
 rm -rf  /tmp/* /var/tmp/*  
 echo "Build date: $(date)" > /version.txt
 
+apt-get update
+apt-get install -y lighttpd
+
 [ -f /etc/os-release ] && cat /etc/os-release >> /version.txt
 [ -f /etc/lsb-release ] && cat /etc/lsb-release >> /version.txt
 [ -f /etc/redhat-release ] && cat /etc/redhat-release >> /version.txt
+lighttpd -v >> /version.txt
 mysqld --version >> /version.txt

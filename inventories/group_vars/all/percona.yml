@@ -26,5 +26,5 @@ perconacnf_supported_sections:
 
 #- merge all percona_... variables into one
 
-percona:  "{{ lookup('community.general.merge_variables', 'percona_', pattern_type='prefix', override='ignore') }}"
+percona:  "{{ lookup('community.general.merge_variables', 'cnf_percona_', pattern_type='prefix', override='ignore') }}"
 

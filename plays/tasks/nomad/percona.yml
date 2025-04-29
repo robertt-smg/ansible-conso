@@ -2,50 +2,55 @@
   file:
     path: "{{ nomad_log_dir }}/{{ nomad_percona.job_name }}"
     state: directory
-    owner: mysql
-    group: mysql
+    owner: 1001
+    group: 1001
     mode: "0777"
     recurse: yes
 
 - name: Create configuration volume {{ nomad_percona.job_name }}
   file:
-    path: "{{ nomad_data_dir }}/jobs/{{ nomad_percona.job_name }}"
+    path: "{{ nomad_data_dir }}/jobs/{{ nomad_percona.job_name }}/{{ item }}"
     state: directory
-    owner: mysql
-    group: mysql
+    owner: 1001
+    group: 1001
     mode: "0777"
     recurse: yes
+  loop:
+    - script
+    - cnf
 
-- name: Create script volume {{ nomad_percona.job_name }}
+
+- name: Create log volume {{ percona.log_volume }}
   file:
-    path: "{{ nomad_data_dir }}/jobs/{{ nomad_percona.job_name }}/script"
+    path: "{{ percona.log_volume }}"
     state: directory
-    owner: mysql
-    group: mysql
+    owner: 1001
+    group: 1001
     mode: "0777"
     recurse: yes
 
-- name: Create database volume and dirs {{ nomad_percona.job_name }}
+- name: Create database volume and dirs {{ percona.db_volume }}
   file:
     path: "{{ percona.db_volume }}/{{ item }}"
     state: directory
-    owner: mysql
-    group: mysql
-    mode: "0775"
+    owner: 1001
+    group: 1001
+    mode: "0777"
     recurse: yes
   loop:
     - mysql
     - log
     - tmp
     - tmp/initdb
+    - incoming
 
 - name: Manage percona.cnf configuration file {{ nomad_percona.job_name }}
   template:
     src: nomad-files/percona/percona.cnf.j2
-    dest: "{{ nomad_data_dir }}/jobs/{{ nomad_percona.job_name }}/percona.cnf"
-    owner: root
-    group: root
-    mode: "0644"
+    dest: "{{ nomad_data_dir }}/jobs/{{ nomad_percona.job_name }}/cnf/percona.cnf"
+    owner: 1001
+    group: 1001
+    mode: "0775"
   vars:
     job_name: "{{ nomad_percona.job_name }}"
     mysql_server_ip: "{{ nomad_advertise_address }}"
@@ -81,7 +86,7 @@
 - name: Create mysql.cnf file {{ nomad_percona.job_name }}
   template:
     src: nomad-files/percona/mysql.cnf.j2
-    dest: "{{ nomad_data_dir }}/jobs/{{ nomad_percona.job_name }}/mysql.cnf"
+    dest: "{{ nomad_data_dir }}/jobs/{{ nomad_percona.job_name }}/cnf/mysql.cnf"
     owner: 1001
     group: nomad
     mode: "0775"

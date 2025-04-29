@@ -1,4 +1,4 @@
-percona_default:
+cnf_percona_default:
   port: 3306
   external_port: 3306
   cpu: 14000

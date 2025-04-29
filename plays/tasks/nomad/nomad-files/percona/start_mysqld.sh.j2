@@ -60,7 +60,7 @@ start() {
     echo_time "Starting mysqld ... with logfile $log_error"
 
     touch /var/log/mysql/error.log
-    chown mysql:mysql /var/log/mysql/error.log
+    chown 1001:1001 /var/log/mysql/error.log
     tail -f /var/log/mysql/error.log &
 
     [ -f /opt/bitnami/scripts/mysql/entrypoint.sh ] && echo "Starting /opt/bitnami/scripts/mysql/entrypoint.sh mysqld..." && exec /opt/bitnami/scripts/mysql/entrypoint.sh /opt/bitnami/scripts/mysql/run.sh --verbose --log-error=/var/log/mysql/error.log

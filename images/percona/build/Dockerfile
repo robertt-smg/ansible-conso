@@ -13,7 +13,9 @@ RUN date &&\
 RUN date && \
     /bin/bash /tmp/setup.sh
 
-
+COPY ./files/healthweb.sh  /var/www/html/
+COPY ./files/00-healthweb.conf /etc/lighttpd/conf-enabled/
+    
 #USER mysql
 #EXPOSE 3306 33060
 #CMD ["mysqld"]
