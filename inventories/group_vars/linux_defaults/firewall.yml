@@ -2,3 +2,4 @@
 firewall_allowed_tcp_ports_default:
   - "31222"
 
+geerlingguy_firewall_enabled: true

@@ -22,7 +22,7 @@ for ibd_file in *.ibd; do
         continue
     fi
     # Discard tablespace
-    mysql --skip-column-names --batch --database "$database_name" --execute "SET foreign_key_checks = 0; ALTER TABLE \`$table_name\` DISCARD TABLESPACE"
+    mysql --skip-column-names --batch --database "$database_name" --execute "SET foreign_key_checks = 0;SET @@session.innodb_strict_mode = 0;SET sql_mode = ''; ALTER TABLE \`$table_name\` DISCARD TABLESPACE"
     if [ $? -ne 0 ]; then
         echo "Failed to discard tablespace for $table_name"
         continue
@@ -58,6 +58,9 @@ for ibd_file in *.ibd; do
     if [ $? -ne 0 ]; then
         echo "Failed to import tablespace for $table_name"
         continue
+    else
+        rm $incoming_file
+        rm $incoming_cfg_file
     fi
 
     echo "Successfully processed $table_name"

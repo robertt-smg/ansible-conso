@@ -1,0 +1,2 @@
+smb_docker_linux_defaults:
+  image_version: smb-docker:3.21

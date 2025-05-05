@@ -1,0 +1,1 @@
+smb_docker:  "{{ lookup('community.general.merge_variables', 'smb_docker_', pattern_type='prefix', override='ignore') }}"

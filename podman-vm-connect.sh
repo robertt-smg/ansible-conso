@@ -102,7 +102,7 @@ function podman_connect() {
 
     ## we run in podman and share build dir from windows, so this is writeable 0777 and cannot be changed
     export ANSIBLE_CONFIG=/mnt/$PW/ansible.cfg 
-
+    rm -rf /root/.ssh/config && cp -rf /mnt/$HOME/.ssh/config /root/.ssh/config
     cd /mnt/$PW
 
 EOF

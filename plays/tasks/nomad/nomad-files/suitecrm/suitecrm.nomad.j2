@@ -33,7 +33,16 @@ job "{{ job_name }}" {
         static = {{ suitecrm.external_port }} 
         to = 8080 
       }
- 
+{% if include_smb_docker is defined and include_smb_docker %}
+      port "smb_139_port" { 
+        static = 139
+        to = 139 
+      } 
+      port "smb_445_port" { 
+        static = 445
+        to = 445 
+      }
+{% endif %}
       mode = "host"
     }
     restart {
@@ -50,6 +59,11 @@ job "{{ job_name }}" {
       driver = "podman"
       {% endif %}
       env {  
+      {% if xdebug.enabled is defined and xdebug.enabled %}
+          XDEBUG=1
+          XDEBUG_PORT="{{ xdebug.xdebug_port }}"
+          XDEBUG_HOST="{{ xdebug.xdebug_host }}"
+       {% endif %} 
           SUITECRM_DATABASE_HOST="{{ suitecrm.db.host }}"
           SUITECRM_DATABASE_PORT_NUMBER=3306
           SUITECRM_DATABASE_USER="{{ suitecrm.db.user }}"
@@ -73,7 +87,7 @@ job "{{ job_name }}" {
         {% endif %}
         {% set image_version= suitecrm.image_version %}
         {% include "nomad-files/github_registry.j2" %}
-
+        hostname = "suitecrm-server"
         labels {
           group = "suitecrm-php-apache"
         }
@@ -116,5 +130,52 @@ job "{{ job_name }}" {
         memory = {{ suitecrm.memory }}
       }
     }
+    {% if include_smb_docker is defined and include_smb_docker %}
+    task "suitecrm-smb-docker" {
+      {% if nomad_config_driver_is_docker is defined and nomad_config_driver_is_docker %}
+      driver = "docker"
+      {% else %}
+      driver = "podman"
+      {% endif %}
+      config {
+        {% set image_version= smb_docker.image_version %}
+        {% include "nomad-files/github_registry.j2" %}
+        hostname = "suitecrm-smb-docker"
+        labels {
+          group = "suitecrm-docker-smb"
+        }
+        volumes = [
+            "{{ suitecrm.app_volume }}/data:/data",
+        ]
+        {% if nomad_config_driver_is_docker is defined and nomad_config_driver_is_docker %}
+        volume_driver = "local"
+        {% endif %}
+         
+        ports = [ "smb_139_port", "smb_445_port" ]
+        
+      }
+      service {
+        name = "{{ job_name }}"
+        port = "http_port"
+        provider = "nomad"
+        check {
+          type     = "http"
+          port     = "http_port"
+          path = "/#/Login"
+          interval = "120s"
+          timeout  = "30s"
+        }
+      }
+      logs {
+         max_files     = 2
+         max_file_size = 15
+      }
+ 
+      resources {
+        cpu = {{ suitecrm.cpu }}
+        memory = {{ suitecrm.memory }}
+      }
+    }    
+    {% endif %}
   }
 }

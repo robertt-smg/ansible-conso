@@ -18,16 +18,17 @@ services:
         - 'mariadb_data:/bitnami/mariadb'
 
   suitecrm:
-    image: ghcr.io/robertt-smg/suitecrm:8
+    #image: docker.io/bitnami/suitecrm:8
     labels:
       podman-proxy-remote-ports: "192.168.178.25:9100:192.168.11.189:9100"
+    image: ghcr.io/robertt-smg/suitecrm:8
     ports:
-      - '127.0.0.189:8080:8080'
-      - '127.0.0.189:8443:8443'
+      - '127.0.0.189:8080:127.0.0.1:8080'
+      - '127.0.0.189:443:127.0.0.1:8443'
     environment:
       - XDEBUG=1
-      - XDEBUG_PORT=9100
       - XDEBUG_HOST=192.168.11.189
+      - XDEBUG_PORT=9100
       - SUITECRM_DATABASE_HOST=mariadb
       - SUITECRM_DATABASE_PORT_NUMBER=3306
       - SUITECRM_DATABASE_USER=bn_suitecrm
@@ -47,13 +48,14 @@ services:
       - SUITECRM_SMTP_NOTIFY_ADDRESS="technology@smg-air-conso.de"
       - SUITECRM_SMTP_NOTIFY_NAME="Technology SMG Air Conso"    
     volumes:
-      - suitecrm_data:/bitnami/suitecrm
+        - suitecrm_data:/bitnami/suitecrm
 
     depends_on:
       - mariadb
     networks:
       salt-vm:
         ipv4_address: 192.168.11.189
+
   samba: # use to mount code for xdebug
     image: ghcr.io/robertt-smg/smb-docker:3.21
     tty: true

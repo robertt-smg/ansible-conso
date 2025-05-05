@@ -13,6 +13,9 @@ if [ -d "/docker-entrypoint-init.d" ]; then
   done
 fi
 
+if [ "$XDEBUG" == "1" ]; then
+  . /usr/bin/install_xdebug.sh
+fi
 
 echo "Starting bitnami suitecrm server $(date) ..."
 exec "/opt/bitnami/scripts/suitecrm/entrypoint.sh" $*

@@ -3,3 +3,4 @@ groups_list_default:
     gid: 1000
     system: true
     state: present
+    non_unique: true

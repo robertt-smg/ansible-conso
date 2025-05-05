@@ -1,0 +1,1 @@
+xdebug:  "{{ lookup('community.general.merge_variables', 'xdebug_', pattern_type='prefix', override='ignore') }}"

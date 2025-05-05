@@ -1,0 +1,5 @@
+
+xdebug_tst_server:
+  enabled: true
+  xdebug_port: 9123
+  xdebug_host: 192.168.178.25

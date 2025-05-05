@@ -8,3 +8,4 @@ firewall_allowed_tcp_ports_server1:
   - "3306" # mysql
   - "4646" # nomad ui, protected by access token
   
+geerlingguy_security_enabled: false

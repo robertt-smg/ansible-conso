@@ -8,8 +8,12 @@ lserver2.tst ansible_host=172.16.115.22 ansible_ssh_port=22 ansible_ssh_user=ans
 [fti1]
 fti1.prd ansible_host=212.227.100.30 ansible_ssh_port=31222 ansible_ssh_user=ansible ansible_ssh_private_key_file=/mnt/c/users/robertt/.ssh/id_gitlab
 
+[fti_app1]
+fti_app1.tst ansible_host=app01.fti-ticketshop.ovh.euvia-cloud.de ansible_ssh_port=22 ansible_ssh_user=root
+
 [fti:children]
 fti1
+fti_app1
 
 [lsmg:children]
 dbserver1

@@ -5,3 +5,4 @@ security_autoupdate_enabled: true
 security_autoupdate_reboot_time: "03:00"
 security_autoupdate_reboot: false
 
+geerlingguy_security_enabled: true
