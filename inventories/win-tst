@@ -13,7 +13,6 @@ wminiaq1.tst ansible_host=192.168.121.80 ansible_user=Administrator ansible_conn
 [fti_app2_w]
 fti_app2.tst ansible_host=192.168.121.243 ansible_user=Administrator ansible_connection=ssh ansible_shell_type=cmd become_method=runas pipelining=false connection_timeout=240
 
-
 [wsmg:children]
 fserver1
 wserver1
@@ -25,6 +24,7 @@ fserver1
 wserver1
 wserver2
 wminiaq1
+fti_app2_w
 
 [fti:children]
 fti_app2_w
