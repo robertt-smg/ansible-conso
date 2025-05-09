@@ -118,6 +118,12 @@ EOF
     ## we are forwarding Private hosts to podman VM
     ##  VMs then can connect via podman host
     ## 19... # FTI APP02 forwaring in ssh_config
+
+
+     #   -L  19985:127.0.6.19:19985  \
+     #   -L  19986:127.0.6.19:19986  \
+     #   -L  19022:127.0.6.19:19022 \
+
     scp -i $IDENT -P $port -o IdentitiesOnly=yes -o StrictHostKeyChecking=no -o LogLevel=ERROR  /tmp/bashrc $user@$host:/tmp/bashrc
     podman_ssh \
         -R 192.168.11.1:5005:10.83.20.16:5005 \
@@ -126,9 +132,6 @@ EOF
         -R 192.168.11.1:389:10.83.20.18:389 \
         -R 192.168.11.1:636:10.83.20.18:636 \
         -R 192.168.11.1:25:192.168.178.170:25 \
-        -L  19985:127.0.6.19:19985  \
-        -L  19986:127.0.6.19:19986  \
-        -L  19022:127.0.6.19:19022 \
          "/bin/bash --norc -c \"exec bash --init-file /tmp/bashrc  \""
 }
 podman_init

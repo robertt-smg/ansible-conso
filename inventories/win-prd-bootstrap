@@ -14,8 +14,8 @@ wminiaq1.tst ansible_host=172.16.115.80 ansible_user=Administrator ansible_conne
 strato_stg.prd ansible_host=212.132.101.218 ansible_user=Administrator ansible_connection=winrm ansible_winrm_server_cert_validation=ignore connection_timeout=240
 
 [fti_app2_w]
-# via ssh-fti-jump port forwarding
-fti_app2.tst ansible_host=127.0.0.1 ansible_user=Administrator ansible_connection=winrm ansible_winrm_server_cert_validation=ignore ansible_winrm_port=19986 connection_timeout=240
+# you need to connect in a podman shell via ssh to app01, to forward ports
+fti_app2.tst ansible_host=127.0.0.1 ansible_user=Administrator ansible_password=TsfDfuAEvnpGyDzFWUg8yYuW9 ansible_connection=winrm ansible_winrm_server_cert_validation=ignore ansible_winrm_port=19986 connection_timeout=240
 
 [wsmg:children]
 fserver1
@@ -34,4 +34,7 @@ strato_stg
 fti_app2_w
 
 [fti:children]
+fti_app2_w
+
+[fti_app2_prd:children]
 fti_app2_w
