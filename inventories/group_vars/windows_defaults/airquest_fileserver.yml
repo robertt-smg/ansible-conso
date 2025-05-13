@@ -103,3 +103,27 @@ airquest_fileserver_default:
       vname: "AQTMP" 
       vtype: "String"
       vdata: "D:\\DATA\\AQ-TEMP"
+
+# https://serverfault.com/questions/788463/why-is-sitetozoneassignment-gpo-applying-but-sites-not-appearing-in-ie
+# https://github.com/js1016/MapUrlToZone?tab=readme-ov-file
+# HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Internet Settings\ZoneMap
+    - key: "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\\ZoneMap"
+      vname: "IEHarden"
+      vtype: "Dword"
+      vdata: 0
+
+    - key: "HKEY_LOCAL_MACHINE\\SOFTWARE\\Policies\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\\ZoneMap"
+      vname: "IEHarden"
+      vtype: "Dword"
+      vdata: 0
+
+# HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Internet Settings\ZoneMap
+    - key: "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\\ZoneMap"
+      vname: "rhor"
+      vtype: "Dword"
+      vdata: 1
+
+    - key: "HKEY_LOCAL_MACHINE\\Software\\Policies\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\\ZoneMap"
+      vname: "rhor"
+      vtype: "Dword"
+      vdata: 1

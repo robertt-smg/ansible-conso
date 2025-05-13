@@ -1,10 +1,10 @@
-policy_settings_registry_windows_update:
+policy_settings_registry_windows_rdp:
 ## --------------------------------------------
     registry:
 
 # https://gpsearch.azurewebsites.net:/Default.aspx?PolicyID=2513
 # HKLM\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services
-
+# Allow clipboard and drive redirection
     - key: "HKEY_LOCAL_MACHINESOFTWARE\\SOFTWARE\\Policies\\Microsoft\\Windows NT\\Terminal Services"
       vname: "fDisableCdm"
       vtype: "Dword"

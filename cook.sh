@@ -24,6 +24,7 @@ usage() {
     echo "Usage: $0 [option]"
     echo "Options:"
     echo "  -c, --connect                Connect to ansible build VM"
+    
     echo "  -r, --install-roles          Install ansible galaxy roles from requirements.txt"
     echo "  -b, -t, --build, --build-tst Build servers in test [ansible-playbook options e.g. --limit server1]"
     echo "  -p, --build-prd              Build servers in prod [ansible-playbook options e.g. --limit server1]"
@@ -32,6 +33,7 @@ usage() {
     echo "  <-b | -p > --play <play>     Build differen playbook [ansible-playbook options e.g. --limit server1]"
     echo "  -w, --win-tst [ --bootstrap] Build Windows servers in test [ansible-playbook options e.g. --limit server1]"
     echo "  -m, --win-prd [ --bootstrap] Build Windows servers in prod [ansible-playbook options e.g. --limit server1]"
+    echo "  <-b/-p/-w/-m > --inventory   List inventory"
     echo "  -v, --start-vm               Start virtual machine <server>"
     echo "  -h, --help                   Display this help message"
 }
@@ -72,9 +74,17 @@ function check_opts_and_run() {
     else
         INVENTORY="-i ${IV}/${INVENTORY} -i ${IV}/${IVGROUPS} "
     fi
+    if [ "$1" = "--inventory" ]; then
+        ANSIBLE_CMD="ansible-inventory"
+        EXTRA_OPS=" --list --yaml"
+        shift
+    else
+        ANSIBLE_CMD="ansible-playbook"
+    fi
     if [ ! -z "$BOOTSTRAP_PLAY" ]; then
         logfile=install-bootstrap-$(date +%Y-%m-%d-%H-%M-%S).log
-        ansible-playbook ${INVENTORY} ${SCRIPTPATH}/plays/${BOOTSTRAP_PLAY} $* |& tee $logfile
+        set -x
+        ${ANSIBLE_CMD} ${INVENTORY} ${SCRIPTPATH}/plays/${BOOTSTRAP_PLAY} ${EXTRA_OPS} $* |& tee $logfile
         if [ $? -ne 0 ]; then
           echo "Ansible playbook ${BOOTSTRAP_PLAY} execution failed. Exiting."
           exit 1
@@ -83,7 +93,7 @@ function check_opts_and_run() {
     else
         logfile=install-$(date +%Y-%m-%d-%H-%M-%S).log
         set -x
-        ansible-playbook ${INVENTORY} $* ${SCRIPTPATH}/plays/${DEFAULT_PLAY} |& tee $logfile
+        ${ANSIBLE_CMD} ${INVENTORY} ${EXTRA_OPS} $* ${SCRIPTPATH}/plays/${DEFAULT_PLAY} |& tee $logfile
         if [ $? -ne 0 ]; then
             echo "Ansible playbook ${DEFAULT_PLAY} execution failed. Exiting."
             exit 1

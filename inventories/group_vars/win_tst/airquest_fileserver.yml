@@ -10,6 +10,7 @@ airquest_defaults_q_drive:
   share: proquest.neu
   local_path: "d:\\proquest"
   user: quh
-  host_ip_dev: 192.168.121.1
+  host_ip_dev: "192.168.121.1"
+  db_server: "192.168.121.21"
   drive_letter_dev: S
   share_dev: proquest.dev

@@ -3,4 +3,4 @@
 
 airquest_defaults_strato_stg:
   enabled: true
- 
+  db_server: "172.16.115.21"

@@ -12,6 +12,7 @@
   win_chocolatey:
     name: "{{ item }}"
     state: present
+    ignore_checksums: yes # some packages have checksums that are not valid
   loop: "{{ chocoapps_list }}"
 
 - name: Ensure that choco install dir is on the global system path

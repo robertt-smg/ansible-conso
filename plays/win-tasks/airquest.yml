@@ -139,3 +139,11 @@
     type: allow
     inherit: ContainerInherit,ObjectInherit
     propagation: None
+
+- name: Ensure dbserver entry exists in Windows hosts file
+  community.windows.win_lineinfile:
+    path: C:\Windows\System32\drivers\etc\hosts
+    line: "{{ airquest_defaults.db_server }} dbserver"
+    state: present
+    create: no
+    backup: yes
