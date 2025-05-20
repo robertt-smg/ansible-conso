@@ -287,6 +287,7 @@ while [[ "$#" -gt 0 ]]; do
         -r|--run-ansible)  run_ansible_in_container; exit 0 ;;
         -c|--connect)      connect_builder; exit 0 ;;
         -h|--help)      usage; exit 0 ;;
+        -l|--lib)      return;;
         *) usage; exit 1 ;;
     esac
     shift

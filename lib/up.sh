@@ -14,6 +14,10 @@ CERT_DIR="${LIBPATH}/../../ssl/cert/current"
 
 function podman_login() {
     echo ${FUNCNAME[0]}
+
+	# Prepare credentials for docker-compose
+	[ ! -d ~/.docker ] && mkdir -p ~/.docker
+	[ -f ~/.config/containers/auth.json ] && cp ~/.config/containers/auth.json ~/.docker/config.json
     
     # podman login registry.gitlab.com -u "${GLCR_USER}" -p "${GLCR_TOKEN}"
 	podman login ${GITHUB_REGISTRY} -u "${GITHUB_USER}" -p "${GITHUB_TOKEN}"
@@ -159,6 +163,7 @@ while [[ "$#" -gt 0 ]]; do
         -c|--connect)      connect_builder; exit 0 ;;
         -r|--rebuild)      rebuild=1 ;;
         -h|--help)      usage; exit 0 ;;
+		-l|--lib)		return 0;; # just used for include
         *) up; exit 1 ;;
     esac
     shift

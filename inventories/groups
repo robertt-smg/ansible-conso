@@ -33,6 +33,7 @@ passbolt_server
 
 [neocore_server:children]
 lserver1
+fti_app1
 
 [neocore_server_secrets:children]
 neocore_server
