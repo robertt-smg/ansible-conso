@@ -1,11 +1,17 @@
 [fserver1]
 fserver1.prd ansible_host=172.16.115.41 ansible_user=Administrator ansible_connection=ssh ansible_shell_type=cmd become_method=runas pipelining=false connection_timeout=240
 
-[wserver1]
+[wserver1_strato]
+# Strato server 1
 wserver1.prd ansible_host=172.16.115.51 ansible_user=Administrator ansible_connection=ssh ansible_shell_type=cmd become_method=runas pipelining=false connection_timeout=240
 
+[wserver1]
+# ScaleUp
+wserver1_prd ansible_host=10.6.1.104 ansible_user=Administrator ansible_connection=ssh ansible_shell_type=cmd become_method=runas pipelining=false connection_timeout=240
+
 [wserver2]
-wserver2.prd ansible_host=172.16.115.52 ansible_user=Administrator ansible_connection=ssh ansible_shell_type=cmd become_method=runas pipelining=false connection_timeout=240
+# Strato server 1
+wserver2_prd ansible_host=172.16.115.52 ansible_user=Administrator ansible_connection=ssh ansible_shell_type=cmd become_method=runas pipelining=false connection_timeout=240
 
 [wminiaq1]
 wminiaq1.prd ansible_host=172.16.115.80 ansible_user=Administrator ansible_connection=ssh ansible_shell_type=cmd become_method=runas pipelining=false connection_timeout=240

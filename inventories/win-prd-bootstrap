@@ -1,11 +1,16 @@
 [fserver1]
 fserver1.tst ansible_host=172.16.115.41 ansible_user=Administrator ansible_connection=winrm ansible_winrm_server_cert_validation=ignore connection_timeout=240
 
+[wserver1_strato]
+# Strato Server 1
+wserver1.prd ansible_host=172.16.115.51 ansible_user=Administrator ansible_connection=winrm ansible_winrm_server_cert_validation=ignore connection_timeout=240
+
 [wserver1]
-wserver1.tst ansible_host=172.16.115.51 ansible_user=Administrator ansible_connection=winrm ansible_winrm_server_cert_validation=ignore connection_timeout=240
+# ScaleUp
+wserver1.prd ansible_host=10.6.1.104 ansible_user=Administrator ansible_connection=winrm ansible_winrm_server_cert_validation=ignore connection_timeout=240
 
 [wserver2]
-wserver2.tst ansible_host=172.16.115.52 ansible_user=Administrator ansible_connection=winrm ansible_winrm_server_cert_validation=ignore connection_timeout=240
+wserver2.prd ansible_host=172.16.115.52 ansible_user=Administrator ansible_connection=winrm ansible_winrm_server_cert_validation=ignore connection_timeout=240
 
 [wminiaq1]
 wminiaq1.tst ansible_host=172.16.115.80 ansible_user=Administrator ansible_connection=winrm ansible_winrm_server_cert_validation=ignore connection_timeout=240
@@ -18,7 +23,7 @@ strato2_stg.prd ansible_host=217.154.205.36 ansible_user=Administrator ansible_c
 
 [fti_app2_w]
 # you need to connect in a podman shell via ssh to app01, to forward ports
-fti_app2.tst ansible_host=127.0.0.1 ansible_user=Administrator ansible_password=TsfDfuAEvnpGyDzFWUg8yYuW9 ansible_connection=winrm ansible_winrm_server_cert_validation=ignore ansible_winrm_port=19986 connection_timeout=240
+fti_app2.tst ansible_host=127.0.0.1 ansible_user=Administrator ansible_connection=winrm ansible_winrm_server_cert_validation=ignore ansible_winrm_port=19986 connection_timeout=240
 
 [strato_stg:children]
 strato1_stg
