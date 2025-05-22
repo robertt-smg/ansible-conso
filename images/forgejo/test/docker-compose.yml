@@ -1,0 +1,58 @@
+
+x-project:
+  name: passbolt-test-vm
+
+services:
+  db:
+    image: ghcr.io/robertt-smg/mariadb:11.6.2-noble
+
+    #restart: unless-stopped
+    environment:
+      MARIADB_RANDOM_ROOT_PASSWORD: "true"
+      MARIADB_ROOT_PASSWORD: "70548508275f86e7f0"
+      MARIADB_DATABASE: "forgejo"
+      MARIADB_USER: "forgejo"
+      MARIADB_PASSWORD: "forgej0"
+    networks:
+      salt-vm:
+        ipv4_address: 192.168.11.211
+
+    volumes: ## MySQL / MariaDB does not work with windows map directories - crashes, we need to use volume
+     - forgejo_db_volume:/var/lib/mariadb
+
+  forgejo:
+    image: forgejo:latest
+    container_name: forgejo
+    hostname: forgejo.test.smg-air-conso.com
+
+    #restart: unless-stopped
+    depends_on:
+      - db
+    environment:
+      - USER_UID=1000
+      - USER_GID=1000
+      - FORGEJO__database__DB_TYPE=mysql
+      - FORGEJO__database__HOST=db:3306
+      - FORGEJO__database__NAME=forgejo
+      - FORGEJO__database__USER=forgejo
+      - FORGEJO__database__PASSWD=forgej0
+
+    volumes:
+      - ./forgejo:/data
+
+    ports:
+      - 127.0.0.212:3000:3000
+      - 127.0.0.212:2222:22
+
+    networks:
+      salt-vm:
+        ipv4_address: 192.168.11.212
+
+networks:
+  salt-vm:
+     external: true
+
+volumes:
+  forgejo_db_volume:
+  gpg_volume:
+  jwt_volume:
