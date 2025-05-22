@@ -17,6 +17,8 @@ fti1.tst ansible_host=192.168.121.8 ansible_ssh_port=31222 ansible_ssh_user=ansi
 [fti_app1]
 fti_app1.tst ansible_host=192.168.121.242 ansible_ssh_port=22 ansible_ssh_user=ansible
 
+## ----- SERVER GROUPS
+
 [lsmg:children]
 dbserver1
 lserver1

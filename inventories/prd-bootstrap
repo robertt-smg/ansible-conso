@@ -1,9 +1,25 @@
 [dbserver1]
-dbserver1.tst ansible_host=172.16.115.31 ansible_ssh_port=22 ansible_ssh_user=admin
+dbserver1.prd ansible_host=172.16.115.31 ansible_ssh_port=22 ansible_ssh_user=admin
+
+[lserver1_strato]
+# Strato Server 1
+lserver1.prd ansible_host=172.16.115.21 ansible_ssh_port=22 ansible_ssh_user=admin
+
 [lserver1]
-lserver1.tst ansible_host=172.16.115.21 ansible_ssh_port=22 ansible_ssh_user=admin
-[lserver2]
+# ScaleUp SMG-SCA-L01
+lserver1.prd ansible_host=10.6.1.189 ansible_ssh_port=22 ansible_ssh_user=ubuntu
+
+[lserver2_strato]
+# Strato Server 1
 lserver2.tst ansible_host=172.16.115.22 ansible_ssh_port=22 ansible_ssh_user=admin
+
+[lserver2]
+# ScaleUp SMG-SCA-L02
+lserver2.prd ansible_host=10.6.1.98 ansible_ssh_port=22 ansible_ssh_user=admin
+
+# fw+ project
+[hetzner1]
+hetzner1.tst ansible_host=148.251.12.68 ansible_ssh_port=22 ansible_ssh_user=root
 
 [fti1]
 fti1.tst ansible_host=212.227.100.30 ansible_ssh_port=22 ansible_ssh_user=admin
@@ -12,6 +28,8 @@ fti1.tst ansible_host=212.227.100.30 ansible_ssh_port=22 ansible_ssh_user=admin
 # app01.fti-ticketshop.ovh.euvia-cloud.de via ssh-fti-jmp
 fti_app1.prd ansible_host=192.168.121.1 ansible_ssh_port=2222 ansible_ssh_user=root
 
+## ----- SERVER GROUPS
+
 [fti:children]
 fti1
 fti_app1
@@ -19,8 +37,14 @@ fti_app1
 [lsmg:children]
 dbserver1
 lserver1
+lserver1_strato
 lserver2
+lserver2_strato
+
+[hetzner:children]
+hetzner1
 
 [prd:children]
 fti
 lsmg
+hetzner
