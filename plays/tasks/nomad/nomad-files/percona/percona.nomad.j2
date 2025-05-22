@@ -68,6 +68,7 @@ job "{{ job_name }}" {
           MYSQL_HOME = "/bitnami/mysql/conf"
           #MYSQL_USER = "root"
           MYSQL_BIND_ADDRESS = "0.0.0.0"
+          MYSQL_EXTRA_FLAGS ="--lower-case-table-names=1"
           #MYSQL_PASSWORD = "{{ percona.server.root_password }}"
           MYSQL_AUTHENTICATION_PLUGIN = "caching_sha2_password"
       }

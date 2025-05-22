@@ -5,9 +5,15 @@ lserver1.tst ansible_host=192.168.121.21 ansible_ssh_port=22 ansible_ssh_user=ad
 [lserver2]
 lserver2.tst ansible_host=192.168.121.22 ansible_ssh_port=22 ansible_ssh_user=admin 
 
+# fw+ project
+[hetzner1]
+hetzner1.tst ansible_host=192.168.121.61 ansible_ssh_port=22 ansible_ssh_user=admin 
+
+# alte fti welt
 [fti1]
 fti1.tst ansible_host=192.168.121.8 ansible_ssh_port=22 ansible_ssh_user=admin
 
+# fti website / dokuwiki
 [fti_app1]
 fti_app1.tst ansible_host=192.168.121.242 ansible_ssh_port=22 ansible_ssh_user=admin
 
@@ -20,6 +26,11 @@ lserver2
 fti1
 fti_app1
 
+[hetzner:children]
+hetzner1
+
 [tst:children]
 lsmg
 fti
+hetzner
+

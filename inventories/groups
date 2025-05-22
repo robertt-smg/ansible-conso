@@ -3,6 +3,7 @@
 [linux_defaults:children]
 lsmg
 fti
+hetzner
  
 [linux_defaults_secrets:children]
 linux_defaults
@@ -12,6 +13,7 @@ linux_defaults
 
 [mariadb_server:children]
 lserver1
+hetzner1
 
 [percona_db_server:children]
 fti_app1

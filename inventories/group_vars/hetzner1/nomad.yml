@@ -1,0 +1,11 @@
+nomad_enabled: true
+
+nomad_datacenter: "hetzner1-dc"
+nomad_log_level: "DEBUG"
+nomad_servers: 1
+
+
+nomad_memory_total_mb: 32768
+nomad_cpu_total_compute: 10772
+nomad_bootstrap_expect: 1
+
