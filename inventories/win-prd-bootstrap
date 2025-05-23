@@ -1,34 +1,47 @@
-[fserver1]
+# ---- STRATO STAGE Servers
+[fserver1_strato]
 fserver1.tst ansible_host=172.16.115.41 ansible_user=Administrator ansible_connection=winrm ansible_winrm_server_cert_validation=ignore connection_timeout=240
 
 [wserver1_strato]
-# Strato Server 1
-wserver1.prd ansible_host=172.16.115.51 ansible_user=Administrator ansible_connection=winrm ansible_winrm_server_cert_validation=ignore connection_timeout=240
+wserver1_prd ansible_host=172.16.115.51 ansible_user=Administrator ansible_connection=winrm ansible_winrm_server_cert_validation=ignore connection_timeout=240
+
+[strato1_stg]
+strato1_stg_prd ansible_host=212.132.101.218 ansible_user=Administrator ansible_connection=winrm ansible_winrm_server_cert_validation=ignore connection_timeout=240
+
+[strato2_stg]
+strato2_stg_prd ansible_host=217.154.205.36 ansible_user=Administrator ansible_connection=winrm ansible_winrm_server_cert_validation=ignore connection_timeout=240
+
+[wserver2_strato]
+wserver2_prd ansible_host=172.16.115.52 ansible_user=Administrator ansible_connection=winrm ansible_winrm_server_cert_validation=ignore connection_timeout=240
+
+# ---- ScaleUp PROD Servers
+[fserver1]
+fserver1_prd ansible_host=10.6.1.152 ansible_user=Administrator ansible_connection=winrm ansible_winrm_server_cert_validation=ignore connection_timeout=240
 
 [wserver1]
-# ScaleUp
-wserver1.prd ansible_host=10.6.1.104 ansible_user=Administrator ansible_connection=winrm ansible_winrm_server_cert_validation=ignore connection_timeout=240
+wserver1_prd ansible_host=10.6.1.104 ansible_user=Administrator ansible_connection=winrm ansible_winrm_server_cert_validation=ignore connection_timeout=240
 
 [wserver2]
-wserver2.prd ansible_host=172.16.115.52 ansible_user=Administrator ansible_connection=winrm ansible_winrm_server_cert_validation=ignore connection_timeout=240
+wserver2_prd ansible_host=172.16.115.52 ansible_user=Administrator ansible_connection=winrm ansible_winrm_server_cert_validation=ignore connection_timeout=240
 
+# ---- Tulip World
 [wminiaq1]
 wminiaq1.tst ansible_host=172.16.115.80 ansible_user=Administrator ansible_connection=winrm ansible_winrm_server_cert_validation=ignore connection_timeout=240
 
-[strato1_stg]
-strato1_stg.prd ansible_host=212.132.101.218 ansible_user=Administrator ansible_connection=winrm ansible_winrm_server_cert_validation=ignore connection_timeout=240
-
-[strato2_stg]
-strato2_stg.prd ansible_host=217.154.205.36 ansible_user=Administrator ansible_connection=winrm ansible_winrm_server_cert_validation=ignore connection_timeout=240
-
+## ---- FTI Server
 [fti_app2_w]
 # you need to connect in a podman shell via ssh to app01, to forward ports
 fti_app2.tst ansible_host=127.0.0.1 ansible_user=Administrator ansible_connection=winrm ansible_winrm_server_cert_validation=ignore ansible_winrm_port=19986 connection_timeout=240
+
+## ----- SERVER GROUPS
 
 [strato_stg:children]
 strato1_stg
 strato2_stg
 
+[scaleUp:children]
+wserver1
+wserver2
 
 [wsmg:children]
 fserver1

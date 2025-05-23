@@ -1,0 +1,16 @@
+## See https://stackoverflow.com/questions/16221250/add-a-key-to-hkey-current-user-for-all-users
+## to add registry setting per user once
+
+airquest_defaults_prd_scaleup:
+  enabled: true
+  automount: false
+  host: SMG-SCA-F01
+  host_ip: 10.6.1.152
+  drive_letter: Q
+  share: proquest
+  local_path: "d:\\proquest"
+  user: SMG-SCA-F01\q_lw
+  host_dev: SMG-SCA-F01
+  host_ip_dev: 10.6.1.152
+  drive_letter_dev: S
+  share_dev: proquest.dev

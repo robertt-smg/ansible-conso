@@ -2,14 +2,14 @@
 dbserver1.tst ansible_host=192.168.121.31 ansible_ssh_port=22 ansible_ssh_user=admin 
 
 [lserver1]
-lserver1.tst ansible_host=192.168.121.21 ansible_ssh_port=22 ansible_ssh_user=admin 
+lserver1_tst ansible_host=192.168.121.21 ansible_ssh_port=22 ansible_ssh_user=admin 
 
 [lserver2]
-lserver2.tst ansible_host=192.168.121.22 ansible_ssh_port=22 ansible_ssh_user=admin 
+lserver2_tst ansible_host=192.168.121.22 ansible_ssh_port=22 ansible_ssh_user=admin 
 
 # fw+ project
 [hetzner1]
-hetzner1.tst ansible_host=192.168.121.61 ansible_ssh_port=22 ansible_ssh_user=admin 
+hetzner1_tst ansible_host=192.168.121.61 ansible_ssh_port=22 ansible_ssh_user=admin 
 
 # alte fti welt
 [fti1]

@@ -1,0 +1,4 @@
+
+airquest_defaults_db_scale_up:
+  enabled: true
+  db_server: "10.6.2.20"

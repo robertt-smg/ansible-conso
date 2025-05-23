@@ -1,13 +1,15 @@
 [dbserver1]
 dbserver1.tst ansible_host=192.168.121.31 ansible_ssh_port=31222 ansible_ssh_user=ansible
+
 [lserver1]
-lserver1.tst ansible_host=192.168.121.21 ansible_ssh_port=31222 ansible_ssh_user=ansible
+lserver1_tst ansible_host=192.168.121.21 ansible_ssh_port=31222 ansible_ssh_user=ansible
+
 [lserver2]
-lserver2.tst ansible_host=192.168.121.22 ansible_ssh_port=31222 ansible_ssh_user=ansible
+lserver2_tst ansible_host=192.168.121.22 ansible_ssh_port=31222 ansible_ssh_user=ansible
 
 # fw+ project
 [hetzner1]
-hetzner1.tst ansible_host=192.168.121.61 ansible_ssh_port=31222 ansible_ssh_user=ansible 
+hetzner1_tst ansible_host=192.168.121.61 ansible_ssh_port=31222 ansible_ssh_user=ansible 
 
 # alte fti welt
 [fti1]
