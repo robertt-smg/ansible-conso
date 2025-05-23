@@ -1,4 +1,8 @@
 winusers_list_fserver1:
 
   RA_AQUSER1:
-    password: "password1"
+    password_never_expires: true
+    groups:
+        - Users
+        - Power Users
+        - Remote Desktop Users

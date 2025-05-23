@@ -1,0 +1,19 @@
+# Search for relevant GP settings here
+  # https://gpsearch.azurewebsites.net/
+  # https://www.microsoft.com/en-us/download/details.aspx?id=104005 
+
+policy_settings_lgpo_cWserver1:
+## --------------------------------------------
+    registry:
+
+# https://gpsearch.azurewebsites.net:/Default.aspx?PolicyID=2513
+# HKCU\Software\Microsoft\Windows\CurrentVersion\Policies\System
+    - key: "HKEY_CURRENT_USER\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System"
+      vname: "WallpaperName"
+      vtype: "String"
+      vdata: "c:\\users\\public\\Wallpaper.jpg"
+
+    - key: "HKEY_CURRENT_USER\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System"
+      vname: "WallpaperStyle"
+      vtype: "Dword"
+      vdata: "2"

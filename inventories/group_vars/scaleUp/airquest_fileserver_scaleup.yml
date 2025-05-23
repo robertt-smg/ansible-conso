@@ -3,7 +3,7 @@
 
 airquest_defaults_prd_scaleup:
   enabled: true
-  automount: false
+  automount: true
   host: SMG-SCA-F01
   host_ip: 10.6.1.152
   drive_letter: Q
@@ -14,3 +14,5 @@ airquest_defaults_prd_scaleup:
   host_ip_dev: 10.6.1.152
   drive_letter_dev: S
   share_dev: proquest.dev
+
+  prod_ip_range: "10.1.0.0-10.6.255.255"

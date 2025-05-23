@@ -22,7 +22,7 @@ fserver1_prd ansible_host=10.6.1.152 ansible_user=Administrator ansible_connecti
 wserver1_prd ansible_host=10.6.1.104 ansible_user=Administrator ansible_connection=ssh ansible_shell_type=cmd become_method=runas pipelining=false connection_timeout=240
 
 [wserver2]
-wserver2_prd ansible_host=172.16.115.52 ansible_user=Administrator ansible_connection=ssh ansible_shell_type=cmd become_method=runas pipelining=false connection_timeout=240
+wserver2_prd ansible_host=10.6.1.147 ansible_user=Administrator ansible_connection=ssh ansible_shell_type=cmd become_method=runas pipelining=false connection_timeout=240
 
 # ---- Tulip World
 [wminiaq1]
@@ -41,6 +41,7 @@ strato1_stg
 strato2_stg
 
 [scaleUp:children]
+fserver1
 wserver1
 wserver2
 

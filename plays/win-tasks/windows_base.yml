@@ -64,6 +64,10 @@
   include_tasks: win-tasks/advantage_oledb.yml
   when: airquest_defaults.advantage_oldedb is defined and airquest_defaults.advantage_oldedb  
 
+- name: Install FreeOpener
+  include_tasks: win-tasks/freeopener.yml
+  when: airquest_defaults.enabled is defined and airquest_defaults.enabled
+  
 - name: Ensure destination directory for wallpaper exists
   win_file:
     path: C:\user\public

@@ -6,3 +6,7 @@ chocoapps_list_basic:
   - mailsend
   - notepadplusplus
   - sysinternals
+  - xpdf-utils
+  - usql
+  - mupdf
+  - heidisql  
