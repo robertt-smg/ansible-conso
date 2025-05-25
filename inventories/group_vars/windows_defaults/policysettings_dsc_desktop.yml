@@ -2,7 +2,7 @@
   # https://gpsearch.azurewebsites.net/
   # https://www.microsoft.com/en-us/download/details.aspx?id=104005 
 
-policy_settings_lgpo_cWserver1:
+policy_settings_lgpo_wserver_all:
 ## --------------------------------------------
     registry:
 

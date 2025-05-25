@@ -73,7 +73,7 @@
     path: C:\user\public
     state: directory
 
-- name: Copy AirnaCRM image to wallpaper
+- name: Copy Background image to wallpaper
   win_copy:
     src: files/{{ airquest_defaults.wallpaper.name }}
     dest: C:\\user\\public\\wallpaper.jpg

@@ -1,16 +1,26 @@
+## ---- STRATO Servers
 [dbserver1]
 dbserver1.tst ansible_host=172.16.115.31 ansible_ssh_port=31222 ansible_ssh_user=ansible connection_timeout=240
 
+[lserver1_strato]
+lserver1_stg ansible_host=172.16.115.21 ansible_ssh_port=31222 ansible_ssh_user=ansible connection_timeout=240
+
+[lserver2_strato]
+lserver2_stg ansible_host=172.16.115.22  ansible_ssh_port=31222 ansible_ssh_user=ansible connection_timeout=240
+
+# ---- ScaleUp Servers
 [lserver1]
-lserver1.tst ansible_host=172.16.115.21 ansible_ssh_port=31222 ansible_ssh_user=ansible connection_timeout=240
+lserver1_prd ansible_host=10.6.1.96 ansible_ssh_port=31222 ansible_ssh_user=ansible connection_timeout=240
 
 [lserver2]
-lserver2.tst ansible_host=172.16.115.22 ansible_ssh_port=22 ansible_ssh_user=ansible connection_timeout=240
+lserver2_prd ansible_host=10.6.1.34  ansible_ssh_port=31222 ansible_ssh_user=ansible connection_timeout=240
 
+# ---- SMG Intl - Hetzner
 # fw+ project
 [hetzner1]
 hetzner1.tst ansible_host=148.251.12.68 ansible_ssh_port=31222 ansible_ssh_user=ansible 
 
+## -- FTI Liquidation
 [fti1]
 fti1.prd ansible_host=212.227.100.30 ansible_ssh_port=31222 ansible_ssh_user=ansible ansible_ssh_private_key_file=/mnt/c/users/robertt/.ssh/id_gitlab
 

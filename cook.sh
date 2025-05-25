@@ -147,7 +147,7 @@ build_on_prod() {
     IVGROUPS=groups
     check_ssh_agent
 
-    INVENTORY="prd"
+    INVENTORY="lnx-prd"
     check_opts_and_run $*
 }
 
