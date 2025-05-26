@@ -1,7 +1,7 @@
 
-- name: Set Policy File Entry
+- name: Set Policy File Registry.pol Entry
   win_shell: |
-      $UserDir = "$env:windir\system32\GroupPolicy\{{ item.policytype }}\registry.pol"
+      $UserDir = "$env:windir\system32\GroupPolicy\\{{ item.policytype }}\registry.pol"
       $keyValueName = '{{ item.keyvaluename }}'
       $sep = [char]92
       $lastIndex = $keyValueName.LastIndexOf($sep)
@@ -13,7 +13,7 @@
       Set-PolicyFileEntry -Path $UserDir -Key $RegPath -ValueName $RegName -Data $RegData -Type $RegType
   with_items: "{{ policy_settings.cAdministrativeTemplateSetting }}"
 
-- name: Ensure Policy Registry Settings
+- name: Ensure Policy RegKey Settings
   win_dsc:
         resource_name: "Registry"
         Ensure: Present

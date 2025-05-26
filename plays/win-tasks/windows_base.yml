@@ -70,11 +70,11 @@
   
 - name: Ensure destination directory for wallpaper exists
   win_file:
-    path: C:\user\public
+    path: C:\users\public
     state: directory
 
 - name: Copy Background image to wallpaper
   win_copy:
     src: files/{{ airquest_defaults.wallpaper.name }}
-    dest: C:\\user\\public\\wallpaper.jpg
+    dest: C:\\users\\public\\wallpaper.jpg
   when: airquest_defaults.wallpaper.enabled is defined and airquest_defaults.wallpaper.enabled

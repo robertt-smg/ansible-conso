@@ -14,7 +14,7 @@ airquest_fileserver_default:
     - key: "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\AppCompatFlags\\Layers"
       vname: "C:\\Windows\\System32\\Taskmgr.exe"
 
-    - key: "HKEY_LOCAL_MACHINESOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System"
+    - key: "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System"
       vname: "legalnoticecaption"
 
     - key: "HKEY_LOCAL_MACHINESOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System"

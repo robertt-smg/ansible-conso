@@ -1,24 +1,13 @@
 winusers_list_strato_stg:
   SA_AQUSER1:
-    password_never_expires: true
-    groups:
-        - Users
-        - Power Users
-        - Remote Desktop Users
-
+    enabled: true
 
   SA_AQUSER2:
-    password_never_expires: true
-    groups:
-        - Users
-        - Power Users
-        - Remote Desktop Users
+    enabled: true
 
+  SA_AQUSER3:
+    enabled: true
 
   RA_AQUSER1:
-    password_never_expires: true
-    groups:
-        - Users
-        - Power Users
-        - Remote Desktop Users
+    enabled: true
 

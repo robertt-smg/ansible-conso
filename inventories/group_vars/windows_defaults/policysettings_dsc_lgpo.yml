@@ -54,106 +54,24 @@ policy_settings_lgpo_cAdministrativeTemplateSetting:
       data: "0"
       type: "Dword"
 
-#HKLM\Software\Policies\Microsoft\Windows\WindowsUpdate\AU!NoAutoUpdate 
-    - policytype: "Machine"
-      keyvaluename: "Software\\Policies\\Microsoft\\Windows\\WindowsUpdate\\AU\\NoAutoUpdate"
-      data: "3"
-      type: "Dword"
-#HKLM\Software\Policies\Microsoft\Windows\WindowsUpdate\AU!AUOptions 
-    - policytype: "Machine"
-      keyvaluename: "Software\\Policies\\Microsoft\\Windows\\WindowsUpdate\\AU\\AUOptions"
-      data: "3"
-      type: "Dword"
-#HKLM\Software\Policies\Microsoft\Windows\WindowsUpdate\AU!AutomaticMaintenanceEnabled 
-    - policytype: "Machine"
-      keyvaluename: "Software\\Policies\\Microsoft\\Windows\\WindowsUpdate\\AU\\AutomaticMaintenanceEnabled"
-      data: "0"
-      type: "Dword"
-
-#HKLM\Software\Policies\Microsoft\Windows\WindowsUpdate\AU!AutoUpdateSchDay 
-    - policytype: "Machine"
-      keyvaluename: "Software\\Policies\\Microsoft\\Windows\\WindowsUpdate\\AU\\AutoUpdateSchDay"
-      data: "0"
-      type: "Dword"
-
-#HKLM\Software\Policies\Microsoft\Windows\WindowsUpdate\AU!ScheduledInstallTime 
-    - policytype: "Machine"
-      
-      keyvaluename: "Software\\Policies\\Microsoft\\Windows\\WindowsUpdate\\AU\\ScheduledInstallTime"
-      data: "9" # 03:00
-      type: "Dword"
-
-#HKLM\Software\Policies\Microsoft\Windows\WindowsUpdate\AU!AllowMUUpdateServiceId 
-    - policytype: "Machine"
-      keyvaluename: "Software\\Policies\\Microsoft\\Windows\\WindowsUpdate\\AU\\AllowMUUpdateService"
-      data: "1" 
-      type: "Dword"
-
-#HKLM\Software\Policies\Microsoft\Windows\WindowsUpdate\AU!ScheduledInstallEveryWeek 
-    - policytype: "Machine"
-      keyvaluename: "Software\\Policies\\Microsoft\\Windows\\WindowsUpdate\\AU\\ScheduledInstallEveryWeek"
-      data: "1" 
-      type: "Dword"
-
-#HKLM\Software\Policies\Microsoft\Windows\WindowsUpdate\AU!ScheduledInstallFirstWeek 
-    - policytype: "Machine"
-      keyvaluename: "Software\\Policies\\Microsoft\\Windows\\WindowsUpdate\\AU\\ScheduledInstallFirstWeek"
-      data: "0" 
-      type: "Dword"
-
-#HKLM\Software\Policies\Microsoft\Windows\WindowsUpdate\AU!ScheduledInstallSecondWeek 
-    - policytype: "Machine"
-      keyvaluename: "Software\\Policies\\Microsoft\\Windows\\WindowsUpdate\\AU\\ScheduledInstallSecondWeek"
-      data: "0" 
-      type: "Dword"
-
-#HKLM\Software\Policies\Microsoft\Windows\WindowsUpdate\AU!ScheduledInstallThirdWeek 
-    - policytype: "Machine"
-      keyvaluename: "Software\\Policies\\Microsoft\\Windows\\WindowsUpdate\\AU\\ScheduledInstallThirdWeek"
-      data: "0" 
-      type: "Dword"
-
-#HKLM\Software\Policies\Microsoft\Windows\WindowsUpdate\AU!ScheduledInstallFourthWeek 
-    - policytype: "Machine"
-      keyvaluename: "Software\\Policies\\Microsoft\\Windows\\WindowsUpdate\\AU\\ScheduledInstallFourthWeek"
-      data: "0" 
-      type: "Dword"
-
-## --------------------------------------------
-    registry:
-# https://www.windowspage.de/tipps/020974.html
-#  HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\ElevateNonAdmins:
-    - key: "HKEY_LOCAL_MACHINE\\SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsUpdate"
-      vname: "ElevateNonAdmins"
-      vtype: "Dword"
-      vdata: "0"
-
-# HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU\NoAutoRebootWithLoggedOnUsers:
-
-    - key: "HKEY_LOCAL_MACHINE\\SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsUpdate\\AU"
-      vname: "NoAutoRebootWithLoggedOnUsers"
-      vtype: "Dword"
-      vdata: "1"
-# HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU\ScheduledInstallTime    
-    - key: "HKEY_LOCAL_MACHINE\\SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsUpdate\\AU\\ScheduledInstallTime"
-      vname: "ScheduledInstallTime"
-      vtype: "Dword"
-      vdata: "3"
-
+## ----------------------------REGISTRY
+    registry_ignore:
 #HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System\\' -Name legalnoticecaption -Value 'REPLACE WITH YOUR LEGAL BANNER TITLE'",
-    - key: "HKEY_LOCAL_MACHINESOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System"
+    - key: "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System"
       vname: "legalnoticecaption"
       vtype: "String"
       vdata: "airQuest Terminal Server"
 #HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System\\' -Name legalnoticetext -Value 'REPLACE WITH YOUR LEGAL BANNER TEXT'"
-    - key: "HKEY_LOCAL_MACHINESOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System"
+    - key: "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System"
       vname: "legalnoticetext"
       vtype: "String"
-      vdata: "Morgen gibts Freibier ..."
+      vdata: "Die Systeme sind erwacht - ruhig - stabil - im Gleichgewicht."
+
+    registry:
 
 # https://admx.help/HKLM/Software/Policies/Microsoft/Windows/CurrentVersion/Internet%20Settings/ZoneMap
 #HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\\ZoneMap' 
-    - key: "HKEY_LOCAL_MACHINESOFTWARE\\SOFTWARE\\Policies\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\\ZoneMap"
+    - key: "HKEY_LOCAL_MACHINE\\SOFTWARE\\Policies\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\\ZoneMap"
       vname: "UNCAsIntranet"
       vtype: "Dword"
       vdata: "1"

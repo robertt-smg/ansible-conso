@@ -4,16 +4,16 @@
 
 policy_settings_lgpo_wserver_all:
 ## --------------------------------------------
-    registry:
+    cAdministrativeTemplateSetting:
 
 # https://gpsearch.azurewebsites.net:/Default.aspx?PolicyID=2513
 # HKCU\Software\Microsoft\Windows\CurrentVersion\Policies\System
-    - key: "HKEY_CURRENT_USER\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System"
-      vname: "WallpaperName"
-      vtype: "String"
-      vdata: "c:\\users\\public\\Wallpaper.jpg"
+    - policytype: "User"
+      keyvaluename: "Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\System\\Wallpaper"
+      type: "String"
+      data: "c:\\users\\public\\Wallpaper.jpg"
 
-    - key: "HKEY_CURRENT_USER\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System"
-      vname: "WallpaperStyle"
-      vtype: "Dword"
-      vdata: "2"
+    - policytype: "User"
+      keyvaluename: "Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\System\\WallpaperStyle"
+      type: "Dword"
+      data: "2"

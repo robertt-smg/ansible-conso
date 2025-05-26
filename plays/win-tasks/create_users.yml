@@ -6,3 +6,5 @@
     account_expires: never
     groups: "{{ item.value.groups | default([]) }}"
   loop: "{{ winusers_list | dict2items }}"
+  # Only create user if enabled is true
+  when: item.value.enabled | default(false)

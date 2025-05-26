@@ -1,35 +1,13 @@
 winusers_list_scaleUp_prd:
-  q_lw:
-    password_never_expires: true
-    groups:
-        - Users
-        - Power Users
-        - Remote Desktop Users
 
   SA_AQUSER1:
-    password_never_expires: true
-    groups:
-        - Users
-        - Power Users
-        - Remote Desktop Users
+    enabled: true
 
   SA_AQUSER2:
-    password_never_expires: true
-    groups:
-        - Users
-        - Power Users
-        - Remote Desktop Users
+    enabled: true
 
   SA_AQUSER3:
-    password_never_expires: true
-    groups:
-        - Users
-        - Power Users
-        - Remote Desktop Users
+    enabled: true
 
   RA_AQUSER1:
-    password_never_expires: true
-    groups:
-        - Users
-        - Power Users
-        - Remote Desktop Users
+    enabled: true

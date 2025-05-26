@@ -1,23 +1,82 @@
 policy_settings_registry_windows_update:
 ## --------------------------------------------
-    registry:
+    cAdministrativeTemplateSetting:
 # https://www.windowspage.de/tipps/020974.html
 #  HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\ElevateNonAdmins:
-    - key: "HKEY_LOCAL_MACHINE\\SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsUpdate"
-      vname: "ElevateNonAdmins"
-      vtype: "Dword"
-      vdata: "0"
+    - policytype: "Machine"
+      keyvaluename: "Software\\Policies\\Microsoft\\Windows\\WindowsUpdate\\ElevateNonAdmins"
+      type: "Dword"
+      data: "0"
 
 # HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU\NoAutoRebootWithLoggedOnUsers:
 
-    - key: "HKEY_LOCAL_MACHINE\\SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsUpdate\\AU"
-      vname: "NoAutoRebootWithLoggedOnUsers"
-      vtype: "Dword"
-      vdata: "1"
+    - policytype: "Machine"
+      keyvaluename: "Software\\Policies\\Microsoft\\Windows\\WindowsUpdate\\AU\\NoAutoRebootWithLoggedOnUsers"
+      type: "Dword"
+      data: "1"
     
 # HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU\ScheduledInstallTime:
 
-    - key: "HKEY_LOCAL_MACHINE\\SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsUpdate\\AU"
-      vname: "ScheduledInstallTime"
-      vtype: "Dword"
-      vdata: "3"
+    - policytype: "Machine"
+      keyvaluename: "Software\\Policies\\Microsoft\\Windows\\WindowsUpdate\\AU\\ScheduledInstallTime"
+      type: "Dword"
+      data: "3"
+
+
+#HKLM\Software\Policies\Microsoft\Windows\WindowsUpdate\AU!NoAutoUpdate 
+    - policytype: "Machine"
+      keyvaluename: "Software\\Policies\\Microsoft\\Windows\\WindowsUpdate\\AU\\NoAutoUpdate"
+      data: "3"
+      type: "Dword"
+#HKLM\Software\Policies\Microsoft\Windows\WindowsUpdate\AU!AUOptions 
+    - policytype: "Machine"
+      keyvaluename: "Software\\Policies\\Microsoft\\Windows\\WindowsUpdate\\AU\\AUOptions"
+      data: "3"
+      type: "Dword"
+#HKLM\Software\Policies\Microsoft\Windows\WindowsUpdate\AU!AutomaticMaintenanceEnabled 
+    - policytype: "Machine"
+      keyvaluename: "Software\\Policies\\Microsoft\\Windows\\WindowsUpdate\\AU\\AutomaticMaintenanceEnabled"
+      data: "0"
+      type: "Dword"
+
+#HKLM\Software\Policies\Microsoft\Windows\WindowsUpdate\AU!AutoUpdateSchDay 
+    - policytype: "Machine"
+      keyvaluename: "Software\\Policies\\Microsoft\\Windows\\WindowsUpdate\\AU\\AutoUpdateSchDay"
+      data: "0"
+      type: "Dword"
+
+#HKLM\Software\Policies\Microsoft\Windows\WindowsUpdate\AU!AllowMUUpdateServiceId 
+    - policytype: "Machine"
+      keyvaluename: "Software\\Policies\\Microsoft\\Windows\\WindowsUpdate\\AU\\AllowMUUpdateService"
+      data: "1" 
+      type: "Dword"
+
+#HKLM\Software\Policies\Microsoft\Windows\WindowsUpdate\AU!ScheduledInstallEveryWeek 
+    - policytype: "Machine"
+      keyvaluename: "Software\\Policies\\Microsoft\\Windows\\WindowsUpdate\\AU\\ScheduledInstallEveryWeek"
+      data: "1" 
+      type: "Dword"
+
+#HKLM\Software\Policies\Microsoft\Windows\WindowsUpdate\AU!ScheduledInstallFirstWeek 
+    - policytype: "Machine"
+      keyvaluename: "Software\\Policies\\Microsoft\\Windows\\WindowsUpdate\\AU\\ScheduledInstallFirstWeek"
+      data: "0" 
+      type: "Dword"
+
+#HKLM\Software\Policies\Microsoft\Windows\WindowsUpdate\AU!ScheduledInstallSecondWeek 
+    - policytype: "Machine"
+      keyvaluename: "Software\\Policies\\Microsoft\\Windows\\WindowsUpdate\\AU\\ScheduledInstallSecondWeek"
+      data: "0" 
+      type: "Dword"
+
+#HKLM\Software\Policies\Microsoft\Windows\WindowsUpdate\AU!ScheduledInstallThirdWeek 
+    - policytype: "Machine"
+      keyvaluename: "Software\\Policies\\Microsoft\\Windows\\WindowsUpdate\\AU\\ScheduledInstallThirdWeek"
+      data: "0" 
+      type: "Dword"
+
+#HKLM\Software\Policies\Microsoft\Windows\WindowsUpdate\AU!ScheduledInstallFourthWeek 
+    - policytype: "Machine"
+      keyvaluename: "Software\\Policies\\Microsoft\\Windows\\WindowsUpdate\\AU\\ScheduledInstallFourthWeek"
+      data: "0" 
+      type: "Dword"

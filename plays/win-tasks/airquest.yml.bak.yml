@@ -71,16 +71,15 @@
         owner: Everyone
         recurse: yes
       with_items:
-        - "{{ ansible_facts.env.SystemRoot }}\\System32\\GroupPolicy\\User\\Scripts\\Logon"
-        - "{{ ansible_facts.env.SystemRoot }}\\System32\\GroupPolicyUser\\Scripts\\Logon"
+        - "{{ ansible_facts.env.SystemRoot }}\\System32\\GroupPolicyUsers\\Scripts\\Logon"
       register: logon_dirs_result
 
     - name: Create secure credential store for logon scripts
       ansible.windows.win_shell: |
         try {
             $ErrorActionPreference = 'Stop'
-            $LogonCredPath = "{{ ansible_facts.env.SystemRoot }}\System32\GroupPolicy\User\Scripts\airquest.cred"
-            $LogonKeyFile = "{{ ansible_facts.env.SystemRoot }}\System32\GroupPolicy\User\Scripts\airquest.key"
+            $LogonCredPath = "{{ ansible_facts.env.SystemRoot }}\System32\GroupPolicyUsers\Scripts\airquest.cred"
+            $LogonKeyFile = "{{ ansible_facts.env.SystemRoot }}\System32\GroupPolicyUsers\Scripts\airquest.key"
             
             # Create a random key for additional encryption
             $KeyBytes = New-Object byte[] 32
@@ -119,8 +118,8 @@
           @echo off
           echo Starting network drive mapping for {{ airquest_fileserver.drive_letter }}: at %DATE% %TIME%
       with_items:
-        - "{{ ansible_facts.env.SystemRoot }}\\System32\\GroupPolicy\\User\\Scripts\\Logon"
-        - "{{ ansible_facts.env.SystemRoot }}\\System32\\GroupPolicyUser\\Scripts\\Logon"
+        - "{{ ansible_facts.env.SystemRoot }}\\System32\\GroupPolicyUsers\\Scripts\\Logon"
+
       when: logon_dirs_result is success
 
     - name: Set Logon Scripts permissions
@@ -132,8 +131,8 @@
         inherit: None
         propagation: None
       with_items:
-        - "{{ ansible_facts.env.SystemRoot }}\\System32\\GroupPolicy\\User\\Scripts\\Logon"
-        - "{{ ansible_facts.env.SystemRoot }}\\System32\\GroupPolicyUser\\Scripts\\Logon"
+        - "{{ ansible_facts.env.SystemRoot }}\\System32\\GroupPolicyUsers\\Scripts\\Logon"
+
       when: logon_dirs_result is success
 
     - name: Create Group Policy Scripts.ini
@@ -145,8 +144,7 @@
           0Parameters=
         create: yes
       with_items:
-        - "{{ ansible_facts.env.SystemRoot }}\\System32\\GroupPolicy\\User\\Scripts"
-        - "{{ ansible_facts.env.SystemRoot }}\\System32\\GroupPolicyUser\\Scripts"
+        - "{{ ansible_facts.env.SystemRoot }}\\System32\\GroupPolicyUsers\\Scripts"
       when: logon_dirs_result is success
       register: scripts_ini_result
 

@@ -1,13 +1,11 @@
 winusers_list_fti_app2:
 
   SA_AQUSER1:
-    password_never_expires: true
-
+    enabled: true
   SA_AQUSER2:
-    password_never_expires: true
-
+    enabled: true
   SA_AQUSER3:
-    password_never_expires: true
+    enabled: true
 
   RA_AQUSER1:
-    password_never_expires: true
+    enabled: true
