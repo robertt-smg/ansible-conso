@@ -1,5 +1,5 @@
 
-lego_acme_lserver1:
+lego_acme_hetzner:
   image_version: lego_acme:v4.22
   email: robert.thurnreiter@schmetterling.de
   domains: neocore.smg-air-conso.com,airna.smg-air-conso.com,l1.smg-air-conso.com

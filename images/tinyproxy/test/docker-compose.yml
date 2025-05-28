@@ -1,0 +1,32 @@
+
+x-project:
+  name: passbolt-test-vm
+
+services:
+
+  tinyproxy:
+    image: tinyproxy:latest
+    container_name: forgejo
+    hostname: tinyproxy.test.smg-air-conso.com
+    
+    extra_hosts: 
+      - "ftipackitqa.flightconex.de:192.168.121.1"
+      - "ftipackit.flightconex.de:192.168.121.1"
+      - "packit-assets.aerticket-it.de:192.168.121.1"
+      - "conapi.smg-test.de:192.168.121.1"
+      - "devat.inhouse.fti-ticketshop.de:192.168.121.1"
+
+    volumes:
+      - ./tinyproxy:/data
+
+    ports:
+      - 127.0.0.213:8888:8888
+
+    networks:
+      salt-vm:
+        ipv4_address: 192.168.11.213
+
+networks:
+  salt-vm:
+     external: true
+

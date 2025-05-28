@@ -57,3 +57,8 @@
 - name: Include tasks nomad-forgejo if nomad_forgejo.enabled is defined
   include_tasks: tasks/nomad/forgejo.yml
   when: nomad_forgejo.enabled is defined and nomad_forgejo.enabled is true
+
+#- mitmproxy
+- name: Include tasks nomad-mitmproxy if nomad_mitmproxy.enabled is defined
+  include_tasks: tasks/nomad/mitmproxy.yml
+  when: nomad_mitmproxy.enabled is defined and nomad_mitmproxy.enabled is true

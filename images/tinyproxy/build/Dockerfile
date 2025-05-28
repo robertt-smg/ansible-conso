@@ -1,4 +1,4 @@
-FROM codeberg.org/forgejo/forgejo:11
+FROM vimagick/tinyproxy
 
 ENV TZ=Europe/Berlin 
 
@@ -9,5 +9,5 @@ RUN date &&\
     chmod +x /tmp/setup.sh 
     
 RUN date && \
-    /bin/bash /tmp/setup.sh
+    /bin/sh /tmp/setup.sh
 

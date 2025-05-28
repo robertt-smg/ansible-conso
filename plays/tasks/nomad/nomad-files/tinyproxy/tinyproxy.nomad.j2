@@ -30,12 +30,8 @@ job "{{ job_name }}" {
     network {
       
       port "http_port" { 
-        static = {{ forgejo.external_port }} 
-        to = 3000 
-      }
-      port "ssh_port" { 
-        static = {{ forgejo.external_ssh_port }} 
-        to = 22 
+        static = {{ tinyproxy.external_port }} 
+        to = 8080 
       }
  
       mode = "host"
@@ -47,7 +43,7 @@ job "{{ job_name }}" {
       mode = "delay"
     }
     
-    task "forgejo-server" {
+    task "tinyproxy-server" {
       {% if nomad_config_driver_is_docker is defined and nomad_config_driver_is_docker %}
       driver = "docker"
       {% else %}
@@ -58,35 +54,35 @@ job "{{ job_name }}" {
       }
       config {
         {% if nomad_config_driver_is_docker is defined and nomad_config_driver_is_docker %}
-          memory_hard_limit = {{ forgejo.memory_hard_limit }}
+          memory_hard_limit = {{ tinyproxy.memory_hard_limit }}
         {% endif %}
-        {% set image_version= forgejo.image_version %}
+        {% set image_version= tinyproxy.image_version %}
         {% include "nomad-files/github_registry.j2" %}
 
         labels {
-          group = "forgejo"
+          group = "tinyproxy"
         }
 
         volumes = [
-            "{{ forgejo.app_volume }}/data:/data"
+            "{{ tinyproxy.app_volume }}/data:/data"
         ]
         {% if nomad_config_driver_is_docker is defined and nomad_config_driver_is_docker %}
         volume_driver = "local"
         {% endif %}
          
-        ports = [ "http_port", "ssh_port" ]
+        ports = [ "http_port", "http_ssh_port" ]
         
         extra_hosts = [
-          "forgejo_db_server:{{ forgejo.db.host}}",
+          "tinyproxy_db_server:{{ tinyproxy.db.host}}",
         ]
         env = {
           "USER_UID" = "1000"
           "USER_GID" = "1000"
           "FORGEJO__database__DB_TYPE" = "mysql"
-          "FORGEJO__database__HOST" = "{{ forgejo.db.host}}:3306"
-          "FORGEJO__database__NAME" = "{{ forgejo.db.name}}"
-          "FORGEJO__database__USER" = "{{ forgejo.db.user}}"
-          "FORGEJO__database__PASSWD" = "{{ forgejo.db.password}}"
+          "FORGEJO__database__HOST" = "{{ tinyproxy.db.host}}:3306"
+          "FORGEJO__database__NAME" = "{{ tinyproxy.db.name}}"
+          "FORGEJO__database__USER" = "{{ tinyproxy.db.username}}"
+          "FORGEJO__database__PASSWD" = "{{ tinyproxy.db.password}}"
       }
         
       }
@@ -101,7 +97,11 @@ job "{{ job_name }}" {
           interval = "120s"
           timeout  = "30s"
           method   = "GET"
-          
+          #headers = {
+          #  "Content-Type"  = "text/xml; charset=utf-8"
+          #  "Authorization" = "{{ tinyproxy.authorization }}"
+          #}
+          #body = "<ping/>"
         }
       }
       logs {
@@ -110,8 +110,8 @@ job "{{ job_name }}" {
       }
  
       resources {
-        cpu = {{ forgejo.cpu }}
-        memory = {{ forgejo.memory }}
+        cpu = {{ tinyproxy.cpu }}
+        memory = {{ tinyproxy.memory }}
       }
     }
   }

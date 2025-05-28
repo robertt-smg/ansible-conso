@@ -45,3 +45,9 @@ hetzner1
 
 [forgejo_secrets:children]
 forgejo_server
+
+[mitmproxy_server:children]
+hetzner1
+
+[mitmproxy_secrets:children]
+mitmproxy_server

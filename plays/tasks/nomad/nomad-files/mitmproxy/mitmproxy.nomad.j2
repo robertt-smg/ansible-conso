@@ -29,13 +29,13 @@ job "{{ job_name }}" {
     count = 1
     network {
       
-      port "http_port" { 
-        static = {{ forgejo.external_port }} 
-        to = 3000 
+      port "http_proxy_port" { 
+        static = {{ mitmproxy.external_proxy_port }} 
+        to = 8080 
       }
-      port "ssh_port" { 
-        static = {{ forgejo.external_ssh_port }} 
-        to = 22 
+      port "http_ui_port" { 
+        static = {{ mitmproxy.external_ui_port }} 
+        to = 8081 
       }
  
       mode = "host"
@@ -47,7 +47,7 @@ job "{{ job_name }}" {
       mode = "delay"
     }
     
-    task "forgejo-server" {
+    task "mitmproxy-server" {
       {% if nomad_config_driver_is_docker is defined and nomad_config_driver_is_docker %}
       driver = "docker"
       {% else %}
@@ -58,35 +58,35 @@ job "{{ job_name }}" {
       }
       config {
         {% if nomad_config_driver_is_docker is defined and nomad_config_driver_is_docker %}
-          memory_hard_limit = {{ forgejo.memory_hard_limit }}
+          memory_hard_limit = {{ mitmproxy.memory_hard_limit }}
         {% endif %}
-        {% set image_version= forgejo.image_version %}
+        {% set image_version= mitmproxy.image_version %}
         {% include "nomad-files/github_registry.j2" %}
 
         labels {
-          group = "forgejo"
+          group = "mitmproxy"
         }
 
         volumes = [
-            "{{ forgejo.app_volume }}/data:/data"
+            "{{ mitmproxy.app_volume }}/data:/data"
         ]
         {% if nomad_config_driver_is_docker is defined and nomad_config_driver_is_docker %}
         volume_driver = "local"
         {% endif %}
          
-        ports = [ "http_port", "ssh_port" ]
+        ports = [ "http_proxy_port", "http_ui_port" ]
         
         extra_hosts = [
-          "forgejo_db_server:{{ forgejo.db.host}}",
+          "mitmproxy_db_server:{{ mitmproxy.db.host}}",
         ]
         env = {
           "USER_UID" = "1000"
           "USER_GID" = "1000"
           "FORGEJO__database__DB_TYPE" = "mysql"
-          "FORGEJO__database__HOST" = "{{ forgejo.db.host}}:3306"
-          "FORGEJO__database__NAME" = "{{ forgejo.db.name}}"
-          "FORGEJO__database__USER" = "{{ forgejo.db.user}}"
-          "FORGEJO__database__PASSWD" = "{{ forgejo.db.password}}"
+          "FORGEJO__database__HOST" = "{{ mitmproxy.db.host}}:3306"
+          "FORGEJO__database__NAME" = "{{ mitmproxy.db.name}}"
+          "FORGEJO__database__USER" = "{{ mitmproxy.db.username}}"
+          "FORGEJO__database__PASSWD" = "{{ mitmproxy.db.password}}"
       }
         
       }
@@ -110,8 +110,8 @@ job "{{ job_name }}" {
       }
  
       resources {
-        cpu = {{ forgejo.cpu }}
-        memory = {{ forgejo.memory }}
+        cpu = {{ mitmproxy.cpu }}
+        memory = {{ mitmproxy.memory }}
       }
     }
   }

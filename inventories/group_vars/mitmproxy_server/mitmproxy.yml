@@ -1,0 +1,8 @@
+cnf_mitmproxy_server1:
+  app_volume: /var/lib/mitmproxy
+  external_proxy_port: 8888
+  external_ui_port: 8889
+
+nomad_mitmproxy:
+  enabled: true
+  job_name: "mitmproxy-server"

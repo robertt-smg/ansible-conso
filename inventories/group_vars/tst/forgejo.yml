@@ -1,3 +1,6 @@
 cnf_forgejo_tst:
   public_ip: 192.168.121.61
   external_port: 2085
+  db:
+    host: 192.168.121.1
+    name: forgejo

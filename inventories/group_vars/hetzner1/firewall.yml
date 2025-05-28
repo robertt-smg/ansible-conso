@@ -6,5 +6,8 @@ firewall_allowed_tcp_ports_server1:
   - "25" # this is only accessible from inside networks (podman), as ionos has a firewall for world connections, to proctect us
   - "443" # web server, ha proxy
   # - "31222" # modfied ssh port, after bootstrap - not on hetzner
-  - "4646" # nomad ui, protected by access token
+  - "3306" # mysql, internal
+  - "2085" # forgejo UI
+  - "2222" # forgejo SSH/GIT
+  - "4646" # nomad ui, internal
   

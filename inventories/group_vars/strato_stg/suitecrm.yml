@@ -1,6 +1,6 @@
 cnf_suitecrm_prd:
   public_ip: 172.16.115.22
-  external_port: 1080
+  external_port: "1080"
   smtp:
     host: 172.16.115.22 # TODO - change to prod IP
   db:
