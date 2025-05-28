@@ -39,3 +39,9 @@ fti_app1
 
 [neocore_server_secrets:children]
 neocore_server
+
+[forgejo_server:children]
+hetzner1
+
+[forgejo_secrets:children]
+forgejo_server

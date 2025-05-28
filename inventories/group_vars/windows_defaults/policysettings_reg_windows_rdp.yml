@@ -9,3 +9,42 @@ policy_settings_registry_windows_rdp:
       keyvaluename: "Software\\Policies\\Microsoft\\Windows NT\\Terminal Services\\fDisableCdm"
       type: "Dword"
       data: "0"
+#https://gpsearch.azurewebsites.net:/Default.aspx?PolicyID=4966
+    - policytype: "Machine"
+      keyvaluename: "Software\\Policies\\Microsoft\\Windows\\Session Manager\\Quota System\\EnableCPUQuota"
+      type: "Dword"
+      data: "1"
+#https://gpsearch.azurewebsites.net:/Default.aspx?PolicyID=2485
+    - policytype: "Machine"
+      keyvaluename: "Software\\Policies\\Microsoft\\Windows NT\\Terminal Services\\KeepAliveinterval"
+      type: "Dword"
+      data: "5"
+#https://gpsearch.azurewebsites.net:/Default.aspx?PolicyID=2489
+    - policytype: "Machine"
+      keyvaluename: "Software\\Policies\\Microsoft\\Windows NT\\Terminal Services\\MaxInstanceCount"
+      type: "Dword"
+      data: "25"
+
+#https://gpsearch.azurewebsites.net/Default.aspx?PolicyID=2513#2488
+    - policytype: "Machine"
+      keyvaluename: "Software\\Policies\\Microsoft\\Windows NT\\Terminal Services\\LicensingMode"
+      type: "Dword"
+      data: "4"
+
+#https://gpsearch.azurewebsites.net/Default.aspx?PolicyID=2513#2488
+    - policytype: "Machine"
+      keyvaluename: "Software\\Policies\\Microsoft\\Windows NT\\Terminal Services\\LicenseServers"
+      type: "String"
+      data: "4"
+
+#https://gpsearch.azurewebsites.net:/Default.aspx?PolicyID=2494
+    - policytype: "Machine"
+      keyvaluename: "Software\\Policies\\Microsoft\\Windows NT\\Terminal Services\\fsinglesessionPerUser"
+      type: "Dword"
+      data: "1"
+
+#https://gpsearch.azurewebsites.net:/Default.aspx?PolicyID=4966
+    - policytype: "Machine"
+      keyvaluename: "Software\\Policies\\Microsoft\\Windows\\Session Manager\\Quota System\\EnableCPUQuota"
+      type: "Dword"
+      data: "0"

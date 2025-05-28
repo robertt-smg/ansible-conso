@@ -1,0 +1,19 @@
+cnf_forgejo_server1:
+  app_volume: /var/lib/forgejo
+  external_ssh_port: 3322
+  db:
+    host: 192.168.121.1
+    name: forgejo
+
+  email: technology@smg-air-conso.de
+  smtp:
+    ##host: 192.168.121.22
+    port: 25
+    protocol: ""
+  notify:
+    address: technology@smg-air-conso.de
+    name: Technology SMG Air Conso
+
+nomad_forgejo:
+  enabled: true
+  job_name: "forgejo-server"

@@ -1,9 +1,9 @@
-groups_list_mysql:
+groups_list_mysql_mariadb:
   - name: mysql
     system: true
     state: present
 
-users_list_mysql:
+users_list_mysql_mariadb:
   - name: mysql
     authorized_keys:
     username: mysql

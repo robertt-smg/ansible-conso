@@ -6,5 +6,5 @@ mailrelay_opensmtpd_monitoring_linux_users:
   - root
 
 default_email_from: technology@smg-air-conso.de
-mailrelay_listen_on_interface: eth0
+mailrelay_listen_on_interface: ens3
 

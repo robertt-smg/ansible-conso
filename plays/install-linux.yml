@@ -60,3 +60,4 @@
     when: nullmailer_enabled is defined and nullmailer_enabled == true
 
   - import_tasks: tasks/mariadb.yml
+    when: mariadb.enabled is defined and mariadb.enabled == true

@@ -1,4 +1,5 @@
 cnf_neocore_default:
+  enabled: true
   port: 8080
   cpu: 4096
   memory: 8192

@@ -16,13 +16,13 @@ wserver2_prd ansible_host=172.16.115.52 ansible_user=Administrator ansible_conne
 
 # ---- ScaleUp PROD Servers
 [fserver1]
-fserver1_prd ansible_host=10.6.1.253 ansible_user=Administrator ansible_connection=winrm ansible_winrm_server_cert_validation=ignore connection_timeout=240
+fserver1_prd ansible_host=f01.smg-air-conso.com ansible_user=Administrator ansible_connection=winrm ansible_winrm_server_cert_validation=ignore connection_timeout=240
 
 [wserver1]
-wserver1_prd ansible_host=10.6.1.59 ansible_user=Administrator ansible_connection=winrm ansible_winrm_server_cert_validation=ignore connection_timeout=240
+wserver1_prd ansible_host=w01.smg-air-conso.com ansible_user=Administrator ansible_connection=winrm ansible_winrm_server_cert_validation=ignore connection_timeout=240
 
 [wserver2]
-wserver2_prd ansible_host=10.6.1.147 ansible_user=Administrator ansible_connection=winrm ansible_winrm_server_cert_validation=ignore connection_timeout=240
+wserver2_prd ansible_host=w02.smg-air-conso.com ansible_user=Administrator ansible_connection=winrm ansible_winrm_server_cert_validation=ignore connection_timeout=240
 
 # ---- Tulip World
 [wminiaq1]

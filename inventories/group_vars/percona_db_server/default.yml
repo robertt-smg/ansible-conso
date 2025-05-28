@@ -1,4 +1,5 @@
 cnf_percona_default:
+  enabled: true
   port: 3306
   external_port: 3306
   cpu: 14000

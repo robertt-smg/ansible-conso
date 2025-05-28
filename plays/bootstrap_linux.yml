@@ -68,12 +68,17 @@
       create: yes
       state: present
       
-  - name: install geerlingguy.security
+  - name: run role geerlingguy.security
     include_role:
       name: geerlingguy.security
-  - name: install geerlingguy.firewall
+      tasks_from: main.yml
+    when: geerlingguy_security_enabled is defined and geerlingguy_security_enabled == true
+
+  - name: run role geerlingguy.firewall
     include_role:
       name: geerlingguy.firewall
+      tasks_from: main.yml
+    when: geerlingguy_firewall_enabled is defined and geerlingguy_firewall_enabled == true
 
   - name: Trigger reboot without waiting
     shell: "sleep 2 && reboot"

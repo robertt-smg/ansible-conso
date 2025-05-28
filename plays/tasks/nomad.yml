@@ -52,3 +52,8 @@
 - name: Include tasks nomad-neocore if nomad_neocore.enabled is defined
   include_tasks: tasks/nomad/neocore.yml
   when: nomad_neocore.enabled is defined and nomad_neocore.enabled is true
+
+#- forgejo
+- name: Include tasks nomad-forgejo if nomad_forgejo.enabled is defined
+  include_tasks: tasks/nomad/forgejo.yml
+  when: nomad_forgejo.enabled is defined and nomad_forgejo.enabled is true

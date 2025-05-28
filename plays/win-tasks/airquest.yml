@@ -111,6 +111,62 @@
   args:
     chdir: C:\
 
+# SMB Server Configuration
+- name: Set SMB Server - Disable Authenticate User Sharing
+  win_command: >
+    powershell.exe -ExecutionPolicy ByPass -Command "Set-SmbServerConfiguration -EnableAuthenticateUserSharing $false -Force"
+  args:
+    chdir: C:\
+
+- name: Set SMB Server - Cached Open Limit
+  win_command: >
+    powershell.exe -ExecutionPolicy ByPass -Command "Set-SmbServerConfiguration -CachedOpenLimit 0 -Force"
+  args:
+    chdir: C:\
+
+- name: Set SMB Server - Enable SMB2 Protocol
+  win_command: >
+    powershell.exe -ExecutionPolicy ByPass -Command "Set-SmbServerConfiguration -EnableSMB2Protocol $true -Force"
+  args:
+    chdir: C:\
+
+- name: Set SMB Server - Treat Host As Stable Storage
+  win_command: >
+    powershell.exe -ExecutionPolicy ByPass -Command "Set-SmbServerConfiguration -TreatHostAsStableStorage $true -Force"
+  args:
+    chdir: C:\
+
+- name: Set SMB Server - Max Threads Per Queue
+  win_command: >
+    powershell.exe -ExecutionPolicy ByPass -Command "Set-SmbServerConfiguration -MaxThreadsPerQueue 120 -Force"
+  args:
+    chdir: C:\
+
+- name: Set SMB Server - Disable SMB1 Protocol
+  win_command: >
+    powershell.exe -ExecutionPolicy ByPass -Command "Set-SmbServerConfiguration -EnableSMB1Protocol $false -Force"
+  args:
+    chdir: C:\
+
+# Proquest Settings
+- name: Set SMB Server - MaxMpxCount (Proquest)
+  win_command: >
+    powershell.exe -ExecutionPolicy ByPass -Command "Set-SmbServerConfiguration -MaxMpxCount 2048 -Force"
+  args:
+    chdir: C:\
+
+- name: Set SMB Server - MaxThreadsPerQueue (Proquest)
+  win_command: >
+    powershell.exe -ExecutionPolicy ByPass -Command "Set-SmbServerConfiguration -MaxThreadsPerQueue 288 -Force"
+  args:
+    chdir: C:\
+
+- name: Set SMB Server - MaxWorkItems (Proquest)
+  win_command: >
+    powershell.exe -ExecutionPolicy ByPass -Command "Set-SmbServerConfiguration -MaxWorkItems 8192 -Force"
+  args:
+    chdir: C:\
+
 - name: Create AQ-TEMP directory
   ansible.windows.win_file:
     path: D:\Data\AQ-TEMP

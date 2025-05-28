@@ -54,13 +54,13 @@ frontend ft_http_api
         
         # acl passbolt path_sub passbolt
 
-        acl is_crm_test hdr(host) -i airna.test.smg-air-conso.com
-        acl is_crm hdr(host) -i airna.smg-air-conso.com
-        use_backend suitecrm if is_crm_test or is_crm
+        #acl is_crm_test hdr(host) -i airna.test.smg-air-conso.com
+        #acl is_crm hdr(host) -i airna.smg-air-conso.com
+        #use_backend suitecrm if is_crm_test or is_crm
 
-        acl is_neocore_test hdr(host) -i neocore.test.smg-air-conso.com
-        acl is_neocore hdr(host) -i neocore.smg-air-conso.com
-        use_backend neocore if is_neocore_test or is_neocore
+        acl is_forgejo_test hdr(host) -i forgejo.test.smg-air-conso.com
+        acl is_forgejo hdr(host) -i forgejo.smg-air-conso.com
+        use_backend forgejo if is_forgejo_test or is_forgejo
 
         mode http
 
@@ -89,14 +89,9 @@ backend per_ip_rates
 #    http-request set-header Access-Control-Allow-Private-Network true if { req.hdr(X-Access-Control-Allow-Private-Network) -m int 1 }
 #    server passbolt {{public_ip}}:2443 id 2443 check ssl verify none check port 2443
 
-backend suitecrm
+backend forgejo
     mode http
     balance roundrobin
-    server suitecrm_server  {{suitecrm.public_ip}}:{{ suitecrm.external_port }} check
-
-backend neocore
-    mode http
-    balance roundrobin
-    server neocore_server  {{neocore.public_ip}}:{{ neocore.external_port }} check
+    server forgejo_server  {{forgejo.public_ip}}:{{ forgejo.external_port }} check
 
 #eof - haproxy need empty LF

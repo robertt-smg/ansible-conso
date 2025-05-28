@@ -1,0 +1,5 @@
+cnf_forgejo_tst:
+  public_ip: 148.251.12.68
+  external_port: 2085
+  db:
+    host: 148.251.12.68

@@ -87,7 +87,7 @@ backend per_ip_rates
 #    timeout server  120s
 #    http-response set-header Content-Security-Policy frame-ancestors\ %[var(txn.allowed_origins)];
 #    http-request set-header Access-Control-Allow-Private-Network true if { req.hdr(X-Access-Control-Allow-Private-Network) -m int 1 }
-#    server passbolt {{public_ip}}:2443 id 2443 check ssl verify none check port 2443
+#    server passbolt {-{public_ip}-}:2443 id 2443 check ssl verify none check port 2443
 
 backend suitecrm
     mode http

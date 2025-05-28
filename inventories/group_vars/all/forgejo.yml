@@ -1,0 +1,6 @@
+# vim
+
+#- merge all forgejo_... variables into one
+
+forgejo:  "{{ lookup('community.general.merge_variables', 'cnf_forgejo_', pattern_type='prefix', override='ignore') }}"
+

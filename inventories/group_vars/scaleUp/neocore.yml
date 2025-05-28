@@ -1,0 +1,5 @@
+cnf_neocore_scaleUp:
+  public_ip: mail.smg-air-conso.com
+  external_port: 2080
+  external_admin_port: 2990
+  neocore_db_server: 10.6.2.20

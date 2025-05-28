@@ -1,0 +1,122 @@
+########################################################################
+# File managed by ansible
+# Your changes will be overwritten.
+########################################################################
+#
+# For more information on the "job" stanza, please see
+# the online documentation at:
+#
+#     https://www.nomadproject.io/docs/job-specification/job.html
+#
+
+job "{{ job_name }}" {
+  datacenters = [ "{{ datacenter }}" ]
+  type = "service"
+  constraint {
+    attribute = "${attr.kernel.name}"
+    value     = "linux"
+  }
+  update {
+    max_parallel = 1
+    min_healthy_time = "10s"
+    healthy_deadline = "30m"
+    progress_deadline = "32m"
+    auto_revert = false
+    canary = 0
+  }
+
+  group "{{ job_name }}" {
+    count = 1
+    network {
+      
+      port "http_port" { 
+        static = {{ forgejo.external_port }} 
+        to = 8080 
+      }
+      port "http_ssh_port" { 
+        static = {{ forgejo.external_ssh_port }} 
+        to = 9990 
+      }
+ 
+      mode = "host"
+    }
+    restart {
+      attempts = 10
+      interval = "5m"
+      delay = "25s"
+      mode = "delay"
+    }
+    
+    task "forgejo-server" {
+      {% if nomad_config_driver_is_docker is defined and nomad_config_driver_is_docker %}
+      driver = "docker"
+      {% else %}
+      driver = "podman"
+      {% endif %}
+      env {  
+          DUMMY="true"
+      }
+      config {
+        {% if nomad_config_driver_is_docker is defined and nomad_config_driver_is_docker %}
+          memory_hard_limit = {{ forgejo.memory_hard_limit }}
+        {% endif %}
+        {% set image_version= forgejo.image_version %}
+        {% include "nomad-files/github_registry.j2" %}
+
+        labels {
+          group = "forgejo-wildfly"
+        }
+
+        volumes = [
+            "{{ forgejo.app_volume }}/data:/data"
+        ]
+        {% if nomad_config_driver_is_docker is defined and nomad_config_driver_is_docker %}
+        volume_driver = "local"
+        {% endif %}
+         
+        ports = [ "http_port", "http_ssh_port" ]
+        
+        extra_hosts = [
+          "forgejo_db_server:{{ forgejo.db.host}}",
+        ]
+        env = {
+          "USER_UID" = "1000"
+          "USER_GID" = "1000"
+          "FORGEJO__database__DB_TYPE" = "mysql"
+          "FORGEJO__database__HOST" = "{{ forgejo.db.host}}:3306"
+          "FORGEJO__database__NAME" = "{{ forgejo.db.name}}"
+          "FORGEJO__database__USER" = "{{ forgejo.db.username}}"
+          "FORGEJO__database__PASSWD" = "{{ forgejo.db.password}}"
+      }
+        
+      }
+      service {
+        name = "{{ job_name }}"
+        port = "http_port"
+        provider = "nomad"
+         check {
+          type     = "http"
+          port     = "http_port"
+          path     = "/"  
+          interval = "120s"
+          timeout  = "30s"
+          method   = "GET"
+          #headers = {
+          #  "Content-Type"  = "text/xml; charset=utf-8"
+          #  "Authorization" = "{{ forgejo.authorization }}"
+          #}
+          #body = "<ping/>"
+        }
+      }
+      logs {
+         max_files     = 2
+         max_file_size = 15
+      }
+ 
+      resources {
+        cpu = {{ forgejo.cpu }}
+        memory = {{ forgejo.memory }}
+      }
+    }
+  }
+}
