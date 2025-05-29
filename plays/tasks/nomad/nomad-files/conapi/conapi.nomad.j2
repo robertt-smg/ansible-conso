@@ -30,8 +30,8 @@ job "{{ job_name }}" {
     network {
       
       port "http_port" { 
-        static = {{ tinyproxy.external_port }} 
-        to = 8080 
+        static = {{ conapi.external_port }} 
+        to = 4567 
       }
  
       mode = "host"
@@ -43,49 +43,44 @@ job "{{ job_name }}" {
       mode = "delay"
     }
     
-    task "tinyproxy-server" {
+    task "conapi-server" {
       {% if nomad_config_driver_is_docker is defined and nomad_config_driver_is_docker %}
       driver = "docker"
       {% else %}
       driver = "podman"
       {% endif %}
-      env {  
-          DUMMY="true"
-      }
+      
       config {
         {% if nomad_config_driver_is_docker is defined and nomad_config_driver_is_docker %}
-          memory_hard_limit = {{ tinyproxy.memory_hard_limit }}
+          memory_hard_limit = {{ conapi.memory_hard_limit }}
         {% endif %}
-        {% set image_version= tinyproxy.image_version %}
+        {% set image_version= conapi.image_version %}
         {% include "nomad-files/github_registry.j2" %}
 
         labels {
-          group = "tinyproxy"
+          group = "conapi"
         }
-
+        args = [
+          "--env", "ENVIRONMENT=production",
+          "--env", "COMPUTOP_PASSWORD=none",
+          "--",
+          "-p", "/root/config/conf.local.yaml"
+        ]
         volumes = [
-            "{{ tinyproxy.app_volume }}/data:/data"
+            "{{ conapi.app_volume }}/config:/root/config"
         ]
         {% if nomad_config_driver_is_docker is defined and nomad_config_driver_is_docker %}
         volume_driver = "local"
         {% endif %}
          
-        ports = [ "http_port", "http_ssh_port" ]
+        ports = [ "http_port", "ssh_port" ]
         
         extra_hosts = [
-          "tinyproxy_db_server:{{ tinyproxy.db.host}}",
+          "conapi_db_server:{{ conapi.db.host}}",
         ]
-        env = {
-          "USER_UID" = "1000"
-          "USER_GID" = "1000"
-          "FORGEJO__database__DB_TYPE" = "mysql"
-          "FORGEJO__database__HOST" = "{{ tinyproxy.db.host}}:3306"
-          "FORGEJO__database__NAME" = "{{ tinyproxy.db.name}}"
-          "FORGEJO__database__USER" = "{{ tinyproxy.db.username}}"
-          "FORGEJO__database__PASSWD" = "{{ tinyproxy.db.password}}"
+       
       }
-        
-      }
+      
       service {
         name = "{{ job_name }}"
         port = "http_port"
@@ -97,11 +92,7 @@ job "{{ job_name }}" {
           interval = "120s"
           timeout  = "30s"
           method   = "GET"
-          #headers = {
-          #  "Content-Type"  = "text/xml; charset=utf-8"
-          #  "Authorization" = "{{ tinyproxy.authorization }}"
-          #}
-          #body = "<ping/>"
+          
         }
       }
       logs {
@@ -110,8 +101,8 @@ job "{{ job_name }}" {
       }
  
       resources {
-        cpu = {{ tinyproxy.cpu }}
-        memory = {{ tinyproxy.memory }}
+        cpu = {{ conapi.cpu }}
+        memory = {{ conapi.memory }}
       }
     }
   }

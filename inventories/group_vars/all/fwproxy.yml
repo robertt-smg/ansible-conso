@@ -1,0 +1,6 @@
+# vim
+
+#- merge all fwproxy_... variables into one
+
+fwproxy:  "{{ lookup('community.general.merge_variables', 'cnf_fwproxy_', pattern_type='prefix', override='ignore') }}"
+

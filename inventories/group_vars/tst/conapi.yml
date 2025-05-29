@@ -1,0 +1,3 @@
+cnf_conapi_test:
+  public_ip: fwproxy.test.smg-air-conso.com
+  external_port: 3444

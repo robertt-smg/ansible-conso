@@ -1,0 +1,6 @@
+cnf_forgejo_server:
+  app_volume: /var/lib/conapi
+
+nomad_conapi:
+  enabled: true
+  job_name: "conapi-server"

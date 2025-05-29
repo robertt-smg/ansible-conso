@@ -4,3 +4,8 @@ cnf_forgejo_tst:
   db:
     host: 192.168.121.1
     name: forgejo
+
+
+lego_acme_hetzner:
+  domains: fwproxy.test.smg-air-conso.com, conapi.test.test.smg-air-conso.com
+  use_staging: 1

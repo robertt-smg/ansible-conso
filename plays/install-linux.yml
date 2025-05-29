@@ -61,3 +61,9 @@
 
   - import_tasks: tasks/mariadb.yml
     when: mariadb.enabled is defined and mariadb.enabled == true
+
+  - name: install wireguard
+    include_role:
+      name: githubixx.ansible_role_wireguard
+    when: wireguard_enabled is defined and wireguard_enabled == true
+

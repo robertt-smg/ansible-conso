@@ -1,9 +1,9 @@
 cnf_mitmproxy_default:
   enabled: true
   port: 8085
-  cpu: 4096
-  memory: 8192
+  cpu: 512
+  memory: 1024
   memory_hard_limit: 37570
-  data_volume: /var/lib/mitmproxy
+  app_volume: /var/lib/mitmproxy
   
   image_version: "mitmproxy:latest"

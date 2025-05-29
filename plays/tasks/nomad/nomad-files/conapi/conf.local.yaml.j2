@@ -1,0 +1,229 @@
+user: "root"
+database:
+  production:
+    dialect: "mysql"
+    database: "{{ conapi.db.name }}"
+    host: "{{ conapi.db.host }}"
+    port: "3306"
+    user: "{{ conapi.db.user }}"
+    password: "{{ conapi.db.password }}"
+    protocol: "tcp"
+    options: "charset=utf8&parseTime=True"
+
+  development:
+    dialect: "mysql"
+    database: "{{ conapi.db.name }}"
+    host: "{{ conapi.db.host }}"
+    port: "3306"
+    user: "{{ conapi.db.user }}"
+    password: "{{ conapi.db.password }}"
+    protocol: "tcp"
+    options: "charset=utf8&parseTime=True"
+
+aqdatabase:
+  production:
+    dialect: "mysql"
+    database: "{{ conapi.db.name }}"
+    host: "{{ conapi.db.host }}"
+    port: "3306"
+    user: "{{ conapi.db.user }}"
+    password: "{{ conapi.db.password }}"
+    protocol: "tcp"
+    options: "charset=utf8&parseTime=True"
+
+  development:
+    dialect: "mysql"
+    database: "{{ conapi.db.name }}"
+    host: "{{ conapi.db.host }}"
+    port: "3306"
+    user: "{{ conapi.db.user }}"
+    password: "{{ conapi.db.password }}"
+    protocol: "tcp"
+    options: "charset=utf8&parseTime=True"
+gds:
+  neocoreapi: "https://devapi.smg-air-conso.com/neo-api-dev/neoCore/XmlServlet"
+  authorization: "bGVlbG9vO211bHRpcGFzcw=="
+  paxcnt: 4
+  amadeus:
+    officeid: "MUCL12156"
+    organization: "FTI Tkt-AirQuest"
+    originator: "WSFTKAFW"
+    wsap: "1ASIWAFWFTK"
+    password: "7EAjBk9U"
+    url: "https://noded1.test.webservices.amadeus.com"
+  sabre:
+    pcc: "N241"
+    corporate: "356246"
+    password: "ws530812"
+    url: "https://sws-sts.cert.havail.sabre.com"
+  galileo:
+    password: "6Sq*-9KwtY"
+    url: "https://emea.universal-api.travelport.com/B2BGateway/connect/uAPI"
+    uapiuser: "Universal API/uAPI9016806299-0722ccc1"
+
+server:
+  port: :4567
+  debug: true
+  read_timeout_seconds: 200
+  write_timeout_seconds: 200
+  tls_cert_file: "./assets/server.pem"   # Path to TLS certificate (PEM)
+  tls_key_file: "./assets/server.key.secret"    # Path to TLS private key (PEM)
+jwt:
+  secret: blEyEsiateSO
+  duration_minutes: 300
+  refresh_duration_minutes: 300
+  max_refresh_minutes: 1440
+  signing_algorithm: HS256
+  salt: "test"
+  delay: 5
+
+application:
+  min_password_strength: 1
+  swagger_ui_path: assets/swaggerui
+  sentry_dsn: "https://4c53186e679d4ac23d46ae0565fe7a37@o421303.ingest.sentry.io/4506359219748864"
+
+document:
+  archive_url: "https://devapi.smg-air-conso.com/fti-xml-rpc/xmlrpc"
+  agnum: "zentrale"
+  type: "AQ"
+  passolution_user_name: "ticketshop-fti@passolution.de"
+  passolution_user_password: "w2447F9XCQ"
+  passolution_url: "https://api.passolution.eu/condition/search"
+
+redbox:
+  server_name: "ftipackit"
+  base_url: "https://ftipackitqa.flightconex.de/redbox/api"
+  file_key_master_password: "W544Gs75s94x235456"
+
+aqsalesdesk:
+  base_domain: "https://smg.airquest.com"
+  base_url: "https://smg.airquest.com/aq4/jsp/x"
+  sbmtbtn: "Login"
+  localeCountry: "EN"
+  localeLanguage: "en"
+
+aqaggregator:
+  baseURL: "https://smg.airquest.com"
+
+
+email:
+  server: "smtp.gmail.com"
+  port: 587
+  username: "consoelaschmetterling@gmail.com"
+  password: "eDSnVhtgrXASy@~Y5r"
+  template_path_dir: "./templates/fti"
+  refund_template:
+    from: "robert.thurnreiter@schmetterling.de"
+    to: "test-zrm8329up@srv1.mail-tester.com"
+    cc: "robert.thurnreiter@arcor.de"
+    bcc: "robert.thurnreiter@schmetterling.de"
+    subject: "not-used"
+    absender: "noreply@smg-air-conso.de"
+    antrag: "Antrag auf ETix-Ref"
+    agency_from: "refund-air-conso@schmetterling.de"
+    # agency_to is from user input
+    agency_bcc: "robert.thurnreiter@schmetterling.de"
+    agency_cc: "robert.thurnreiter@schmetterling.de"
+    agency_subject: "not-used"
+    agency_greeting1: "not-used "
+    agency_greeting2: "not-used"
+    agency_text1: "not-used"
+    agency_text2: "not-used"
+
+  voucher_refund_template:
+    from: "robert.thurnreiter@schmetterling.de"
+    to: "technology.ticketshop@schmetterling.de"
+    bcc: "robert.thurnreiter@schmetterling.de,technology.ticketshop@schmetterling.de"
+    subject: "SMG Air Conso Voucher Anfrage"
+    antrag: "Antrag auf Voucher-Ref"
+    agency_from: "ticketshop@schmetterling.de"
+    agency_to: "technology.ticketshop@schmetterling.de"
+    agency_bcc: "robert.thurnreiter@schmetterling.de,technology.ticketshop@schmetterling.de"
+
+  zzf_template:
+    from: "ticketshop@schmetterling.de"
+    to: "technology.ticketshop@schmetterling.de"
+    bcc: "marko.vitense@schmetterling.de"
+    subject: "SMG Air Conso Voucher Anfrage"
+    antrag: "Antrag auf Voucher-Ref"
+    agency_from: "ticketshop@schmetterling.de"
+    agency_to: "technology.ticketshop@schmetterling.de"
+    agency_bcc: "marko.vitense@schmetterling.de"
+
+
+  pdf_document_template:
+    from: "no-reply@airquest.com"
+    cc: "marko.vitense@schmetterling.de,alexandra.rabanus@schmetterling.de"
+  
+  report_error:
+    from: "technology.ticketshop@schmetterling.de"
+    to: "technology.ticketshop@schmetterling.de"
+    additionalTO: "ticketshop@schmetterling.de"
+    subject: "Error"
+
+  void_mail:
+    from: "naseemrocks321@gmail.com"
+    bcc: "akhtarnaseem513@gmail.com"
+
+computop:
+  url_success: "https://www.smg-air-conso.de/FtiComputopPopup/action_success/27063/0_27063"
+  url_failure: "https://www.smg-air-conso.de/FtiComputopPopup/action_failure/27064/0_27064"
+  url_notify: "https://www.smg-air-conso.de/FtiComputopPopup/action_notify/27065/0_27065"
+  merchant_id: "airquest_ticketshop"
+  iamount: 10
+paxconnect:
+  base_url: "https://devapi.smg-air-conso.com/con-api-dev/v1/"
+  connector_url: "paxconnector://v1/"
+  backreference_url: "https://www.smg-air-conso.de/counterinfos/fw-plus-de/?no_cache=1&system=paxconnect"
+  password: PcvdDjoGPpXJNCtKh8ovnLataKRiQ7ds
+  stdEncodingEnable: true
+  countryCode: "AT"
+bosys:
+  base_url: "https://devapi.smg-air-conso.com/con-api-dev/v1/"
+  connector_url: "bosys://"
+  backreference_url: "https://www.smg-air-conso.de/counterinfos/fw-plus-de/?no_cache=1&system=bosys"
+  password: Zo5n2yxCproee62VqWWop
+  stdEncodingEnable: true
+offerpack:
+  base_url: "https://devapi.smg-air-conso.com/con-api-dev/v1/"
+  connector_url: "https://fti.acvis.de/fti-ticketshop/"
+  backreference_url: "https://www.smg-air-conso.de/counterinfos/fw-plus-de/?no_cache=1&system=offerpack"
+  password: U83Nsdfee231_34zu
+  stdEncodingEnable: true
+midoco:
+  login: "fti.ticketshop"
+  organisationUnit: "TEST-LT-Deutschland"
+  locale: "de_DE"
+  base_url: "https://devapi.smg-air-conso.com/con-api-dev/v1/"
+  connector_url: "https://midoffice.midoco.net:443/ws/services/BookingService"
+  password: Herbst2022!
+  authtoken: "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzYyI6IlVTRVJMT0dJTiIsInZhbGlkIjoiMjAyNS0wMy0xMSIsInVpZCI6NTA3ODIsIm91IjoiQyAtIGx0dXIgR21iSCIsImlkIjo0Mn0.LKotoG5AVrHbzeyxkxNK0nIarUuzf9dQE_IvjAIHYG0"
+midoco_adac:
+  base_url: "https://devapi.smg-air-conso.com/con-api-dev/v1/"
+  connector_url: "https://midoffice.midoco.net:443/ws/services/BookingService"
+  password: "xKTvxK"
+  login: "FTI-Ticketshop"
+  organisationUnit: "{from_db_system_midoco}"
+  locale: "de_DE"
+  authtoken: "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzYyI6IlVTRVJMT0dJTiIsInZhbGlkIjoiMjAyNS0wMi0yOCIsInVpZCI6NTg1MTIsIm91IjoiQURBQ0FSRyIsImlkIjoyMn0.7x8QGLdZLWe3WajsI3__kE8PbXHlEvTAu_wwGXRxRmY"
+zanata:
+  baseURL: "https://translate.aerticket-it.de/zanata/rest"
+  zanataVersion: "FTI-QA"
+  locales: "nl-FL,en,fr,de,it"
+unify:
+  authBaseURL: "https://authorizationservice.unify.stg-env.aerticket-it.de/"
+  routeHappyBaseURL: "https://routehappy.unify.stg-env.aerticket-it.de/"
+  username: "fti"
+  password: "hJKvuj+H),54gb88"
+  agency: "280360"
+loggers:
+ fileloggingenabled: true
+ directoryname: "/var/log/"
+ filename: "consoelaLog.log"
+ maxsize: 10
+ maxbackups: 10
+ maxage: 30
+atmosfair:
+  base_url: "https://test-api.atmosfair.de/"
+  accountID: "523730"
+  password: "kundentest"

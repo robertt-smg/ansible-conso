@@ -1,0 +1,2 @@
+cnf_mitmproxy_test:
+  excon_host: fwproxy.test.smg-air-conso.com

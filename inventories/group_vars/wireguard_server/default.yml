@@ -1,0 +1,22 @@
+wireguard_enabled: true
+
+# https://galaxy.ansible.com/ui/standalone/roles/githubixx/ansible_role_wireguard/documentation/
+# The default port WireGuard will listen if not specified otherwise.
+wireguard_port: "51820"
+wireguard_addresses:
+  - "10.8.0.1/24"
+  
+wireguard_dns: "1.1.1.1"
+wireguard_mtu: "1300"
+
+wireguard_preup:
+  - echo 1 > /proc/sys/net/ipv4/ip_forward
+
+wireguard_postup:
+  - iptables -t nat -A POSTROUTING -o ens12 -j MASQUERADE
+  - iptables -A FORWARD -i %i -j ACCEPT
+  - iptables -A FORWARD -o %i -j ACCEPT
+wireguard_postdown:
+  - iptables -t nat -D POSTROUTING -o ens12 -j MASQUERADE
+  - iptables -D FORWARD -i %i -j ACCEPT
+  - iptables -D FORWARD -o %i -j ACCEPT

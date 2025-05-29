@@ -19,3 +19,4 @@ roles:
   - name: claranet.mariadb
   # - name: lifeofguenter.nullmailer // updated in roles, added new allmailfrom
   # - name: blunix.role-mailrelay-opensmtpd // updated in roles, removed matrix, added some listen addresses
+  - name: githubixx.ansible_role_wireguard

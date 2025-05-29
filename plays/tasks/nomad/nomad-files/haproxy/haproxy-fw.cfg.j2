@@ -62,6 +62,14 @@ frontend ft_http_api
         acl is_forgejo hdr(host) -i forgejo.smg-air-conso.com
         use_backend forgejo if is_forgejo_test or is_forgejo
 
+        acl is_fwproxy_test hdr(host) -i fwproxy.test.smg-air-conso.com
+        acl is_fwproxy hdr(host) -i fwproxy.smg-air-conso.com
+        use_backend fwproxy if is_fwproxy_test or is_fwproxy
+
+        acl is_conapi_test hdr(host) -i conapi.test.smg-air-conso.com
+        acl is_fwproxy hdr(host) -i conapi.smg-air-conso.com
+        use_backend conapi if is_conapi_test or is_conapi
+
         mode http
 
         # use_backend passbolt if passbolt
@@ -93,5 +101,16 @@ backend forgejo
     mode http
     balance roundrobin
     server forgejo_server  {{forgejo.public_ip}}:{{ forgejo.external_port }} check
+
+backend fwproxy
+    mode http
+    balance roundrobin
+    server fwproxy_server  {{fwproxy.public_ip}}:{{ fwproxy.external_port }} check
+
+backend conapi
+    mode http
+    balance roundrobin
+    server conapi_server  {{conapi.public_ip}}:{{ conapi.external_port }} check
+
 
 #eof - haproxy need empty LF

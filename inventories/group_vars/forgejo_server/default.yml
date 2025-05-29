@@ -1,9 +1,9 @@
 cnf_forgejo_default:
   enabled: true
   port: 8085
-  cpu: 4096
-  memory: 8192
+  cpu: 2048
+  memory: 4096
   memory_hard_limit: 37570
-  data_volume: /var/lib/forgejo
+  app_volume: /var/lib/forgejo
   
-  image_version: "forgejo:latest"
+  image_version: "forgejo:11"

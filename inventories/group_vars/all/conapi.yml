@@ -1,0 +1,6 @@
+# vim
+
+#- merge all conapi_... variables into one
+
+conapi:  "{{ lookup('community.general.merge_variables', 'cnf_conapi_', pattern_type='prefix', override='ignore') }}"
+

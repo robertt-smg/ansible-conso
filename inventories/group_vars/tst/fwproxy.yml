@@ -1,0 +1,5 @@
+cnf_fwproxy_test:
+  public_ip: fwproxy.test.smg-air-conso.com
+  external_port: 3443
+  db:
+    host: 192.168.121.61 

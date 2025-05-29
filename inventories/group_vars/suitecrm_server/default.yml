@@ -3,6 +3,6 @@ cnf_suitecrm_default:
   cpu: 4096
   memory: 8192
   memory_hard_limit: 37570
-  data_volume: /var/lib/suitecrm
+  app_volume: /var/lib/suitecrm
   
   image_version: "suitecrm:8"

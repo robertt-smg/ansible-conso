@@ -53,8 +53,14 @@ job "{{ job_name }}" {
       {% else %}
       driver = "podman"
       {% endif %}
-      env {  
-          DUMMY="true"
+      env = {
+          "USER_UID" = "1000"
+          "USER_GID" = "1000"
+          "FORGEJO__database__DB_TYPE" = "mysql"
+          "FORGEJO__database__HOST" = "{{ forgejo.db.host}}:3306"
+          "FORGEJO__database__NAME" = "{{ forgejo.db.name}}"
+          "FORGEJO__database__USER" = "{{ forgejo.db.user}}"
+          "FORGEJO__database__PASSWD" = "{{ forgejo.db.password}}"
       }
       config {
         {% if nomad_config_driver_is_docker is defined and nomad_config_driver_is_docker %}
@@ -79,17 +85,9 @@ job "{{ job_name }}" {
         extra_hosts = [
           "forgejo_db_server:{{ forgejo.db.host}}",
         ]
-        env = {
-          "USER_UID" = "1000"
-          "USER_GID" = "1000"
-          "FORGEJO__database__DB_TYPE" = "mysql"
-          "FORGEJO__database__HOST" = "{{ forgejo.db.host}}:3306"
-          "FORGEJO__database__NAME" = "{{ forgejo.db.name}}"
-          "FORGEJO__database__USER" = "{{ forgejo.db.user}}"
-          "FORGEJO__database__PASSWD" = "{{ forgejo.db.password}}"
+       
       }
-        
-      }
+      
       service {
         name = "{{ job_name }}"
         port = "http_port"

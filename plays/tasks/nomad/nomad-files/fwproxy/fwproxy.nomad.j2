@@ -29,13 +29,9 @@ job "{{ job_name }}" {
     count = 1
     network {
       
-      port "http_proxy_port" { 
-        static = {{ mitmproxy.external_proxy_port }} 
-        to = 8080 
-      }
-      port "http_ui_port" { 
-        static = {{ mitmproxy.external_ui_port }} 
-        to = 8081 
+      port "http_port" { 
+        static = {{ fwproxy.external_port }} 
+        to = 3443 
       }
  
       mode = "host"
@@ -47,56 +43,56 @@ job "{{ job_name }}" {
       mode = "delay"
     }
     
-    task "mitmproxy-server" {
+    task "fwproxy-server" {
       {% if nomad_config_driver_is_docker is defined and nomad_config_driver_is_docker %}
       driver = "docker"
       {% else %}
       driver = "podman"
       {% endif %}
-
-      env {  
-          DUMMY="true"
+      env = {
+          "USER_UID" = "1000"
+          "EXTERNAL_API_BASE" = "https://aerpackit.flightconex.de"
+          "PORT" = "3443"
+          "CERT_FILE" = "server.pem"
+          "KEY_FILE" = "server.key.secret"
+          "CORS_ALLOWED_ORIGIN" = "*"
+          "DB_TYPE" = "mysql"
+          "DB_NAME" = "proxy.db"
+          "MYSQL_DSN" = "mysql://{{ fwproxy.db.user}}:{{ fwproxy.db.password}}@tcp({{ fwproxy.db.host }}:3306)/{{ fwproxy.db.name }}"
       }
       config {
         {% if nomad_config_driver_is_docker is defined and nomad_config_driver_is_docker %}
-          memory_hard_limit = {{ mitmproxy.memory_hard_limit }}
+          memory_hard_limit = {{ fwproxy.memory_hard_limit }}
         {% endif %}
-        {% set image_version= mitmproxy.image_version %}
+        {% set image_version= fwproxy.image_version %}
         {% include "nomad-files/github_registry.j2" %}
-        
-        command = "mitmweb"
-        args = [ "--set", "ssl_insecure=true", "--web-host", "0.0.0.0", "--set", "web_password='adm1234!'", "--set", "http2=false", "--set", "http3=false" ] 
 
         labels {
-          group = "mitmproxy"
+          group = "fwproxy"
         }
 
         volumes = [
-            "{{ mitmproxy.app_volume }}/data:/data"
+            "{{ fwproxy.app_volume }}/data:/data"
         ]
         {% if nomad_config_driver_is_docker is defined and nomad_config_driver_is_docker %}
         volume_driver = "local"
         {% endif %}
          
-        ports = [ "http_proxy_port", "http_ui_port" ]
+        ports = [ "http_port" ]
         
         extra_hosts = [
-          "ftipackitqa.flightconex.de:{{ mitmproxy.excon_host}}",
-          "ftipackit.flightconex.de:{{ mitmproxy.excon_host}}",
-          "packit-assets.aerticket-it.de:{{ mitmproxy.excon_host}}",
-          "conapi.smg-test.de:{{ mitmproxy.excon_host}}",
-          "devat.inhouse.fti-ticketshop.de:{{ mitmproxy.excon_host}}",
-          "devde.inhouse.fti-ticketshop.de:{{ mitmproxy.excon_host}}"
+          "fwproxy_db_server:{{ fwproxy.db.host}}",
         ]
-        
+       
       }
+      
       service {
         name = "{{ job_name }}"
-        port = "http_proxy_port"
+        port = "http_port"
         provider = "nomad"
          check {
           type     = "http"
-          port     = "http_proxy_port"
+          port     = "http_port"
           path     = "/"  
           interval = "120s"
           timeout  = "30s"
@@ -110,8 +106,8 @@ job "{{ job_name }}" {
       }
  
       resources {
-        cpu = {{ mitmproxy.cpu }}
-        memory = {{ mitmproxy.memory }}
+        cpu = {{ fwproxy.cpu }}
+        memory = {{ fwproxy.memory }}
       }
     }
   }

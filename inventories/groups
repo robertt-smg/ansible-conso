@@ -51,3 +51,12 @@ hetzner1
 
 [mitmproxy_secrets:children]
 mitmproxy_server
+
+[fwproxy_server:children]
+hetzner1
+
+[conapi_server:children]
+hetzner1
+
+[wireguard_server:children]
+hetzner1

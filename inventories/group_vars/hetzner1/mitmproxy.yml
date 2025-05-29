@@ -1,0 +1,2 @@
+cnf_mitmproxy_hetzner:
+  excon_host: fwproxy.smg-airconso.com

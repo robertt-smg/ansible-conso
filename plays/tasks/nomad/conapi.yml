@@ -1,0 +1,72 @@
+- name: Create {{ nomad_conapi.job_name }} log directory
+  file:
+    path: "{{ nomad_log_dir }}/{{ nomad_conapi.job_name }}"
+    state: directory
+    owner: www-data
+    group: www-data
+    mode: "0775"
+    recurse: yes
+
+- name: Create application volume and dirs {{ nomad_conapi.job_name }}
+  file:
+    path: "{{ conapi.app_volume }}/{{ item }}"
+    state: directory
+    owner: 1
+    group: 1
+    mode: "0775"
+    recurse: yes
+  loop:
+    - config
+
+- name: Manage conapi config file {{ nomad_conapi.job_name }}
+  template:
+    src: nomad-files/conapi/conf.local.yaml.j2
+    dest: "{{ conapi.app_volume }}/config/conf.local.yaml"
+    owner: nomad
+    group: nomad
+    mode: "0644"
+  vars:
+    job_name: "{{ nomad_conapi.job_name }}"
+    datacenter: "{{ nomad_datacenter }}"
+    hostname: "{{ ansible_hostname }}"
+    config_dir: "{{ nomad_data_dir }}/jobs/{{ nomad_conapi.job_name }}"
+
+- name: Manage Nomad job file {{ nomad_conapi.job_name }}
+  template:
+    src: nomad-files/conapi/conapi.nomad.j2
+    dest: "{{ nomad_data_dir }}/jobs/{{ nomad_conapi.job_name }}.nomad"
+    owner: nomad
+    group: nomad
+    mode: "0644"
+  vars:
+    job_name: "{{ nomad_conapi.job_name }}"
+    datacenter: "{{ nomad_datacenter }}"
+    hostname: "{{ ansible_hostname }}"
+    config_dir: "{{ nomad_data_dir }}/jobs/{{ nomad_conapi.job_name }}"
+
+- name: "Manage Nomad job file {{ nomad_conapi.job_name }}"
+  run_once: true
+  nomad_job:
+    url: "{{ nomad_server_url }}"
+    validate_certs: false
+    management_token: "{{ nomad_acl_management_token }}"
+    state: present
+    namespace: default
+    hcl_spec: "{{ lookup('template', 'nomad-files/conapi/conapi.nomad.j2') }}"
+  vars:
+    job_name: "{{ nomad_conapi.job_name }}"
+    datacenter: "{{ nomad_datacenter }}"
+    hostname: "{{ ansible_hostname }}"
+    config_dir: "{{ nomad_data_dir }}/jobs/{{ nomad_conapi.job_name }}"
+  register: conapi_nomad_file_changed
+
+- name: Check conapi service status
+  uri:
+    url: "http://{{ nomad_advertise_address }}:{{ conapi.external_port }}/"
+    method: GET
+    status_code: 200
+  ignore_errors: true
+  until: conapi_status.status == 200
+  retries: 12
+  delay: 30
+  register: conapi_status

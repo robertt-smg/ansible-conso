@@ -62,3 +62,13 @@
 - name: Include tasks nomad-mitmproxy if nomad_mitmproxy.enabled is defined
   include_tasks: tasks/nomad/mitmproxy.yml
   when: nomad_mitmproxy.enabled is defined and nomad_mitmproxy.enabled is true
+
+#- fwproxy / excon
+- name: Include tasks nomad-fwproxy if nomad_fwproxy.enabled is defined
+  include_tasks: tasks/nomad/fwproxy.yml
+  when: nomad_fwproxy.enabled is defined and nomad_fwproxy.enabled is true
+
+#- conapi
+- name: Include tasks nomad-conapi if nomad_conapi.enabled is defined
+  include_tasks: tasks/nomad/conapi.yml
+  when: nomad_conapi.enabled is defined and nomad_conapi.enabled is true

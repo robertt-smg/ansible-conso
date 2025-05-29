@@ -1,0 +1,9 @@
+cnf_fwproxy_default:
+  enabled: true
+  port: 3443
+  cpu: 1024
+  memory: 1024
+  memory_hard_limit: 37570
+  app_volume: /var/lib/fwproxy
+  
+  image_version: "excon:latest"

@@ -1,4 +1,4 @@
-cnf_mitmproxy_server1:
+cnf_mitmproxy_server_all:
   app_volume: /var/lib/mitmproxy
   external_proxy_port: 8888
   external_ui_port: 8889

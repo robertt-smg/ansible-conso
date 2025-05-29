@@ -1,0 +1,8 @@
+cnf_fwproxy_server:
+  app_volume: /var/lib/fwproxy
+  db:
+    name: fwproxy
+
+nomad_fwproxy:
+  enabled: true
+  job_name: "fwproxy-server"
