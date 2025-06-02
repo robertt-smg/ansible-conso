@@ -1,0 +1,13 @@
+wireguard_unmanaged_peers:
+    smg_rhor:
+        public_key: v+aPWoy+tmWWFUWMSOk+oPM8a0EC57eV5fCXvwRwojI=
+        allowed_ips: 10.8.0.3
+        persistent_keepalive: 30
+        
+    vl_sunanda:
+        public_key: OM/x71InEKL4rMDZq1VPthkdHyMPuCW5y/QOBHX87Qw=
+        allowed_ips: 10.8.0.4
+        persistent_keepalive: 30
+
+wireguard_address: 10.8.0.1/24
+wireguard_port: 51820

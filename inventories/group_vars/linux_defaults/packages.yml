@@ -17,6 +17,7 @@ apt_packages_default:
   - rsyslog
   - tree
   - vim
+  
   - name: zsh
     state: absent
     purge: true

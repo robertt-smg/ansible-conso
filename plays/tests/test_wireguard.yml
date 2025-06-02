@@ -1,0 +1,13 @@
+- hosts: all
+  become: true
+  gather_facts: true
+
+  vars_files:
+  - main/vars.yml
+
+  tasks:
+#- wireguard
+  - name: install wireguard
+    include_role:
+      name: githubixx.ansible_role_wireguard
+    when: wireguard_enabled is defined and wireguard_enabled == true

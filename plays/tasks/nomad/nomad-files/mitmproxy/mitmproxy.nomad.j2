@@ -31,11 +31,11 @@ job "{{ job_name }}" {
       
       port "http_proxy_port" { 
         static = {{ mitmproxy.external_proxy_port }} 
-        to = 8080 
+        to = 8888 
       }
       port "http_ui_port" { 
         static = {{ mitmproxy.external_ui_port }} 
-        to = 8081 
+        to = 8889 
       }
  
       mode = "host"

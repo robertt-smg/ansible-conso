@@ -1,5 +1,7 @@
-cnf_forgejo_server:
+cnf_conapi_server:
   app_volume: /var/lib/conapi
+  db:
+    name: consoela_prd
 
 nomad_conapi:
   enabled: true

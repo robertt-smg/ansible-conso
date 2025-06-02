@@ -1,7 +1,7 @@
 ## Role: geerlingguy.firewall
 ## -------------------------
 
-firewall_allowed_tcp_ports_server1:
+firewall_allowed_tcp_ports_hetzner1:
   - "22" # ssh port 
   - "25" # this is only accessible from inside networks (podman), as ionos has a firewall for world connections, to proctect us
   - "443" # web server, ha proxy
@@ -10,4 +10,6 @@ firewall_allowed_tcp_ports_server1:
   - "2085" # forgejo UI
   - "2222" # forgejo SSH/GIT
   - "4646" # nomad ui, internal
+
+firewall_allowed_udp_ports_hetzner1:
   - "51820" # wireguard

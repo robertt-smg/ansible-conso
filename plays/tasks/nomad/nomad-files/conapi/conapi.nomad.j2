@@ -73,7 +73,7 @@ job "{{ job_name }}" {
         volume_driver = "local"
         {% endif %}
          
-        ports = [ "http_port", "ssh_port" ]
+        ports = [ "http_port" ]
         
         extra_hosts = [
           "conapi_db_server:{{ conapi.db.host}}",
@@ -91,6 +91,8 @@ job "{{ job_name }}" {
           path     = "/"  
           interval = "120s"
           timeout  = "30s"
+          protocol = "https"
+          tls_skip_verify = true
           method   = "GET"
           
         }

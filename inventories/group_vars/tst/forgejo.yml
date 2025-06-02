@@ -7,5 +7,5 @@ cnf_forgejo_tst:
 
 
 lego_acme_hetzner:
-  domains: fwproxy.test.smg-air-conso.com, conapi.test.test.smg-air-conso.com
+  domains: fwproxy.smg-air-conso.com, conapi.smg-air-conso.com
   use_staging: 1

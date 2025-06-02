@@ -12,7 +12,9 @@
     - weareinteractive.apt
 
   pre_tasks:
-  
+
+  - import_tasks: set_ubuntu_mirror_pre_task.yml
+
   - name: Ensure ntpdate is installed
     apt:
       name: ntpdate
@@ -66,4 +68,8 @@
     include_role:
       name: githubixx.ansible_role_wireguard
     when: wireguard_enabled is defined and wireguard_enabled == true
+
+  - import_tasks: tasks/nat_forwarding.yml
+    when: nat_forwarding.enabled is defined and nat_forwarding.enabled == true
+
 

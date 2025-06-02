@@ -6,4 +6,4 @@ cnf_conapi_default:
   memory_hard_limit: 37570
   app_volume: /var/lib/conapi
   
-  image_version: "conapi:latest"
+  image_version: "consoela:latest"

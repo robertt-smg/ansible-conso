@@ -58,7 +58,7 @@ job "{{ job_name }}" {
           "CORS_ALLOWED_ORIGIN" = "*"
           "DB_TYPE" = "mysql"
           "DB_NAME" = "proxy.db"
-          "MYSQL_DSN" = "mysql://{{ fwproxy.db.user}}:{{ fwproxy.db.password}}@tcp({{ fwproxy.db.host }}:3306)/{{ fwproxy.db.name }}"
+          "MYSQL_DSN" = "{{ fwproxy.db.user}}:{{ fwproxy.db.password}}@tcp({{ fwproxy.db.host }}:3306)/{{ fwproxy.db.name }}"
       }
       config {
         {% if nomad_config_driver_is_docker is defined and nomad_config_driver_is_docker %}
@@ -97,6 +97,8 @@ job "{{ job_name }}" {
           interval = "120s"
           timeout  = "30s"
           method   = "GET"
+          protocol = "https"
+          tls_skip_verify = true
           
         }
       }

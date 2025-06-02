@@ -7,6 +7,6 @@ nomad_haproxy:
   server_pem: server.pem
   cfg_template: "haproxy-fw"
   haproxy:
-    domain_list: "fwproxy.test.smg-air-conso.com,conapi.test.smg-air-conso.com,neocore.test.smg-air-conso.com"
+    domain_list: "fwproxy.test.smg-air-conso.com,conapi.test.smg-air-conso.com,fwproxy.smg-air-conso.com,conapi.smg-air-conso.com"
     cookie_domain: "{{ ansible_fqdn }}"
     maxconn: 500

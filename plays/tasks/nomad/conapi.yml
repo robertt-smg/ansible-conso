@@ -62,9 +62,10 @@
 
 - name: Check conapi service status
   uri:
-    url: "http://{{ nomad_advertise_address }}:{{ conapi.external_port }}/"
+    url: "https://{{ nomad_advertise_address }}:{{ conapi.external_port }}/"
     method: GET
     status_code: 200
+    validate_certs: no
   ignore_errors: true
   until: conapi_status.status == 200
   retries: 12

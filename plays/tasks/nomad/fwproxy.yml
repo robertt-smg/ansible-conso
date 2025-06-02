@@ -49,9 +49,10 @@
 
 - name: Check fwproxy service status
   uri:
-    url: "http://{{ nomad_advertise_address }}:{{ fwproxy.external_port }}/"
+    url: "https://{{ nomad_advertise_address }}:{{ fwproxy.external_port }}/"
     method: GET
     status_code: 200
+    validate_certs: no
   ignore_errors: true
   until: fwproxy_status.status == 200
   retries: 12

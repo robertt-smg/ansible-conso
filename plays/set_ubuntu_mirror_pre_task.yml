@@ -1,0 +1,36 @@
+---
+# Setzt den Ubuntu APT Mirror auf scaleuptech und kommentiert alte URIs aus
+- name: Setze Ubuntu APT Mirror auf scaleuptech und kommentiere alte URIs aus
+  block:
+    - name: Kommentiere archive.ubuntu.com/ubuntu aus, falls nicht bereits auskommentiert
+      lineinfile:
+        path: /etc/apt/sources.list.d/ubuntu.sources
+        regexp: '^(?!#)(.*http://archive\\.ubuntu\\.com/ubuntu/)'
+        line: '#\1'
+        backrefs: yes
+      when: ansible_facts['distribution'] == 'Ubuntu'
+
+    - name: Kommentiere security.ubuntu.com/ubuntu aus, falls nicht bereits auskommentiert
+      lineinfile:
+        path: /etc/apt/sources.list.d/ubuntu.sources
+        regexp: '^(?!#)(.*http://security\\.ubuntu\\.com/ubuntu/)'
+        line: '#\1'
+        backrefs: yes
+      when: ansible_facts['distribution'] == 'Ubuntu'
+
+    - name: Füge scaleuptech archive Mirror hinzu, falls nicht vorhanden
+      lineinfile:
+        path: /etc/apt/sources.list.d/ubuntu.sources
+        line: 'URIs: http://mirror.scaleuptech.com/ubuntu/'
+        insertafter: EOF
+        state: present
+      when: ansible_facts['distribution'] == 'Ubuntu'
+
+    - name: Füge scaleuptech security Mirror hinzu, falls nicht vorhanden
+      lineinfile:
+        path: /etc/apt/sources.list.d/ubuntu.sources
+        line: 'URIs: http://mirror.scaleuptech.com/ubuntu/'
+        insertafter: EOF
+        state: present
+      when: ansible_facts['distribution'] == 'Ubuntu'
+  when: ansible_facts['distribution'] == 'Ubuntu'

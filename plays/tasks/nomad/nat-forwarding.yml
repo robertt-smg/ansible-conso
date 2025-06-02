@@ -1,0 +1,50 @@
+---
+- name: Ensure IP forwarding is enabled
+  sysctl:
+    name: net.ipv4.ip_forward
+    value: '1'
+    state: present
+    sysctl_set: yes
+    reload: yes
+  when: nat_forwarding.enabled | default(false)
+
+- name: Set up iptables NAT forwarding rules
+  ansible.builtin.iptables:
+    table: nat
+    chain: PREROUTING
+    protocol: tcp
+    source: "{{ item.src_ip }}"
+    destination_port: "{{ item.src_port }}"
+    jump: DNAT
+    to_destination: "{{ item.dst_ip }}:{{ item.dst_port }}"
+    comment: "NAT forward {{ item.name }}"
+    state: present
+  loop: "{{ nat_forwarding.rules | default([]) }}"
+  when: nat_forwarding.enabled | default(false)
+
+- name: Allow forwarding in filter table
+  ansible.builtin.iptables:
+    table: filter
+    chain: FORWARD
+    protocol: tcp
+    source: "{{ item.src_ip }}"
+    destination: "{{ item.dst_ip }}"
+    destination_port: "{{ item.dst_port }}"
+    jump: ACCEPT
+    comment: "Allow forward {{ item.name }}"
+    state: present
+  loop: "{{ nat_forwarding.rules | default([]) }}"
+  when: nat_forwarding.enabled | default(false)
+
+- name: Masquerade outgoing packets (optional, see explanation)
+  ansible.builtin.iptables:
+    table: nat
+    chain: POSTROUTING
+    protocol: tcp
+    destination: "{{ item.dst_ip }}"
+    destination_port: "{{ item.dst_port }}"
+    jump: MASQUERADE
+    comment: "Masquerade for {{ item.name }}"
+    state: present
+  loop: "{{ nat_forwarding.rules | default([]) }}"
+  when: nat_forwarding.enabled | default(false)

@@ -5,7 +5,7 @@ firewall_allowed_tcp_ports_server1:
   - "22" # ssh port, pre bootstrap
   - "25" # this is only accessible from inside networks (podman), as ionos has a firewall for world connections, to proctect us
   - "443" # web server, ha proxy
-  - "1080" # suitcrm internal
+  - "8443" # suitcrm internal
   - "31222" # modfied ssh port, after bootstrap
   - "4646" # nomad ui, protected by access token
   

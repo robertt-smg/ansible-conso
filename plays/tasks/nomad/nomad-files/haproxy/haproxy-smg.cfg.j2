@@ -92,7 +92,7 @@ backend per_ip_rates
 backend suitecrm
     mode http
     balance roundrobin
-    server suitecrm_server  {{suitecrm.public_ip}}:{{ suitecrm.external_port }} check
+    server suitecrm_server  {{suitecrm.public_ip}}:{{ suitecrm.external_port }} check 
 
 backend neocore
     mode http

@@ -1,0 +1,5 @@
+# vim
+
+#- merge all mitmproxy_... variables into one
+
+nat_forwarding:  "{{ lookup('community.general.merge_variables', 'cnf_nat_forwarding_', pattern_type='prefix', override='ignore') }}"

@@ -67,7 +67,7 @@ frontend ft_http_api
         use_backend fwproxy if is_fwproxy_test or is_fwproxy
 
         acl is_conapi_test hdr(host) -i conapi.test.smg-air-conso.com
-        acl is_fwproxy hdr(host) -i conapi.smg-air-conso.com
+        acl is_conapi hdr(host) -i conapi.smg-air-conso.com
         use_backend conapi if is_conapi_test or is_conapi
 
         mode http

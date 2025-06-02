@@ -1,0 +1,5 @@
+wireguard_endpoint: 148.251.12.68:51820
+
+nomad_haproxy:
+  haproxy:
+    domain_list: "fwproxy.smg-air-conso.com,conapi.smg-air-conso.com"

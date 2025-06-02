@@ -118,6 +118,9 @@ job "{{ job_name }}" {
           path = "/#/Login"
           interval = "120s"
           timeout  = "30s"
+          ## protocol = "https"
+          ## tls_skip_verify = true
+
         }
       }
       logs {
@@ -164,6 +167,8 @@ job "{{ job_name }}" {
           path = "/#/Login"
           interval = "120s"
           timeout  = "30s"
+          protocol = "http"
+          tls_skip_verify = true
         }
       }
       logs {
