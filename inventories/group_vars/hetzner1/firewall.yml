@@ -10,6 +10,10 @@ firewall_allowed_tcp_ports_hetzner1:
   - "2085" # forgejo UI
   - "2222" # forgejo SSH/GIT
   - "4646" # nomad ui, internal
+  - "8888" # mitm proxy
+  - "8889" # mitm proxy ui
+  - "8080" # mitm proxy
+  - "8081" # mitm proxy ui
 
 firewall_allowed_udp_ports_hetzner1:
   - "51820" # wireguard

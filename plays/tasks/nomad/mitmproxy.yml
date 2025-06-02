@@ -47,14 +47,14 @@
     config_dir: "{{ nomad_data_dir }}/jobs/{{ nomad_mitmproxy.job_name }}"
   register: mitmproxy_nomad_file_changed
 
-- name: Check mitmproxy service status
+- name: "Check mitmproxy service status https//{{ nomad_advertise_address }}:{{ mitmproxy.external_ui_port }}/"
   uri:
-    url: "https//{{ nomad_advertise_address }}:{{ mitmproxy.external_port }}/"
+    url: "https//{{ nomad_advertise_address }}:{{ mitmproxy.external_ui_port }}/"
     method: GET
     status_code: 200
     validate_certs: no
   ignore_errors: true
   until: mitmproxy_status.status == 200
-  retries: 12
-  delay: 30
+  retries: 2
+  delay: 10
   register: mitmproxy_status

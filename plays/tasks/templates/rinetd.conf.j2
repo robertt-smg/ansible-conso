@@ -1,0 +1,3 @@
+{% for rule in port_forwarding.rules %}
+{{ rule.src_ip }} {{ rule.src_port }} {{ rule.dst_ip }} {{ rule.dst_port }}
+{% endfor %}

@@ -2,5 +2,5 @@
 lego_acme_hetzner:
   image_version: lego_acme:v4.22
   email: robert.thurnreiter@schmetterling.de
-  domains: fwproxy.smg-air-conso.com, conapi.smg-air-conso.com
-  use_staging: 1
+  domains: fwproxy.smg-air-conso.com, conapi.smg-air-conso.com, forgejo.smg-air-conso.com, mitmweb.smg-air-conso.com
+  use_staging: 0

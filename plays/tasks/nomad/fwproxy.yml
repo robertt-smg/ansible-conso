@@ -47,7 +47,7 @@
     config_dir: "{{ nomad_data_dir }}/jobs/{{ nomad_fwproxy.job_name }}"
   register: fwproxy_nomad_file_changed
 
-- name: Check fwproxy service status
+- name: "Check fwproxy service status https://{{ nomad_advertise_address }}:{{ fwproxy.external_port }}/"
   uri:
     url: "https://{{ nomad_advertise_address }}:{{ fwproxy.external_port }}/"
     method: GET
@@ -55,6 +55,6 @@
     validate_certs: no
   ignore_errors: true
   until: fwproxy_status.status == 200
-  retries: 12
-  delay: 30
+  retries: 2
+  delay: 10
   register: fwproxy_status

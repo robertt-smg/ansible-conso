@@ -18,7 +18,7 @@ lserver2_prd ansible_host=10.6.1.168 ansible_ssh_port=31222 ansible_ssh_user=ans
 # ---- SMG Intl - Hetzner
 # fw+ project
 [hetzner1]
-hetzner1_prd ansible_host=148.251.12.68 ansible_ssh_port=22 ansible_ssh_user=ansible 
+hetzner1_prd ansible_host=148.251.12.68 ansible_ssh_port=31222 ansible_ssh_user=ansible 
 
 ## -- FTI Liquidation
 [fti1]

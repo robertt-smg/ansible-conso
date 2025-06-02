@@ -69,7 +69,7 @@
       name: githubixx.ansible_role_wireguard
     when: wireguard_enabled is defined and wireguard_enabled == true
 
-  - import_tasks: tasks/nat_forwarding.yml
-    when: nat_forwarding.enabled is defined and nat_forwarding.enabled == true
+  - import_tasks: tasks/rinetd.yml
+    when: port_forwarding.enabled is defined and port_forwarding.enabled == true
 
 

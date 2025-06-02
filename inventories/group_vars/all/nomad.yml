@@ -34,8 +34,6 @@ nomad_bind_address: "0.0.0.0"
 nomad_advertise_address: "{{ hostvars[inventory_hostname]['ansible_' + nomad_iface]['ipv4']['address'] }}"
 nomad_server_url: "{{ nomad_install_http_scheme }}://{{ nomad_advertise_address }}:{{ nomad_install_http_port }}"
 
-nomad_memory_total_mb: 16384
-nomad_cpu_total_compute: 10772
 nomad_bootstrap_expect: 1
 
 nomad_plugin_dir: "/opt/nomad/data/plugins"

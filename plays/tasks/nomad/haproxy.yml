@@ -204,7 +204,7 @@
     datacenter: "{{ nomad_datacenter }}"
   when: nomad_haproxy.use_lego_acme is defined and  nomad_haproxy.use_lego_acme == true
 
-- name: Check haProxy server status
+- name: "Check haProxy server status http://{{ nomad_advertise_address }}:8080/"
   command: curl http://{{ nomad_advertise_address }}:8080/
   register: haProxy_status
   ignore_errors: true

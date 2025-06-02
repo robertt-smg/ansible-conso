@@ -47,13 +47,13 @@
     config_dir: "{{ nomad_data_dir }}/jobs/{{ nomad_forgejo.job_name }}"
   register: forgejo_nomad_file_changed
 
-- name: Check Forgejo service status
+- name: "Check Forgejo service status http://{{ nomad_advertise_address }}:{{ forgejo.external_port }}/"
   uri:
     url: "http://{{ nomad_advertise_address }}:{{ forgejo.external_port }}/"
     method: GET
     status_code: 200
   ignore_errors: true
   until: forgejo_status.status == 200
-  retries: 12
-  delay: 30
+  retries: 2
+  delay: 10
   register: forgejo_status

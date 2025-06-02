@@ -60,7 +60,7 @@
     config_dir: "{{ nomad_data_dir }}/jobs/{{ nomad_conapi.job_name }}"
   register: conapi_nomad_file_changed
 
-- name: Check conapi service status
+- name: "Check conapi service status https://{{ nomad_advertise_address }}:{{ conapi.external_port }}/"
   uri:
     url: "https://{{ nomad_advertise_address }}:{{ conapi.external_port }}/"
     method: GET
@@ -68,6 +68,6 @@
     validate_certs: no
   ignore_errors: true
   until: conapi_status.status == 200
-  retries: 12
-  delay: 30
+  retries: 2
+  delay: 10
   register: conapi_status

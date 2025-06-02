@@ -1,0 +1,19 @@
+---
+- name: Install rinetd
+  ansible.builtin.package:
+    name: rinetd
+    state: present
+
+- name: Generate rinetd.conf from port_forwarding.rules
+  ansible.builtin.template:
+    src: rinetd.conf.j2
+    dest: /etc/rinetd.conf
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Ensure rinetd is restarted
+  ansible.builtin.service:
+    name: rinetd
+    state: restarted
+    enabled: yes

@@ -31,11 +31,11 @@ job "{{ job_name }}" {
       
       port "http_proxy_port" { 
         static = {{ mitmproxy.external_proxy_port }} 
-        to = 8888 
+        to = 8080 
       }
       port "http_ui_port" { 
         static = {{ mitmproxy.external_ui_port }} 
-        to = 8889 
+        to = 8081 
       }
  
       mode = "host"
@@ -65,7 +65,7 @@ job "{{ job_name }}" {
         {% include "nomad-files/github_registry.j2" %}
         
         command = "mitmweb"
-        args = [ "--set", "ssl_insecure=true", "--web-host", "0.0.0.0", "--set", "web_password='adm1234!'", "--set", "http2=false", "--set", "http3=false" ] 
+        args = [ "--set", "ssl_insecure=true", "--web-host", "0.0.0.0", "--set", "web_password='adm1234!'", "--set", "http3=false" ] 
 
         labels {
           group = "mitmproxy"
@@ -96,8 +96,8 @@ job "{{ job_name }}" {
         provider = "nomad"
          check {
           type     = "http"
-          port     = "http_proxy_port"
-          path     = "/"  
+          port     = "http_ui_port"
+          path     = "/static/images/favicon.ico"  
           interval = "120s"
           timeout  = "30s"
           method   = "GET"

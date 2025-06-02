@@ -1,0 +1,4 @@
+
+# fake numbers on test vm
+nomad_memory_total_mb: 32768
+nomad_cpu_total_compute: 21544

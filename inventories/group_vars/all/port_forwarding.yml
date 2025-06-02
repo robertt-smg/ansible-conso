@@ -1,0 +1,5 @@
+# vim
+
+#- merge all mitmproxy_... variables into one
+
+port_forwarding:  "{{ lookup('community.general.merge_variables', 'cnf_port_forwarding_', pattern_type='prefix', override='ignore') }}"

@@ -1,0 +1,34 @@
+cnf_port_forwarding_hetzner1:
+  enabled: true
+  rules:
+    - name: database
+      src_ip: 10.8.0.1
+      src_port: 3306
+      dst_ip: 192.168.121.61
+      dst_port: 3306
+    - name: web
+      src_ip: 10.8.0.1
+      src_port: 443
+      dst_ip: 192.168.121.61
+      dst_port: 443
+    - name: forgejo-ui
+      src_ip: 10.8.0.1
+      src_port: 2085
+      dst_ip: 192.168.121.61
+      dst_port: 2085      
+    - name: forgejo-ssh
+      src_ip: 10.8.0.1
+      src_port: 2222
+      dst_ip: 192.168.121.6
+      dst_port: 2222
+    - name: mitm-proxy
+      src_ip: 10.8.0.1
+      src_port: 8888
+      dst_ip: 192.168.121.6
+      dst_port: 8888
+
+    - name: mitm-proxy-ui
+      src_ip: 10.8.0.1
+      src_port: 8889
+      dst_ip: 192.168.121.6
+      dst_port: 8889
