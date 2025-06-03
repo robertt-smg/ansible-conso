@@ -59,6 +59,7 @@ job "{{ job_name }}" {
           "DB_TYPE" = "mysql"
           "DB_NAME" = "proxy.db"
           "MYSQL_DSN" = "{{ fwproxy.db.user}}:{{ fwproxy.db.password}}@tcp({{ fwproxy.db.host }}:3306)/{{ fwproxy.db.name }}"
+          BASE_DIR = "/root/"
       }
       config {
         {% if nomad_config_driver_is_docker is defined and nomad_config_driver_is_docker %}
@@ -93,8 +94,8 @@ job "{{ job_name }}" {
          check {
           type     = "http"
           port     = "http_port"
-          path     = "/"  
-          interval = "120s"
+          path     = "/ftifw/ok.txt"  
+          interval = "240s"
           timeout  = "30s"
           method   = "GET"
           protocol = "https"

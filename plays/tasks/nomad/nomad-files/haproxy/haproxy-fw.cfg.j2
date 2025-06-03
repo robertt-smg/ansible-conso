@@ -105,12 +105,12 @@ backend forgejo
 backend fwproxy
     mode http
     balance roundrobin
-    server fwproxy_server  {{fwproxy.public_ip}}:{{ fwproxy.external_port }} check
+    server fwproxy_server  {{fwproxy.public_ip}}:{{ fwproxy.external_port }}  ssl verify none check
 
 backend conapi
     mode http
     balance roundrobin
-    server conapi_server  {{conapi.public_ip}}:{{ conapi.external_port }} check
+    server conapi_server  {{conapi.public_ip}}:{{ conapi.external_port }}  ssl verify none check
 
 
 #eof - haproxy need empty LF

@@ -2,10 +2,10 @@ cnf_forgejo_tst:
   public_ip: 192.168.121.61
   external_port: 2085
   db:
-    host: 192.168.121.1
+    host: 192.168.121.61
     name: forgejo
 
 
-lego_acme_hetzner:
+lego_acme_hetzner_tst:
   domains: fwproxy.smg-air-conso.com, conapi.smg-air-conso.com
-  use_staging: 1
+  use_staging: 0
