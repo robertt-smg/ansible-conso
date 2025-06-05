@@ -4,6 +4,7 @@ cnf_suitecrm_server1:
     name: suitecrm
 
   email: technology@smg-air-conso.de
+  host: airna.smg-air-conso.com
   smtp:
     port: 25
     protocol: ""

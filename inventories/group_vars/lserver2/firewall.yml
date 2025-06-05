@@ -8,4 +8,5 @@ firewall_allowed_tcp_ports_server1:
   - "8443" # suitcrm internal
   - "31222" # modfied ssh port, after bootstrap
   - "4646" # nomad ui, protected by access token
+  - "1080" # suitcrm internal
   

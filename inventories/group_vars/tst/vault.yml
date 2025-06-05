@@ -1,0 +1,5 @@
+cnf_vault_test:
+  public_ip: vault.smg-air-conso.com
+  external_port: 8200
+  db:
+    host: 192.168.121.61 

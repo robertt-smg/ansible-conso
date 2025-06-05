@@ -25,6 +25,12 @@
     become: true
     when: ntpdate_enabled is defined and ntpdate_enabled == true
 
+  - name: Synchronize time with www.google.de server
+    shell: "date -s \"$(curl -sI https://google.com | grep -i ^Date: | cut -d' ' -f3-6)Z\""
+    become: true
+    when: curldate_enabled is defined and curldate_enabled == true
+
+
   - name: Update apt cache if needed.
     apt: update_cache=yes cache_valid_time=3600
 

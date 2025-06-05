@@ -1,0 +1,2 @@
+ntpdate_enabled: false
+curldate_enabled: true

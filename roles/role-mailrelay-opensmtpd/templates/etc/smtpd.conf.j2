@@ -32,8 +32,12 @@ listen on lo port 25 hostname {{ mailrelay_opensmtpd_mailname }} {% if mailrelay
 
 listen on socket mask-src tag "socket" {% if mailrelay_alias_map_users_to_default is defined %}  filter rewrite_sender {% endif %}
 
+{% if mailrelay_listen_on_interface is defined and mailrelay_listen_on_interface == '@ANSIBLE_FACT@' %}
+listen on {{ ansible_default_ipv4.interface }} port 25 hostname {{ mailrelay_opensmtpd_mailname }} {% if mailrelay_alias_map_users_to_default is defined %}  filter rewrite_sender {% endif %}
+{% else %}
 {% if mailrelay_listen_on_interface is defined %}
 listen on {{ mailrelay_listen_on_interface }} port 25 hostname {{ mailrelay_opensmtpd_mailname }} {% if mailrelay_alias_map_users_to_default is defined %}  filter rewrite_sender {% endif %}
+{% endif %}
 {% endif %}
 
 {% if mailrelay_to_matrix is defined and mailrelay_to_matrix %}

@@ -1,2 +1,3 @@
 cnf_mitmproxy_test:
+  public_ip: 192.168.121.61
   excon_host: fwproxy.smg-air-conso.com

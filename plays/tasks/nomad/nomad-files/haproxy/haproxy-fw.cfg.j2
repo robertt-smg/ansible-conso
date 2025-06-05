@@ -70,6 +70,14 @@ frontend ft_http_api
         acl is_conapi hdr(host) -i conapi.smg-air-conso.com
         use_backend conapi if is_conapi_test or is_conapi
 
+        acl is_mitmweb_test hdr(host) -i mitmweb.test.smg-air-conso.com
+        acl is_mitmweb hdr(host) -i mitmweb.smg-air-conso.com
+        use_backend mitmweb if is_mitmweb_test or is_mitmweb
+
+        acl is_vault_test hdr(host) -i vault.test.smg-air-conso.com
+        acl is_vault hdr(host) -i vault.smg-air-conso.com
+        use_backend vault if is_vault_test or is_vault
+
         mode http
 
         # use_backend passbolt if passbolt
@@ -111,6 +119,16 @@ backend conapi
     mode http
     balance roundrobin
     server conapi_server  {{conapi.public_ip}}:{{ conapi.external_port }}  ssl verify none check
+
+backend mitmweb
+    mode http
+    balance roundrobin
+    server mitmproxy_server  {{mitmproxy.public_ip}}:{{ mitmproxy.external_ui_port }}  check
+
+backend vault
+    mode http
+    balance roundrobin
+    server vault_server  {{vault.public_ip}}:{{ vault.external_ui_port }}  check
 
 
 #eof - haproxy need empty LF

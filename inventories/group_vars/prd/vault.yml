@@ -1,0 +1,5 @@
+cnf_fwproxy_prd:
+  public_ip: vault.smg-air-conso.com
+  external_port: 8200
+  db:
+    host: 148.251.12.68

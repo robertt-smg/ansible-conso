@@ -1,0 +1,2 @@
+vault: "{{ lookup('community.general.merge_variables', 'cnf_vault_server_', pattern_type='prefix', override='ignore') }}"
+

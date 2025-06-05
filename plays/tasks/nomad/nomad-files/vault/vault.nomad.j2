@@ -29,13 +29,9 @@ job "{{ job_name }}" {
     count = 1
     network {
       
-      port "http_port" { 
-        static = {{ forgejo.external_port }} 
-        to = 3000 
-      }
-      port "ssh_port" { 
-        static = {{ forgejo.external_ssh_port }} 
-        to = 22 
+      port "http_ui_port" { 
+        static = {{ vault.external_ui_port }} 
+        to = 8200
       }
  
       mode = "host"
@@ -47,71 +43,87 @@ job "{{ job_name }}" {
       mode = "delay"
     }
     
-    task "forgejo-server" {
+    task "vault-server" {
       {% if nomad_config_driver_is_docker is defined and nomad_config_driver_is_docker %}
       driver = "docker"
       {% else %}
       driver = "podman"
       {% endif %}
-      env = {
-          "USER_UID" = "1000"
-          "USER_GID" = "1000"
-          "FORGEJO__database__DB_TYPE" = "mysql"
-          "FORGEJO__database__HOST" = "{{ forgejo.db.host}}:3306"
-          "FORGEJO__database__NAME" = "{{ forgejo.db.name}}"
-          "FORGEJO__database__USER" = "{{ forgejo.db.user}}"
-          "FORGEJO__database__PASSWD" = "{{ forgejo.db.password}}"
+
+      env {
+        VAULT_ADDR = "http://0.0.0.0:8200"
+        VAULT_API_ADDR = "http://localhost:8200"
+        VAULT_LOCAL_CONFIG = <<EOL
+          storage "mysql" {
+            address     = "{{ vault.db.host }}:{{ vault.db.port}}"
+            username    = "{{ vault.db.user }}"
+            password    = "{{ vault.db.password }}"
+            database    = "{{ vault.db.name }}"
+            table       = "vault_kv_store"
+          }
+
+          listener "tcp" {
+            address     = "0.0.0.0:8200"
+            tls_disable = 1
+          }
+
+          disable_mlock = true
+          ui = true
+          default_lease_ttl = "168h"
+          max_lease_ttl = "720h"
+          api_addr = "http://localhost:8200"
+          cluster_addr = "http://localhost:8201"
+          admin_token = "{{ vault.token }}"
+        EOL
       }
       config {
         {% if nomad_config_driver_is_docker is defined and nomad_config_driver_is_docker %}
-          memory_hard_limit = {{ forgejo.memory_hard_limit }}
+          memory_hard_limit = {{ vault.memory_hard_limit }}
         {% endif %}
-        {% set image_version= forgejo.image_version %}
+        {% set image_version= vault.image_version %}
         {% include "nomad-files/github_registry.j2" %}
+        
+        command = "mitmweb"
+        args = [ "--set", "ssl_insecure=true", "--web-host", "0.0.0.0", "--set", "web_password='adm1234!'", "--set", "http3=false" ] 
 
         labels {
-          group = "forgejo"
+          group = "vault"
         }
 
         volumes = [
-            "{{ forgejo.app_volume }}/data:/data",
-            "/etc/timezone:/etc/timezone:ro",
-            "/etc/localtime:/etc/localtime:ro"
+            "{{ vault.app_volume }}/data/logs:/vault/logs"
         ]
         {% if nomad_config_driver_is_docker is defined and nomad_config_driver_is_docker %}
         volume_driver = "local"
         {% endif %}
          
-        ports = [ "http_port", "ssh_port" ]
+        ports = [ "http_ui_port" ]
         
-        extra_hosts = [
-          "forgejo_db_server:{{ forgejo.db.host}}",
-        ]
-       
       }
-      
       service {
         name = "{{ job_name }}"
-        port = "http_port"
+        port = "http_ui_port"
         provider = "nomad"
          check {
           type     = "http"
-          port     = "http_port"
-          path     = "/"  
+          port     = "http_ui_port"
+          path     = "/v1/sys/health"  
           interval = "120s"
           timeout  = "30s"
           method   = "GET"
           
         }
       }
+      capabilities = ["IPC_LOCK"]
+
       logs {
          max_files     = 2
          max_file_size = 15
       }
  
       resources {
-        cpu = {{ forgejo.cpu }}
-        memory = {{ forgejo.memory }}
+        cpu = {{ vault.cpu }}
+        memory = {{ vault.memory }}
       }
     }
   }

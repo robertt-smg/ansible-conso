@@ -48,3 +48,14 @@ mailrelay_to_matrix: false
 #mailrelay_smtp_to_matrix_password: "secret-password"
 #mailrelay_smtp_to_matrix_server: "https://matrix.org"
 #mailrelay_smtp_to_matrix_room_id: "!YOUR_MATRIX_ROOM_ID:matrix.org"
+internal_private_domain_name: smg-air-conso.com
+internal_private_domain_tld: com
+internal_private_domain: smg-air-conso.com
+internal_private_domain_underscore: smg_air_conso_com
+# internally used public domain, reachable publicly, has public DNS records
+internal_public_domain_name: smg-air-conso.com
+internal_public_domain_tld: com
+internal_public_domain: smg-air-conso.com
+internal_public_domain_underscore: smg_air_conso_com
+
+default_email_from: technology@smg-air-conso.de

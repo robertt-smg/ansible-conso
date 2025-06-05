@@ -58,5 +58,13 @@ hetzner1
 [conapi_server:children]
 hetzner1
 
+[vault_server:children]
+hetzner1
+
+[vault_secrets:children]
+mitmproxy_server
+
+
+
 [wireguard_server:children]
 hetzner1

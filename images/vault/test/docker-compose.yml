@@ -1,0 +1,35 @@
+
+x-project:
+  name: passbolt-test-vm
+
+services:
+
+  mitmproxy:
+    image: mitmproxy/mitmproxy
+    # command: mitmproxy --mode transparent --showhost
+    command: mitmweb --set ssl_insecure=true --web-host 0.0.0.0 --set web_password='adm1234!' --set http2=false --set http3=false 
+    extra_hosts: 
+      - "ftipackitqa.flightconex.de:192.168.121.1"
+      - "ftipackit.flightconex.de:192.168.121.1"
+      - "packit-assets.aerticket-it.de:192.168.121.1"
+      - "conapi.smg-test.de:192.168.121.1"
+      - "devat.inhouse.fti-ticketshop.de:192.168.121.1"
+      - "devde.inhouse.fti-ticketshop.de:192.168.121.1"
+
+    cap_add:
+    - NET_ADMIN
+    
+    volumes:
+      - ./mitmproxy:/home/mitmproxy/.mitmproxy
+    ports:
+    - "127.0.0.214:8080:8080" # Proxy Port
+    - "127.0.0.214:8081:8081" # WebUI
+
+    networks:
+      salt-vm:
+        ipv4_address: 192.168.11.214
+
+networks:
+  salt-vm:
+     external: true
+

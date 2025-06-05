@@ -1,5 +1,55 @@
 wireguard_endpoint: 148.251.12.68:51820
+nomad_bind_address: "148.251.12.68"
 
-nomad_haproxy:
-  haproxy:
-    domain_list: "fwproxy.smg-air-conso.com,conapi.smg-air-conso.com"
+cnf_port_forwarding_hetzner1_prd:
+  rules:
+    - name: database
+      src_ip: 10.8.0.1
+      src_port: 3306
+      dst_ip: 148.251.12.68
+      dst_port: 3306
+    - name: web
+      src_ip: 10.8.0.1
+      src_port: 443
+      dst_ip: 148.251.12.68
+      dst_port: 443
+    - name: forgejo-ui
+      src_ip: 10.8.0.1
+      src_port: 2085
+      dst_ip: 148.251.12.68
+      dst_port: 2085      
+    - name: forgejo-ssh
+      src_ip: 10.8.0.1
+      src_port: 2222
+      dst_ip: 192.168.121.6
+      dst_port: 2222
+    - name: fwproxy
+      src_ip: 10.8.0.1
+      src_port: 3443
+      dst_ip: 148.251.12.68
+      dst_port: 3443
+    - name: conapi
+      src_ip: 10.8.0.1
+      src_port: 3444
+      dst_ip: 148.251.12.68
+      dst_port: 3444
+    - name: nomad-ui
+      src_ip: 10.8.0.1
+      src_port: 4646
+      dst_ip: 148.251.12.68
+      dst_port: 4646
+    - name: vault-ui
+      src_ip: 10.8.0.1
+      src_port: 8200
+      dst_ip: 148.251.12.68
+      dst_port: 8200
+    - name: mitm-proxy
+      src_ip: 10.8.0.1
+      src_port: 8888
+      dst_ip: 148.251.12.68
+      dst_port: 8888
+    - name: mitm-proxy-ui
+      src_ip: 10.8.0.1
+      src_port: 8889
+      dst_ip: 148.251.12.68
+      dst_port: 8889

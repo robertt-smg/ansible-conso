@@ -1,6 +1,7 @@
 cnf_suitecrm_tst:
   public_ip: 192.168.121.22
   external_port: "8443"
+  host: airna.test.smg-air-conso.com
   smtp:
     host: 192.168.121.21
   db:

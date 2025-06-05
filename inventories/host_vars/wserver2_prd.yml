@@ -1,6 +1,9 @@
 win_hostname: SMG-SCA-W02
 
 policy_settings_registry_windows_rdp_server:
+## --------------------------------------------
+    cAdministrativeTemplateSetting:
+
 #https://gpsearch.azurewebsites.net/Default.aspx?PolicyID=2513#2488
     - policytype: "Machine"
       keyvaluename: "Software\\Policies\\Microsoft\\Windows NT\\Terminal Services\\LicenseServers"
