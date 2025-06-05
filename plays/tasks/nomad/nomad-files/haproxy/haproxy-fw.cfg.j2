@@ -74,8 +74,8 @@ frontend ft_http_api
         acl is_mitmweb hdr(host) -i mitmweb.smg-air-conso.com
         use_backend mitmweb if is_mitmweb_test or is_mitmweb
 
-        acl is_vault_test hdr(host) -i vault.test.smg-air-conso.com
-        acl is_vault hdr(host) -i vault.smg-air-conso.com
+        acl is_vault_test hdr(host) -i fwvault.test.smg-air-conso.com
+        acl is_vault hdr(host) -i fwvault.smg-air-conso.com
         use_backend vault if is_vault_test or is_vault
 
         mode http
