@@ -2,4 +2,3 @@ lego_acme:  "{{ lookup('community.general.merge_variables', 'lego_acme_', patter
 lego_acme_all:
   image_version: lego_acme:v4.22
   email: robert.thurnreiter@schmetterling.de
-  use_staging: 1

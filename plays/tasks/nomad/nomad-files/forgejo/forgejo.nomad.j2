@@ -35,7 +35,7 @@ job "{{ job_name }}" {
       }
       port "ssh_port" { 
         static = {{ forgejo.external_ssh_port }} 
-        to = 22 
+        to = 3322 
       }
  
       mode = "host"

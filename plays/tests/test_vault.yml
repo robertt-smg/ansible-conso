@@ -1,0 +1,11 @@
+- hosts: all
+  become: true
+  gather_facts: true
+
+  vars_files:
+  - main/vars.yml
+
+  tasks:
+  - name: Include tasks nomad-vault if nomad_vault.enabled is defined
+    include_tasks: ../tasks/nomad/vault.yml
+    when: nomad_vault.enabled is defined and nomad_vault.enabled is true

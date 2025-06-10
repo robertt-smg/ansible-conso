@@ -21,7 +21,7 @@ cnf_port_forwarding_hetzner1_prd:
     - name: forgejo-ssh
       src_ip: 10.8.0.1
       src_port: 2222
-      dst_ip: 192.168.121.6
+      dst_ip: 148.251.12.68
       dst_port: 2222
     - name: fwproxy
       src_ip: 10.8.0.1
@@ -43,6 +43,11 @@ cnf_port_forwarding_hetzner1_prd:
       src_port: 8200
       dst_ip: 148.251.12.68
       dst_port: 8200
+    - name: haproxy-status
+      src_ip: 10.8.0.1
+      src_port: 8690
+      dst_ip: 148.251.12.68
+      dst_port: 8690
     - name: mitm-proxy
       src_ip: 10.8.0.1
       src_port: 8888

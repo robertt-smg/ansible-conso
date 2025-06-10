@@ -17,3 +17,4 @@
     name: rinetd
     state: restarted
     enabled: yes
+  ignore_errors: true

@@ -9,7 +9,7 @@ job "podman_prune" {
       prohibit_overlap = true
   }
   group "podman_prune_group" {
-    task "podman_prune_task" {
+    task "podman_system_prune_task" {
       driver = "raw_exec"
 
       config {
@@ -21,6 +21,20 @@ job "podman_prune" {
         cpu    = 100
         memory = 128
       }
+    
     }
+    task "podman_volume_prune_task" {
+        driver = "raw_exec"
+
+        config {
+          command = "podman"
+          args    = ["volume", "rm", "--all"]
+        }
+
+        resources {
+          cpu    = 100
+          memory = 128
+        }
+      }
   }
 }

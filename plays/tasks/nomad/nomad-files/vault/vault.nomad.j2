@@ -31,7 +31,7 @@ job "{{ job_name }}" {
       
       port "http_ui_port" { 
         static = {{ vault.external_ui_port }} 
-        to = 8200
+        to = 8220
       }
  
       mode = "host"
@@ -51,30 +51,8 @@ job "{{ job_name }}" {
       {% endif %}
 
       env {
-        VAULT_ADDR = "http://0.0.0.0:8200"
+        VAULT_ADDR = "http://127.0.0.1:8220"
         VAULT_API_ADDR = "http://localhost:8200"
-        VAULT_LOCAL_CONFIG = <<EOL
-          storage "mysql" {
-            address     = "{{ vault.db.host }}:{{ vault.db.port}}"
-            username    = "{{ vault.db.user }}"
-            password    = "{{ vault.db.password }}"
-            database    = "{{ vault.db.name }}"
-            table       = "vault_kv_store"
-          }
-
-          listener "tcp" {
-            address     = "0.0.0.0:8200"
-            tls_disable = 1
-          }
-
-          disable_mlock = true
-          ui = true
-          default_lease_ttl = "168h"
-          max_lease_ttl = "720h"
-          api_addr = "http://localhost:8200"
-          cluster_addr = "http://localhost:8201"
-          admin_token = "{{ vault.token }}"
-        EOL
       }
       config {
         {% if nomad_config_driver_is_docker is defined and nomad_config_driver_is_docker %}
@@ -82,16 +60,19 @@ job "{{ job_name }}" {
         {% endif %}
         {% set image_version= vault.image_version %}
         {% include "nomad-files/github_registry.j2" %}
-        
-        command = "mitmweb"
-        args = [ "--set", "ssl_insecure=true", "--web-host", "0.0.0.0", "--set", "web_password='adm1234!'", "--set", "http3=false" ] 
 
         labels {
           group = "vault"
         }
-
+        cap_add = [
+          "IPC_LOCK"
+        ]
+        command = "vault"
+        args = ["server", "-config=/vault/config/config.hcl"]
         volumes = [
-            "{{ vault.app_volume }}/data/logs:/vault/logs"
+            "{{ vault.app_volume }}/data/logs:/vault/logs",
+            "{{ vault.app_volume }}/data/certs:/data/certs",
+            "{{ vault.app_volume }}/data/config:/vault/config",
         ]
         {% if nomad_config_driver_is_docker is defined and nomad_config_driver_is_docker %}
         volume_driver = "local"
@@ -107,14 +88,15 @@ job "{{ job_name }}" {
          check {
           type     = "http"
           port     = "http_ui_port"
-          path     = "/v1/sys/health"  
+          path     = "/ui/"  
           interval = "120s"
           timeout  = "30s"
           method   = "GET"
-          
+          protocol = "https"
+          tls_skip_verify = true          
         }
       }
-      capabilities = ["IPC_LOCK"]
+      
 
       logs {
          max_files     = 2

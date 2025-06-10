@@ -1,0 +1,23 @@
+storage "mysql" {
+    address     = "{{ vault.db.host }}:{{ vault.db.port}}"
+    username    = "{{ vault.db.user }}"
+    password    = "{{ vault.db.password }}"
+    database    = "{{ vault.db.name }}"
+    table       = "vault_kv_store"
+    plaintext_credentials_transmission = "1"
+}
+
+listener "tcp" {
+    address     = "0.0.0.0:8220"
+    tls_disable = 0
+    tls_cert_file = "/data/certs/server.pem"
+    tls_key_file  = "/data/certs/server-key.pem"
+}
+
+disable_mlock = true
+ui = true
+default_lease_ttl = "168h"
+max_lease_ttl = "720h"
+api_addr = "http://localhost:8220"
+cluster_addr = "http://localhost:8201"
+# admin_token = "{{ vault.token }}"

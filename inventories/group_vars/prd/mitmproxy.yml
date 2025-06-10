@@ -1,3 +1,4 @@
 cnf_mitmproxy_prd:
   public_ip: 148.251.12.68
   excon_host: fwproxy.smg-air-conso.com
+  excon_host_ip: 10.8.0.1

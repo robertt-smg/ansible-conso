@@ -51,7 +51,12 @@ job "{{ job_name }}" {
       {% endif %}
       env = {
           "USER_UID" = "1000"
-          "EXTERNAL_API_BASE" = "https://aerpackit.flightconex.de"
+          "404_NOT_FOUND.fwproxy.smg_air_conso.com" = "true"
+          "EXTERNAL_API_BASE.aerpackit.flightconex.de" = "https://aerpackit.flightconex.de"
+          "EXTERNAL_API_BASE.ftipackitqa.flightconex.de" = "https://aerpackit.flightconex.de"
+          "EXTERNAL_API_BASE.ftipackit.flightconex.de" = "https://aerpackit.flightconex.de"
+          "EXTERNAL_API_BASE.packit-assets.aerticket_it.de" = "https://devde.smg-air-conso.de"
+          "EXTERNAL_API_BASE.devde.inhouse.fti-ticketshop.de" = "https://smg:cvq@5rvoc72t63vgvv@www.tulip.test.smg-air-conso.com:9843/"
           "PORT" = "3443"
           "CERT_FILE" = "server.pem"
           "KEY_FILE" = "server.key.secret"
@@ -94,7 +99,7 @@ job "{{ job_name }}" {
          check {
           type     = "http"
           port     = "http_port"
-          path     = "/ftifw/ok.txt"  
+          path     = "/healthcheck/status"  
           interval = "240s"
           timeout  = "30s"
           method   = "GET"

@@ -1,0 +1,12 @@
+- hosts: all
+  become: true
+  gather_facts: true
+
+  vars_files:
+  - main/vars.yml
+
+  tasks:
+  #- fwproxy / excon
+  - name: Include tasks nomad-fwproxy if nomad_fwproxy.enabled is defined
+    include_tasks: ../tasks/nomad/fwproxy.yml
+    when: nomad_fwproxy.enabled is defined and nomad_fwproxy.enabled is true

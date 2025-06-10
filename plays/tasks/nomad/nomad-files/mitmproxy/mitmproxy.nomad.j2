@@ -65,14 +65,14 @@ job "{{ job_name }}" {
         {% include "nomad-files/github_registry.j2" %}
         
         command = "mitmweb"
-        args = [ "--set", "ssl_insecure=true", "--web-host", "0.0.0.0", "--set", "web_password='adm1234!'", "--set", "http3=false" ] 
+        args = [ "--set", "ssl_insecure=true", "--web-host", "0.0.0.0", "--set", "block_global=false", "--set", "web_password=adm1234@", "--set", "http3=false" ] 
 
         labels {
           group = "mitmproxy"
         }
 
         volumes = [
-            "{{ mitmproxy.app_volume }}/data:/data"
+            "{{ mitmproxy.app_volume }}/data:/home/mitmproxy/.mitmproxy"
         ]
         {% if nomad_config_driver_is_docker is defined and nomad_config_driver_is_docker %}
         volume_driver = "local"
@@ -81,12 +81,13 @@ job "{{ job_name }}" {
         ports = [ "http_proxy_port", "http_ui_port" ]
         
         extra_hosts = [
-          "ftipackitqa.flightconex.de:{{ mitmproxy.excon_host}}",
-          "ftipackit.flightconex.de:{{ mitmproxy.excon_host}}",
-          "packit-assets.aerticket-it.de:{{ mitmproxy.excon_host}}",
-          "conapi.smg-test.de:{{ mitmproxy.excon_host}}",
-          "devat.inhouse.fti-ticketshop.de:{{ mitmproxy.excon_host}}",
-          "devde.inhouse.fti-ticketshop.de:{{ mitmproxy.excon_host}}"
+          "ftipackitqa.flightconex.de:{{ mitmproxy.excon_host_ip}}",
+          "ftipackit.flightconex.de:{{ mitmproxy.excon_host_ip}}",
+          "packit-assets.aerticket-it.de:{{ mitmproxy.excon_host_ip}}",
+          "conapi.smg-test.de:{{ mitmproxy.excon_host_ip}}",
+          "devat.inhouse.fti-ticketshop.de:{{ mitmproxy.excon_host_ip}}",
+          "devde.inhouse.fti-ticketshop.de:{{ mitmproxy.excon_host_ip}}",
+          "aerpackit.flightconex.de:{{ mitmproxy.excon_host_ip}}",
         ]
         
       }

@@ -21,11 +21,11 @@ defaults
 
     maxconn {{ maxconn }}
 
-    timeout connect 60s
+    timeout connect 120s
     timeout client  120s
     timeout server  120s
     timeout queue   120s
-    timeout http-request 15s
+    timeout http-request 120s
     timeout http-keep-alive 15s
 
 listen stats 
@@ -37,7 +37,7 @@ listen stats
 
 frontend ft_http_api
         bind :8080
-        bind :443 ssl crt /data/certs/live/server.pem  verify none
+        bind :443 ssl crt /data/certs/live/server.pem  verify none alpn http/1.1
 
         http-request set-src hdr(x-forwarded-for)
         http-request track-sc0 src table per_ip_rates
@@ -80,8 +80,7 @@ frontend ft_http_api
 
         mode http
 
-        # use_backend passbolt if passbolt
-        default_backend welcome
+        default_backend fwproxy
 
 backend welcome
     mode http
@@ -108,27 +107,48 @@ backend per_ip_rates
 backend forgejo
     mode http
     balance roundrobin
+    http-request set-header Host %[req.hdr(Host)]
+    http-send-name-header Host
     server forgejo_server  {{forgejo.public_ip}}:{{ forgejo.external_port }} check
 
 backend fwproxy
     mode http
     balance roundrobin
+    http-request set-header Host %[req.hdr(Host)]
+    http-request set-header x-Host "%[req.hdr(Host)]"
+    http-send-name-header Host
+
+    option forwardfor
+
+# Health check using http-check send
+    http-check send meth GET uri /healthcheck/status ver HTTP/1.0 hdr Host fwproxy
+    http-check expect status 200
+    option httpchk
+
     server fwproxy_server  {{fwproxy.public_ip}}:{{ fwproxy.external_port }}  ssl verify none check
 
 backend conapi
     mode http
     balance roundrobin
+    http-request set-header Host %[req.hdr(Host)]
+    http-send-name-header Host
     server conapi_server  {{conapi.public_ip}}:{{ conapi.external_port }}  ssl verify none check
 
 backend mitmweb
     mode http
     balance roundrobin
+    http-request set-header Host %[req.hdr(Host)]
+    http-send-name-header Host
     server mitmproxy_server  {{mitmproxy.public_ip}}:{{ mitmproxy.external_ui_port }}  check
 
 backend vault
     mode http
+    option httpchk GET /ui/ HTTP/1.1
+    http-check expect status 200
+    http-request set-header Host %[req.hdr(Host)]
+    http-send-name-header Host
     balance roundrobin
-    server vault_server  {{vault.public_ip}}:{{ vault.external_ui_port }}  check
+    server vault_server  {{vault.public_ip}}:{{ vault.external_ui_port }} ssl check check-ssl verify none
 
 
 #eof - haproxy need empty LF

@@ -1,0 +1,12 @@
+- hosts: all
+  become: true
+  gather_facts: true
+
+  vars_files:
+  - main/vars.yml
+
+  tasks:
+#- mitmproxy
+  - name: Include tasks nomad-mitmproxy if nomad_mitmproxy.enabled is defined
+    include_tasks: ../tasks/nomad/mitmproxy.yml
+    when: nomad_mitmproxy.enabled is defined and nomad_mitmproxy.enabled is true

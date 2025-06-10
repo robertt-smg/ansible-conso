@@ -9,14 +9,43 @@
 
 - name: Create application volume and dirs {{ nomad_vault.job_name }}
   file:
-    path: "{{ vault.app_volume }}/{{ item }}"
+    path: "{{ vault.app_volume }}/data/{{ item }}"
     state: directory
     owner: 1
     group: 1
     mode: "0775"
     recurse: yes
   loop:
-    - data
+    - logs
+    - certs
+    - config
+
+- name: vault Create global-server-nomad.pem
+  copy:
+    src: "{{nomad_certs}}.certs/global-server-nomad.pem"
+    dest: "{{ vault.app_volume }}/data/certs/server.pem"
+    owner: nomad
+    group: nomad
+    mode: '0775'
+  become: true
+
+- name: vault Create config
+  template:
+    src: nomad-files/vault/config.hcl.j2
+    dest: "{{ vault.app_volume }}/data/config/config.hcl"
+    owner: nomad
+    group: nomad
+    mode: '0775'
+  become: true
+
+- name: vault Create global-server-nomad-key.pem
+  copy:
+    src: "{{nomad_certs}}.certs/global-server-nomad-key.pem"
+    dest: "{{ vault.app_volume }}/data/certs/server-key.pem"
+    owner: nomad
+    group: nomad
+    mode: '0775'
+  become: true
 
 - name: Manage Nomad job file {{ nomad_vault.job_name }}
   template:
@@ -47,9 +76,9 @@
     config_dir: "{{ nomad_data_dir }}/jobs/{{ nomad_vault.job_name }}"
   register: vault_nomad_file_changed
 
-- name: "Check vault service status https//{{ nomad_advertise_address }}:{{ vault.external_ui_port }}/"
+- name: "Check vault service status http//{{ nomad_advertise_address }}:{{ vault.external_ui_port }}/"
   uri:
-    url: "https//{{ nomad_advertise_address }}:{{ vault.external_ui_port }}/"
+    url: "http//{{ nomad_advertise_address }}:{{ vault.external_ui_port }}/"
     method: GET
     status_code: 200
     validate_certs: no

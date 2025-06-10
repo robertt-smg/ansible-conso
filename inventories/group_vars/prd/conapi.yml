@@ -1,5 +1,5 @@
 cnf_conapi_prd:
-  public_ip: fwproxy.smg-air-conso.com
+  public_ip: 148.251.12.68
   external_port: 3444
   db:
     host: 148.251.12.68
