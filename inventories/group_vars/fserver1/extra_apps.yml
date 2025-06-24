@@ -1,0 +1,4 @@
+
+extra_apps_list:
+  bareos_client:
+    enabled: true

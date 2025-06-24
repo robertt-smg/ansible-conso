@@ -1,11 +1,14 @@
 [fserver1]
-fserver1.tst ansible_host=192.168.121.41 ansible_user=Administrator ansible_connection=winrm ansible_winrm_server_cert_validation=ignore connection_timeout=240
+fserver1_tst ansible_host=192.168.121.41 ansible_user=Administrator ansible_connection=winrm ansible_winrm_server_cert_validation=ignore connection_timeout=240
 
 [wserver1]
-wserver1.tst ansible_host=192.168.121.51 ansible_user=Administrator ansible_connection=winrm ansible_winrm_server_cert_validation=ignore connection_timeout=240
+wserver1_tst ansible_host=192.168.121.51 ansible_user=Administrator ansible_connection=winrm ansible_winrm_server_cert_validation=ignore connection_timeout=240
 
 [wserver2]
-wserver2.tst ansible_host=192.168.121.52 ansible_user=Administrator ansible_connection=winrm ansible_winrm_server_cert_validation=ignore connection_timeout=240
+wserver2_tst ansible_host=192.168.121.52 ansible_user=Administrator ansible_connection=winrm ansible_winrm_server_cert_validation=ignore connection_timeout=240
+
+[tserver1]
+tserver1_tst ansible_host=192.168.121.121 ansible_user=Administrator ansible_connection=winrm ansible_winrm_server_cert_validation=ignore connection_timeout=240
 
 [wminiaq1]
 wminiaq1.tst ansible_host=192.168.121.80 ansible_user=Administrator ansible_connection=winrm ansible_winrm_server_cert_validation=ignore connection_timeout=240
@@ -17,6 +20,7 @@ fti_app2.tst ansible_host=192.168.121.243 ansible_user=Administrator ansible_con
 fserver1
 wserver1
 wserver2
+tserver1
 wminiaq1
 
 [windows_bootstrap:children]
@@ -26,6 +30,7 @@ wsmg
 fserver1
 wserver1
 wserver2
+tserver1
 wminiaq1
 fti_app2_w
 

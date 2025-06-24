@@ -1,0 +1,98 @@
+winusers_list_tserver1:
+  q_lw:
+    enabled: true
+
+  RA_AQUSER1:
+    enabled: true
+
+  robertt:
+    enabled: true
+    password_never_expires: true
+    groups:
+        - Users
+        - Power Users
+        - Remote Desktop Users
+  alexandrarab:
+    enabled: true
+    password_never_expires: true
+    groups:
+        - Users
+        - Power Users
+        - Remote Desktop Users
+  guidoa:
+    enabled: true
+    password_never_expires: true
+    groups:
+        - Users
+        - Power Users
+        - Remote Desktop Users
+  sandrakr:
+    enabled: true
+    password_never_expires: true
+    groups:
+        - Users
+        - Power Users
+        - Remote Desktop Users
+  patrickde:
+    enabled: true
+    password_never_expires: true
+    groups:
+        - Users
+        - Power Users
+        - Remote Desktop Users
+  stefankr:
+    enabled: true
+    password_never_expires: true
+    groups:
+        - Users
+        - Power Users
+        - Remote Desktop Users
+  sarahb:
+    enabled: true
+    password_never_expires: true
+    groups:
+        - Users
+        - Power Users
+        - Remote Desktop Users
+  malter:
+    enabled: true
+    password_never_expires: true
+    groups:
+        - Users
+        - Power Users
+        - Remote Desktop Users
+  Biancag:
+    enabled: true
+    password_never_expires: true
+    groups:
+        - Users
+        - Power Users
+        - Remote Desktop Users
+  manuelat:
+    enabled: true
+    password_never_expires: true
+    groups:
+        - Users
+        - Power Users
+        - Remote Desktop Users
+  markussc:
+    enabled: true
+    password_never_expires: true
+    groups:
+        - Users
+        - Power Users
+        - Remote Desktop Users
+  annad:
+    enabled: true
+    password_never_expires: true
+    groups:
+        - Users
+        - Power Users
+        - Remote Desktop Users
+  hannelorese:
+    enabled: true
+    password_never_expires: true
+    groups:
+        - Users
+        - Power Users
+        - Remote Desktop Users

@@ -1,0 +1,1 @@
+extrapps_list:  "{{ lookup('community.general.merge_variables', 'extrapps_list_', pattern_type='prefix', override='ignore') }}"

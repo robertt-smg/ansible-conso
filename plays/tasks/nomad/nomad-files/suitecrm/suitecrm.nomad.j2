@@ -64,7 +64,7 @@ job "{{ job_name }}" {
           XDEBUG_PORT="{{ xdebug.xdebug_port }}"
           XDEBUG_HOST="{{ xdebug.xdebug_host }}"
        {% endif %} 
-          SUITECRM_DATABASE_HOST="{{ suitecrm.db.host }}"
+          SUITECRM_DATABASE_HOST="suitecrm_db_server"
           SUITECRM_DATABASE_PORT_NUMBER=3306
           SUITECRM_DATABASE_USER="{{ suitecrm.db.user }}"
           SUITECRM_DATABASE_NAME="{{ suitecrm.db.name }}"
@@ -96,6 +96,8 @@ job "{{ job_name }}" {
         }
         extra_hosts = [
           "mail.smg-air-conso.com:{{ suitecrm.smtp.host }}",
+          "suitecrm_mail_server:{{ suitecrm.smtp.host }}",
+          "suitecrm_db_server:{{ suitecrm.db.host }}",
         ]
         volumes = [
             "{{ suitecrm.app_volume }}/data:/bitnami/suitecrm",

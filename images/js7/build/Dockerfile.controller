@@ -1,4 +1,4 @@
-FROM sosberlin/js7:controller-2-7-3
+FROM sosberlin/js7:controller-2-7-4-1
 
 VOLUME /var/lib/mysql /var/log/mysql
 ENV TZ=Europe/Berlin 

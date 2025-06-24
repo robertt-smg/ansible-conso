@@ -5,12 +5,12 @@ airquest_defaults_prd:
   enabled: true
   automount: false
   host: SMG-STRATO-STG
-  host_ip: 172.16.115.1
+  host_name: "172.16.115.1"
   drive_letter: Q
   share: proquest
   local_path: "d:\\proquest"
   user: SMG-STRATO-STG\q_lw
   host_dev: SMG-STRATO-STG
-  host_ip_dev: 172.16.115.1
+  host_name_dev: 172.16.115.1
   drive_letter_dev: S
   share_dev: proquest.tlp

@@ -1,0 +1,8 @@
+winserver_roles_enabled_fserver1:
+  net35: true
+  net45: true
+  net46: true
+  port_sharing: true
+  rdpserver: true
+  defender: true
+  license_server: true

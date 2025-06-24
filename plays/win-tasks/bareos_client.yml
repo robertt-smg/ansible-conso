@@ -1,0 +1,19 @@
+
+- name: Copy bareos-client Setup
+  win_copy:
+    src: files/winbareos-24.0.4~pre21.6a9d93652-release-64-bit.exe
+    dest: c:\\windows\\temp\\winbareos-24.0.4~pre21.6a9d93652-release-64-bit.exe
+
+- name: Install bareos-client Setup
+  ansible.windows.win_package:
+    path: c:\windows\temp\winbareos-24.0.4~pre21.6a9d93652-release-64-bit.exe
+    log_path: c:\windows\temp\proquestDLLSetup.log
+    
+    product_id: '{xxxxx-79CC-4108-90CD-91822DAFA94B}'  # Replace with actual product ID from the MSI
+  register: install_result
+  ignore_errors: true
+
+- name: Display error bareos if installation failed
+  debug:
+    msg: "Installation failed: {{ install_result }}"
+  when: install_result is failed

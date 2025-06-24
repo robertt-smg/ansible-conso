@@ -78,3 +78,7 @@
     src: files/{{ airquest_defaults.wallpaper.name }}
     dest: C:\\users\\public\\wallpaper.jpg
   when: airquest_defaults.wallpaper.enabled is defined and airquest_defaults.wallpaper.enabled
+
+- name: Install bareos client
+  include_tasks: win-tasks/bareos_client.yml
+  when: extra_apps_list is defined and extra_apps_list.bareos_client is defined and extra_apps_list.bareos_client.enabled is defined and extra_apps_list.bareos_client.enabled

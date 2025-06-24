@@ -1,5 +1,5 @@
 #FROM percona:8.0.36-28-centos
-FROM sosberlin/js7:joc-2-7-3
+FROM sosberlin/js7:joc-2-7-4
 
 VOLUME /var/lib/mysql /var/log/mysql
 ENV TZ=Europe/Berlin 

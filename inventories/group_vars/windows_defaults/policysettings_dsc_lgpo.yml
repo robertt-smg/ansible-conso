@@ -34,10 +34,10 @@ policy_settings_lgpo_cAdministrativeTemplateSetting:
     - policytype: "Machine"
       keyvaluename: "Software\\Policies\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\\ZoneMap\\Ranges\\Range10000\\:Range"
       type: "String"
-      data: "{{ airquest_defaults.host_ip }}"
+      data: "{{ airquest_defaults.host_name }}"
 
     - policytype: "Machine"
-      keyvaluename: "Software\\Policies\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\\ZoneMapKey\\file://{{ airquest_defaults.host_ip }}"
+      keyvaluename: "Software\\Policies\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\\ZoneMapKey\\file://{{ airquest_defaults.host_name }}"
       type: "String"
       data: 1
 

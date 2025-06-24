@@ -24,6 +24,9 @@ wserver1_prd ansible_host=w01.smg-air-conso.com ansible_user=Administrator ansib
 [wserver2]
 wserver2_prd ansible_host=w02.smg-air-conso.com ansible_user=Administrator ansible_connection=ssh ansible_shell_type=cmd become_method=runas pipelining=false connection_timeout=240
 
+[tserver1]
+tserver1_tst ansible_host=192.168.121.121 ansible_user=Administrator ansible_connection=ssh ansible_shell_type=cmd become_method=runas pipelining=false connection_timeout=240
+
 # ---- Tulip World
 [wminiaq1]
 wminiaq1.prd ansible_host=172.16.115.80 ansible_user=Administrator ansible_connection=ssh ansible_shell_type=cmd become_method=runas pipelining=false connection_timeout=240
@@ -44,12 +47,13 @@ strato2_stg
 fserver1
 wserver1
 wserver2
-
+tserver1
 
 [wsmg:children]
 fserver1
 wserver1
 wserver2
+tserver1
 wminiaq1
 scaleUp
 strato_stg
@@ -58,6 +62,7 @@ strato_stg
 fserver1
 wserver1
 wserver2
+tserver1
 wminiaq1
 strato_stg
 

@@ -9,5 +9,11 @@ wireguard_unmanaged_peers:
         allowed_ips: 10.8.0.4
         persistent_keepalive: 30
 
+    vl_harshavardhan:
+        public_key: H5dmnWhdknK6Ll7Ffh4XbjynIe8Rwat16A/VFnAsrhU=
+        allowed_ips: 10.8.0.5
+        persistent_keepalive: 30
+
+
 wireguard_address: 10.8.0.1/24
 wireguard_port: 51820

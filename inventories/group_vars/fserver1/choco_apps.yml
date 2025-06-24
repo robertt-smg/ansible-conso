@@ -1,2 +1,3 @@
-chocoapps_list_wminiaq1:
+chocoapps_list_fserver1:
   - wireguard
+  # - bareos-client # installed from ScaleUp Source https://files.scaleup.cloud/s/BCnG5WHbFrmtpxf

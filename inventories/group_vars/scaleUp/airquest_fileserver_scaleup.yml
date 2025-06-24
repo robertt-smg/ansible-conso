@@ -5,13 +5,13 @@ airquest_defaults_prd_scaleup:
   enabled: true
   automount: true
   host: SMG-SCA-F01
-  host_ip: f01.smg-air-conso.com
+  host_name: "f01.smg-air-conso.com"
   drive_letter: Q
   share: proquest
   local_path: "d:\\proquest"
   user: SMG-SCA-F01\q_lw
   host_dev: SMG-SCA-F01
-  host_ip_dev: f01.smg-air-conso.com
+  host_name_dev: "f01.smg-air-conso.com"
   drive_letter_dev: S
   share_dev: proquest.dev
 

@@ -78,7 +78,7 @@
     name: RDS-Licensing
     state: present
   register: rds_licensing_check
-  when: winserver_roles_enabled.rdpserver is defined and winserver_roles_enabled.rdpserver
+  when: winserver_roles_enabled.license_server is defined and winserver_roles_enabled.license_server
 
 - name: Enable server RDS-Licensing
   ansible.windows.win_feature:
@@ -88,7 +88,7 @@
     include_sub_features: true
     include_management_tools: true
   register: win_feature_rds_licensing
-  when: winserver_roles_enabled.rdpserver is defined and winserver_roles_enabled.rdpserver and (rds_licensing_check is not defined or rds_licensing_check != 'installed')
+  when: winserver_roles_enabled.license_server is defined and winserver_roles_enabled.license_server and (rds_licensing_check is not defined or rds_licensing_check != 'installed')
 
 - name: Check if Windows-Defender is installed
   ansible.windows.win_feature:
@@ -115,7 +115,7 @@
 - name: Check if Reboot is required for RDS-Licensing
   set_fact:
     role_reboot_required: win_feature_rds_licensing.reboot_required
-  when: winserver_roles_enabled.rdpserver is defined and winserver_roles_enabled.rdpserver and win_feature_rds_licensing.reboot_required
+  when: winserver_roles_enabled.license_server is defined and winserver_roles_enabled.license_server and win_feature_rds_licensing.reboot_required
 
 - name: Check if Reboot is required for NET-Framework-Core
   set_fact:

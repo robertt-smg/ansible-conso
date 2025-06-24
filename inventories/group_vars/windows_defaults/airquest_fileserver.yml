@@ -1,7 +1,7 @@
 airquest_fileserver_default:
   host: "{{ airquest_defaults.host }}"
-  host_ip: "{{ airquest_defaults.host_ip }}"
-  host_ip_dev: "{{ airquest_defaults.host_ip_dev }}"
+  host_name: "{{ airquest_defaults.host_name }}"
+  host_name_dev: "{{ airquest_defaults.host_name_dev }}"
   drive_letter: "{{ airquest_defaults.drive_letter }}" 
   drive_letter_dev: "{{ airquest_defaults.drive_letter_dev }}" 
   share: "{{ airquest_defaults.share }}"
@@ -44,10 +44,10 @@ airquest_fileserver_default:
     - key: "HKEY_LOCAL_MACHINE\\Software\\Policies\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\\ZoneMap\\Ranges\\Range10000"
       vname: ":Range"
       vtype: "String"
-      vdata: "{{ airquest_defaults.host_ip }}"
+      vdata: "{{ airquest_defaults.host_name }}"
 
     - key: "HKEY_LOCAL_MACHINE\\Software\\Policies\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\\ZoneMapKey"
-      vname: "file://{{ airquest_defaults.host_ip }}"
+      vname: "file://{{ airquest_defaults.host_name }}"
       vtype: "String"
       vdata: 1
 
@@ -82,12 +82,22 @@ airquest_fileserver_default:
     - key: "HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Environment"
       vname: "AQ_FILE_SERVER_IP" 
       vtype: "String"
-      vdata: "{{ airquest_defaults.host_ip }}"
+      vdata: "{{ airquest_defaults.host_name }}"
 
     - key: "HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Environment"
-      vname: "AQ_FILE_SERVER_NETUSR" 
+      vname: "AQ_FILE_SERVER_HOST" 
       vtype: "String"
       vdata: "{{ airquest_defaults.host }}"
+
+    - key: "HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Environment"
+      vname: "AQ_FILE_SERVER_SHARE" 
+      vtype: "String"
+      vdata: "{{ airquest_defaults.share }}"
+
+    - key: "HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Environment"
+      vname: "AQ_FILE_SERVER_SHARE_DEV" 
+      vtype: "String"
+      vdata: "{{ airquest_defaults.share_dev }}"
 
     - key: "HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Environment"
       vname: "AQ_FILE_SERVER_NETUSR" 
