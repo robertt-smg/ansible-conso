@@ -1,0 +1,9 @@
+cnf_vault_default:
+  enabled: true
+  port: 8200
+  cpu: 512
+  memory: 1024
+  memory_hard_limit: 37570
+  app_volume: /var/lib/vault
+  
+  image_version: "vault:latest"

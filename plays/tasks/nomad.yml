@@ -77,3 +77,8 @@
 - name: Include tasks nomad-vault if nomad_vault.enabled is defined
   include_tasks: tasks/nomad/vault.yml
   when: nomad_vault.enabled is defined and nomad_vault.enabled is true
+
+#- js7
+- name: Include tasks nomad-js7 if nomad_js7.enabled is defined
+  include_tasks: tasks/nomad/js7.yml
+  when: nomad_js7.enabled is defined and nomad_js.enabled is true

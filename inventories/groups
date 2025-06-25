@@ -64,7 +64,5 @@ hetzner1
 [vault_secrets:children]
 mitmproxy_server
 
-
-
 [wireguard_server:children]
 hetzner1

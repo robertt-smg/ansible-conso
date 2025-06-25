@@ -1,0 +1,13 @@
+cnf_vault_server_all:
+  app_volume: /var/lib/vault
+  external_ui_port: 8200
+  db:
+    name: vault
+    port: 3306
+
+nomad_vault:
+  enabled: true
+  job_name: "vault-server"
+
+apt_packages_extra_vault:
+  - vault

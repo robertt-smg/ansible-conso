@@ -1,6 +1,9 @@
 winusers_list_fti_app2:
   q_lw:
     password_never_expires: true
+    update_password: "on_create"
+    groups_action: "add"
+
     groups:
         - Users
         - Power Users
@@ -8,6 +11,8 @@ winusers_list_fti_app2:
 
   SA_AQUSER1:
     password_never_expires: true
+    update_password: "on_create"
+    groups_action: "add"
     groups:
         - Users
         - Power Users
@@ -15,6 +20,8 @@ winusers_list_fti_app2:
 
   SA_AQUSER2:
     password_never_expires: true
+    update_password: "on_create"
+    groups_action: "add"
     groups:
         - Users
         - Power Users
@@ -22,6 +29,8 @@ winusers_list_fti_app2:
 
   SA_AQUSER3:
     password_never_expires: true
+    update_password: "on_create"
+    groups_action: "add"
     groups:
         - Users
         - Power Users
@@ -29,6 +38,8 @@ winusers_list_fti_app2:
 
   RA_AQUSER1:
     password_never_expires: true
+    update_password: "on_create"
+    groups_action: "add"
     groups:
         - Users
         - Power Users

@@ -25,7 +25,7 @@ wserver1_prd ansible_host=w01.smg-air-conso.com ansible_user=Administrator ansib
 wserver2_prd ansible_host=w02.smg-air-conso.com ansible_user=Administrator ansible_connection=winrm ansible_winrm_server_cert_validation=ignore connection_timeout=240
 
 [tserver1]
-tserver1_tst ansible_host=192.168.121.121 ansible_user=Administrator ansible_connection=winrm ansible_winrm_server_cert_validation=ignore connection_timeout=240
+tserver1_prd ansible_host=t01.smg-air-conso.com ansible_user=Administrator ansible_connection=winrm ansible_winrm_server_cert_validation=ignore connection_timeout=240
 
 # ---- Tulip World
 [wminiaq1]
@@ -46,6 +46,14 @@ strato2_stg
 fserver1
 wserver1
 wserver2
+tserver1
+
+[scaleUp_secrets:children]
+fserver1
+wserver1
+wserver2
+
+[tserver1_prd_secrets:children]
 tserver1
 
 [wsmg:children]
@@ -72,3 +80,4 @@ fti_app2_w
 
 [fti_app2_prd:children]
 fti_app2_w
+

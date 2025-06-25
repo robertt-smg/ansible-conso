@@ -48,3 +48,11 @@ policy_settings_registry_windows_rdp:
       keyvaluename: "Software\\Policies\\Microsoft\\Windows\\Session Manager\\Quota System\\EnableCPUQuota"
       type: "Dword"
       data: "0"
+
+#      'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows NT\\Terminal Services' -Name MaxIdleTime -Value 780000 -Type 'DWord'"
+
+    - policytype: "Machine"
+      keyvaluename: "Software\\Policies\\Microsoft\\Windows\\Terminal Services\\MaxIdleTime"
+      type: "Dword"
+      data: "7200000" # 2 Stunden (von 780000)
+

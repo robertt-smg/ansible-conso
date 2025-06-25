@@ -8,6 +8,13 @@
     opt_openssh_pubkeys: 
       - "{{ jborean93.win_openssh.opt_openssh_admin_pubkey }}"
 
+- name: Ensure AllowAgentForwarding is enabled in sshd_config
+  win_lineinfile:
+    path: 'C:\ProgramData\ssh\sshd_config'
+    regexp: '^#?AllowAgentForwarding\s+.*'
+    line: 'AllowAgentForwarding yes'
+    backup: yes
+
 - name: Restart sshd service
   win_service:
     name: sshd

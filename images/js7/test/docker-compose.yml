@@ -4,7 +4,7 @@ x-project:
 
 services:
   db:
-    image: registry.gitlab.com/la-cuna-icu/podman-images/mariadb:11.6.2-noble
+    image: ghcr.io/robertt-smg/mariadb:11.6.2-noble
 
     #restart: unless-stopped
     environment:
@@ -24,7 +24,7 @@ services:
   js7-joc-primary:
     container_name: js7-joc-primary
     #image: sosberlin/js7:joc-2-7-3
-    image: registry.gitlab.com/la-cuna-icu/podman-images/js7-joc:2-7-3
+    image: ghcr.io/robertt-smg/js7-joc:joc-2-7-4
     hostname: js7-joc-primary
     ports:
       - "127.0.0.217:4446:4446"
@@ -52,7 +52,7 @@ services:
 
   js7-controller-primary:
     #image: sosberlin/js7:controller-2-7-3
-    image: registry.gitlab.com/la-cuna-icu/podman-images/js7-controller:2-7-3
+    image: ghcr.io/robertt-smg/js7-controller:controller-2-7-4-1
     depends_on:
       - db
       - js7-joc-primary

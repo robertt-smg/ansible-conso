@@ -68,7 +68,7 @@
       ansible.windows.win_file:
         path: "{{ item }}"
         state: directory
-        owner: Everyone
+        owner: S-1-1-0 # Everyone
         recurse: yes
       with_items:
         - "{{ ansible_facts.env.SystemRoot }}\\System32\\GroupPolicyUsers\\Scripts\\Logon"
@@ -125,7 +125,7 @@
     - name: Set Logon Scripts permissions
       ansible.windows.win_acl:
         path: "{{ item }}\\mount_airquest.cmd"
-        user: Everyone
+        user: S-1-1-0 # Everyone
         rights: Read,Execute
         type: allow
         inherit: None
@@ -460,7 +460,7 @@
     - name: Remove existing ACL on Data directory
       ansible.windows.win_acl:
         path: D:\Data
-        user: Everyone
+        user: S-1-1-0 # Everyone
         rights: FullControl
         type: allow
         state: absent
@@ -471,7 +471,7 @@
     - name: Set new ACL on Data directory
       ansible.windows.win_acl:
         path: D:\Data
-        user: Everyone
+        user: S-1-1-0 # Everyone
         rights: FullControl
         type: allow
         inherit: ContainerInherit,ObjectInherit
@@ -485,7 +485,7 @@
     - name: Remove existing ACL on AQ-TEMP directory
       ansible.windows.win_acl:
         path: D:\Data\AQ-TEMP
-        user: Everyone
+        user: S-1-1-0 # Everyone
         rights: FullControl
         type: allow
         state: absent
@@ -496,7 +496,7 @@
     - name: Set new ACL on AQ-TEMP directory
       ansible.windows.win_acl:
         path: D:\Data\AQ-TEMP
-        user: Everyone
+        user: S-1-1-0 # Everyone
         rights: FullControl
         type: allow
         inherit: ContainerInherit,ObjectInherit

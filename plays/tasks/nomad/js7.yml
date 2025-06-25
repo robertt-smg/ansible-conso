@@ -1,0 +1,89 @@
+- name: Create {{ nomad_js7.job_name }} log directory
+  file:
+    path: "{{ nomad_log_dir }}/{{ nomad_js7.job_name }}"
+    state: directory
+    owner: www-data
+    group: www-data
+    mode: "0775"
+    recurse: yes
+
+- name: Create application volume and dirs {{ nomad_js7.job_name }}
+  file:
+    path: "{{ vault.app_volume }}/data/{{ item }}"
+    state: directory
+    owner: 1
+    group: 1
+    mode: "0775"
+    recurse: yes
+  loop:
+    - logs
+    - certs
+    - config
+
+- name: vault Create global-server-nomad.pem
+  copy:
+    src: "{{nomad_certs}}.certs/global-server-nomad.pem"
+    dest: "{{ vault.app_volume }}/data/certs/server.pem"
+    owner: nomad
+    group: nomad
+    mode: '0775'
+  become: true
+
+- name: vault Create config
+  template:
+    src: nomad-files/vault/config.hcl.j2
+    dest: "{{ vault.app_volume }}/data/config/config.hcl"
+    owner: nomad
+    group: nomad
+    mode: '0775'
+  become: true
+
+- name: vault Create global-server-nomad-key.pem
+  copy:
+    src: "{{nomad_certs}}.certs/global-server-nomad-key.pem"
+    dest: "{{ vault.app_volume }}/data/certs/server-key.pem"
+    owner: nomad
+    group: nomad
+    mode: '0775'
+  become: true
+
+- name: Manage Nomad job file {{ nomad_js7.job_name }}
+  template:
+    src: nomad-files/vault/vault.nomad.j2
+    dest: "{{ nomad_data_dir }}/jobs/{{ nomad_js7.job_name }}.nomad"
+    owner: nomad
+    group: nomad
+    mode: "0644"
+  vars:
+    job_name: "{{ nomad_js7.job_name }}"
+    datacenter: "{{ nomad_datacenter }}"
+    hostname: "{{ ansible_hostname }}"
+    config_dir: "{{ nomad_data_dir }}/jobs/{{ nomad_js7.job_name }}"
+
+- name: "Manage Nomad job file {{ nomad_js7.job_name }}"
+  run_once: true
+  nomad_job:
+    url: "{{ nomad_server_url }}"
+    validate_certs: false
+    management_token: "{{ nomad_acl_management_token }}"
+    state: present
+    namespace: default
+    hcl_spec: "{{ lookup('template', 'nomad-files/vault/vault.nomad.j2') }}"
+  vars:
+    job_name: "{{ nomad_js7.job_name }}"
+    datacenter: "{{ nomad_datacenter }}"
+    hostname: "{{ ansible_hostname }}"
+    config_dir: "{{ nomad_data_dir }}/jobs/{{ nomad_js7.job_name }}"
+  register: vault_nomad_file_changed
+
+- name: "Check vault service status http//{{ nomad_advertise_address }}:{{ vault.external_ui_port }}/"
+  uri:
+    url: "http//{{ nomad_advertise_address }}:{{ vault.external_ui_port }}/"
+    method: GET
+    status_code: 200
+    validate_certs: no
+  ignore_errors: true
+  until: vault_status.status == 200
+  retries: 2
+  delay: 10
+  register: vault_status
