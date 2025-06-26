@@ -1,0 +1,19 @@
+
+- name: Download airQuestTS Setup
+  win_copy:
+    src: files/airQuestTSSetup.msi
+    dest: c:\\windows\\temp\\airQuestTSSetup.msi
+
+- name: Install airQuest TS Setup
+  ansible.windows.win_package:
+    path: c:\windows\temp\airQuestTSSetup.msi
+    log_path: c:\windows\temp\airQuestTSSetup.log
+    # Computer\HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall
+    product_id: '{778A2FB8-26FF-407C-BCCC-9CCAA9451F33}'  # Replace with actual product ID from the MSI
+  register: install_result_airQuestTSSetup
+  ignore_errors: true
+
+- name: Verify airQuest TS Setup
+  debug:
+    msg: "Installation failed: {{ install_result_airQuestTSSetup }}"
+  when: install_result_airQuestTSSetup is failed

@@ -19,7 +19,7 @@
   register: install_result
   ignore_errors: true
 
-- name: Display error if installation failed
+- name: Verify ProQuest DLL Setup Success
   debug:
     msg: "Installation failed: {{ install_result }}"
   when: install_result is failed

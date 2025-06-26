@@ -1,0 +1,19 @@
+
+- name: Copy RemoteApp Setup
+  win_copy:
+    src: files/RemoteApp.Tool.6100.msi
+    dest: c:\\windows\\temp\\RemoteApp.Tool.6100.msi
+
+- name: Install RemoteApp Setup
+  ansible.windows.win_package:
+    path: c:\windows\temp\RemoteApp.Tool.6100.msi
+    log_path: c:\windows\temp\RemoteApp.Tool.6100.log
+    # Computer\HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall
+    product_id: '{2F45BE4C-46C5-41AB-81A8-ACE3CDE6FDA7}'  # Replace with actual product ID from the MSI
+  register: install_result_RemoteAppSetup
+  ignore_errors: true
+
+- name: Verify RemoteApp Setup
+  debug:
+    msg: "Installation failed: {{ install_result_RemoteAppSetup }}"
+  when: install_result_RemoteAppSetup is failed

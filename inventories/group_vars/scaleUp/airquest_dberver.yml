@@ -1,4 +1,6 @@
 
 airquest_defaults_db_scale_up:
+  wallpaper:
+    enabled: true
   enabled: true
   db_server: "10.6.2.20"

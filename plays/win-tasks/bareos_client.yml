@@ -7,13 +7,22 @@
 - name: Install bareos-client Setup
   ansible.windows.win_package:
     path: c:\windows\temp\winbareos-24.0.4~pre21.6a9d93652-release-64-bit.exe
-    log_path: c:\windows\temp\proquestDLLSetup.log
-    
-    product_id: '{xxxxx-79CC-4108-90CD-91822DAFA94B}'  # Replace with actual product ID from the MSI
-  register: install_result
+    log_path: c:\windows\temp\winbareos.log
+    arguments: /S /silentkeepconfig
+    # Computer\HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall
+    product_id: 'Bareos'  # Replace with actual product ID from the MSI
+  register: install_result_winbareos
   ignore_errors: true
 
-- name: Display error bareos if installation failed
+- name: Verify Install bareos-client Setup
   debug:
-    msg: "Installation failed: {{ install_result }}"
-  when: install_result is failed
+    msg: "Installation failed: {{ install_result_winbareos }}"
+  when: install_result_winbareos is failed
+
+- name: Add ExclusionProcess to Windows Defender exclusion list for bareos
+  win_shell: powershell.exe -ExecutionPolicy ByPass -Command "Add-MpPreference -ExclusionProcess 'C:\Program Files\Bareos\bareos-fd.exe' -Force"
+  ignore_errors: yes
+
+- name: Add ExclusionPath to Windows Defender exclusion list for bareos
+  win_shell: powershell.exe -ExecutionPolicy ByPass -Command "Add-MpPreference -ExclusionPath 'C:\Program Files\Bareos' -Force"
+  ignore_errors: yes  

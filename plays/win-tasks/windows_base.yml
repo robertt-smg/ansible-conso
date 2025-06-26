@@ -82,3 +82,11 @@
 - name: Install bareos client
   include_tasks: win-tasks/bareos_client.yml
   when: extra_apps_list is defined and extra_apps_list.bareos_client is defined and extra_apps_list.bareos_client.enabled is defined and extra_apps_list.bareos_client.enabled
+
+- name: Install airQuest Terminal Server Startup Script
+  include_tasks: win-tasks/airQuestTS.yml
+  when: airquest_defaults.airQuestTS is defined and airquest_defaults.airQuestTS
+
+- name: Install RemoteApp Tool
+  include_tasks: win-tasks/remoteApp.yml
+  when: airquest_defaults.airQuestTS is defined and airquest_defaults.airQuestTS

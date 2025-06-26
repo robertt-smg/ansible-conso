@@ -11,18 +11,15 @@
   - main/vars.yml
 
   tasks:
-  #  - name: Include tasks 
-  #    include_tasks: ../win-tasks/airquest.yml
-  #    when: airquest_defaults.enabled is defined and airquest_defaults.enabled
     - name: Include tasks proQuest
       include_tasks: ../win-tasks/proquest.yml
       when: airquest_defaults.enabled is defined and airquest_defaults.enabled
-
-  #  - name: Include tasks Printspooler
-  #    include_tasks: ../win-tasks/printspooler.yml
-  #    when: airquest_defaults.enabled is defined and airquest_defaults.enabled      
 
     - name: Include tasks Foxpro
       include_tasks: ../win-tasks/foxpro.yml
       when: airquest_defaults.enabled is defined and airquest_defaults.enabled      
 
+
+    - name: Install airQuest Terminal Server Startup Script
+      include_tasks: ../win-tasks/airQuestTS.yml
+      when: airquest_defaults.airQuestTS is defined and airquest_defaults.airQuestTS

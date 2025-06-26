@@ -1,2 +1,4 @@
 airquest_defaults_advantage_oldedb:
+  wallpaper:
+    enabled: true
   advantage_oldedb: true

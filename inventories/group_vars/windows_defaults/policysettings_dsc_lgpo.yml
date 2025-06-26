@@ -2,7 +2,7 @@
   # https://gpsearch.azurewebsites.net/
   # https://www.microsoft.com/en-us/download/details.aspx?id=104005 
 
-policy_settings_lgpo_cAdministrativeTemplateSetting:
+policy_settings_lgpo_cAdministrativeTemplateSetting_aaa:
     cAdministrativeTemplateSetting:
     - policytype: "Machine"
       keyvaluename: "Software\\Policies\\Microsoft\\Windows\\Server\\ServerManager\\DoNotOpenAtLogon"
@@ -34,10 +34,10 @@ policy_settings_lgpo_cAdministrativeTemplateSetting:
     - policytype: "Machine"
       keyvaluename: "Software\\Policies\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\\ZoneMap\\Ranges\\Range10000\\:Range"
       type: "String"
-      data: "{{ airquest_defaults.host_name }}"
+      data: "{{ airquest_defaults.host_name_q }}"
 
     - policytype: "Machine"
-      keyvaluename: "Software\\Policies\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\\ZoneMapKey\\file://{{ airquest_defaults.host_name }}"
+      keyvaluename: "Software\\Policies\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\\ZoneMapKey\\file://{{ airquest_defaults.host_name_q }}"
       type: "String"
       data: 1
 

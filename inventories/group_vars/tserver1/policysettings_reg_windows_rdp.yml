@@ -1,0 +1,18 @@
+## Allow saved credentials - as password is unkonw to users
+
+policy_settings_registry_windows_rdp_tserver1_policy:
+## --------------------------------------------
+    cAdministrativeTemplateSetting:
+
+# https://gpsearch.azurewebsites.net/Default.aspx?PolicyID=2513#2471
+# HKLM\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services
+# Always prompt for password upon connection - reset to default
+    - policytype: "Machine"
+      keyvaluename: "Software\\Policies\\Microsoft\\Windows NT\\Terminal Services\\fpromptforpassword"
+      type: "Dword"
+      data: "0"
+# Allow clipboard and drive redirection
+    - policytype: "Machine"
+      keyvaluename: "Software\\Policies\\Microsoft\\Windows NT\\Terminal Services\\fDisableCdm"
+      type: "Dword"
+      data: "0"

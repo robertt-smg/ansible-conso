@@ -7,6 +7,9 @@ lserver1_tst ansible_host=192.168.121.21 ansible_ssh_port=22 ansible_ssh_user=ad
 [lserver2]
 lserver2_tst ansible_host=192.168.121.22 ansible_ssh_port=22 ansible_ssh_user=admin 
 
+[lserver3]
+lserver3_tst ansible_host=192.168.121.23 ansible_ssh_port=22 ansible_ssh_user=admin 
+
 # fw+ project
 [hetzner1]
 hetzner1_tst ansible_host=192.168.121.61 ansible_ssh_port=22 ansible_ssh_user=admin 
@@ -25,6 +28,7 @@ fti_app1.tst ansible_host=192.168.121.242 ansible_ssh_port=22 ansible_ssh_user=a
 dbserver1
 lserver1
 lserver2
+lserver3
 
 [fti:children]
 fti1

@@ -1,4 +1,4 @@
-policy_settings_registry_windows_rdp:
+policy_settings_registry_windows_rdp_defaults:
 ## --------------------------------------------
     cAdministrativeTemplateSetting:
 

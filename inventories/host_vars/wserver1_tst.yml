@@ -1,6 +1,6 @@
 win_hostname: SMG-TST-W01
 
-policy_settings_registry_windows_rdp_server:
+policy_settings_registry_windows_rdp_wserver1:
 ## --------------------------------------------
     cAdministrativeTemplateSetting:
 

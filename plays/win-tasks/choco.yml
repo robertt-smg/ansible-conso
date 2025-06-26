@@ -11,7 +11,7 @@
 - name: Install applications with Chocolatey
   win_chocolatey:
     name: "{{ item }}"
-    state: present
+    state: latest
     ignore_checksums: yes # some packages have checksums that are not valid
   loop: "{{ chocoapps_list }}"
 
