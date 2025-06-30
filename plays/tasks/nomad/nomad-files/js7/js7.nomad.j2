@@ -1,0 +1,174 @@
+########################################################################
+# File managed by ansible
+# Your changes will be overwritten.
+########################################################################
+#
+# For more information on the "job" stanza, please see
+# the online documentation at:
+#
+#     https://www.nomadproject.io/docs/job-specification/job.html
+#
+
+job "{{ job_name }}" {
+  datacenters = [ "{{ datacenter }}" ]
+  type = "service"
+  constraint {
+    attribute = "${attr.kernel.name}"
+    value     = "linux"
+  }
+  update {
+    max_parallel = 1
+    min_healthy_time = "10s"
+    healthy_deadline = "30m"
+    progress_deadline = "32m"
+    auto_revert = false
+    canary = 0
+  }
+
+  group "{{ job_name }}" {
+    count = 1
+    network {
+      
+      port "joc_external_port" { 
+        static = {{ js7.joc_external_port }} 
+        to = 4446 
+      }
+      port "controller_external_port" { 
+        static = {{ js7.controller_external_port }} 
+        to = 4444 
+      } 
+
+      mode = "host"
+    }
+    restart {
+      attempts = 10
+      interval = "5m"
+      delay = "25s"
+      mode = "delay"
+    }
+    
+    task "js7-joc-server" {
+      {% if nomad_config_driver_is_docker is defined and nomad_config_driver_is_docker %}
+      driver = "docker"
+      {% else %}
+      driver = "podman"
+      {% endif %}
+      env {  
+          RUN_JS_JAVA_OPTIONS="-Xmx256m"
+          RUN_JS_USER_ID="1000:0"
+          DATASOURCES_DEFAULT_HOST="joc_db_server"
+          DATASOURCES_DEFAULT_USERNAME="{{ js7.db.user }}"
+          DATASOURCES_DEFAULT_PASSWORD="{{ js7.db.password }}"
+          DATASOURCES_DEFAULT_DATABASE="{{ js7.db.name }}"
+          
+      }
+      config {
+        {% if nomad_config_driver_is_docker is defined and nomad_config_driver_is_docker %}
+          memory_hard_limit = {{ js7.memory_hard_limit }}
+        {% endif %}
+        {% set image_version= js7.image_version_joc %}
+        {% include "nomad-files/github_registry.j2" %}
+        hostname = "js7-joc-primary"
+        labels {
+          group = "js7-scheduler"
+        }
+        extra_hosts = [
+          "mail.smg-air-conso.com:{{ js7.smtp.host }}",
+          "js7_mail_server:{{ js7.smtp.host }}",
+          "joc_db_server:{{ js7.db.host }}",
+        ]
+        volumes = [
+            "{{ js7.app_volume }}/data/config:/var/sos-berlin.com/js7/joc/resources/joc",
+            "{{ js7.app_volume }}/data/log-joc:/var/sos-berlin.com/js7/joc/logs",
+        ]
+        {% if nomad_config_driver_is_docker is defined and nomad_config_driver_is_docker %}
+        volume_driver = "local"
+        {% endif %}
+         
+        ports = [ "joc_external_port" ]
+        
+      }
+      service {
+        name = "{{ job_name }}-joc"
+        port = "joc_external_port"
+        provider = "nomad"
+        check {
+          type     = "http"
+          port     = "joc_external_port"
+          path = "/#/joc"
+          interval = "120s"
+          timeout  = "30s"
+          ## protocol = "https"
+          ## tls_skip_verify = true
+
+        }
+      }
+      logs {
+         max_files     = 2
+         max_file_size = 15
+      }
+ 
+      resources {
+        cpu = {{ js7.cpu }}
+        memory = {{ js7.memory }}
+      }
+    }
+    task "js7-controller" {
+      {% if nomad_config_driver_is_docker is defined and nomad_config_driver_is_docker %}
+      driver = "docker"
+      {% else %}
+      driver = "podman"
+      {% endif %}
+      env {  
+          RUN_JS_JAVA_OPTIONS="-Xmx256m"
+          RUN_JS_USER_ID="1000:0"
+      }
+      config {
+        {% set image_version= js7.image_version_controller %}
+        {% include "nomad-files/github_registry.j2" %}
+        hostname = " js7-controller-primary"
+        labels {
+          group = "js7-scheduler"
+        }
+        extra_hosts = [
+          "mail.smg-air-conso.com:{{ js7.smtp.host }}",
+          "js7_mail_server:{{ js7.smtp.host }}",
+          "joc_db_server:{{ js7.db.host }}",
+        ]
+        volumes = [
+            "{{ js7.app_volume }}/data/controller-primary:/var/sos-berlin.com/js7/controller",
+            "{{ js7.app_volume }}/data/log-controller:/var/sos-berlin.com/js7/controller/logs/",
+        ]
+        {% if nomad_config_driver_is_docker is defined and nomad_config_driver_is_docker %}
+        volume_driver = "local"
+        {% endif %}
+         
+        ports = [ "controller_external_port" ]
+        
+      }
+      service {
+        name = "{{ job_name }}-controller"
+        port = "controller_external_port"
+        provider = "nomad"
+        check {
+          type     = "http"
+          port     = "controller_external_port"
+          path = "/"
+          interval = "120s"
+          timeout  = "30s"
+          protocol = "http"
+          tls_skip_verify = true
+        }
+      }
+      logs {
+         max_files     = 2
+         max_file_size = 15
+      }
+ 
+      resources {
+        cpu = {{ js7.cpu }}
+        memory = {{ js7.memory }}
+      }
+    }    
+  }
+}

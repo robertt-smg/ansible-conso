@@ -1,3 +1,4 @@
 nomad_passbolt:
   enabled: false
   job_name: "passbolt-server"
+  template_sub_dir: "."

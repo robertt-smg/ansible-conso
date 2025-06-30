@@ -1,4 +1,4 @@
-cnf_js7_default:
+cnf_vault_default:
   enabled: true
   port: 8200
   cpu: 512

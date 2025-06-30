@@ -1,15 +1,15 @@
-- name: Create database 'passbolt'
+- name: Create database {{ passbolt.db_name }}
   community.mysql.mysql_db:
     login_host: "{{ passbolt.db_server }}"
     login_port: "{{ passbolt.db_server_port }}"
     login_user: "{{ passbolt.db_server_admin }}"
     login_password: "{{ passbolt.db_server_admin_password }}"
-    name: passbolt
+    name: "{{ passbolt.db_name }}"
     state: present
 
-- name: Create database user 'passbolt'
+- name: Create database user {{ passbolt.db_user }}
   mysql_user:
-    name: passbolt
+    name: "{{ passbolt.db_user }}"
     host: "%"
     login_host: "{{ passbolt.db_server }}"
     login_port: "{{ passbolt.db_server_port }}"
@@ -99,7 +99,7 @@
 
 - name: Manage serverkey.asc file {{ nomad_passbolt.job_name }}
   copy:
-    src: nomad-files/passbolt/gpg/public.key.secret
+    src: nomad-files/passbolt/gpg/{{nomad_passbolt.template_sub_dir}}/public.key.secret
     dest: "{{ nomad_data_dir }}/jobs/{{ nomad_passbolt.job_name }}/data/gpg_volume/serverkey.asc"
     owner: root
     group: root
@@ -107,7 +107,7 @@
 
 - name: Manage serverkey_private.asc file {{ nomad_passbolt.job_name }}
   copy:
-    src: nomad-files/passbolt/gpg/private.key.secret
+    src: nomad-files/passbolt/gpg/{{nomad_passbolt.template_sub_dir}}/private.key.secret
     dest: "{{ nomad_data_dir }}/jobs/{{ nomad_passbolt.job_name }}/data/gpg_volume/serverkey_private.asc"
     owner: root
     group: root
@@ -124,7 +124,7 @@
 
 - name: Manage jwt.key file {{ nomad_passbolt.job_name }}
   copy:
-    src: nomad-files/passbolt/jwt/jwt.key.secret
+    src: nomad-files/passbolt/jwt/{{nomad_passbolt.template_sub_dir}}/jwt.key.secret
     dest: "{{ nomad_data_dir }}/jobs/{{ nomad_passbolt.job_name }}/data/jwt_volume/jwt.key"
     owner: root
     group: root
@@ -132,7 +132,7 @@
 
 - name: Manage jwt.pem file {{ nomad_passbolt.job_name }}
   copy:
-    src: nomad-files/passbolt/jwt/jwt.pem.secret
+    src: nomad-files/passbolt/jwt/{{nomad_passbolt.template_sub_dir}}/jwt.pem.secret
     dest: "{{ nomad_data_dir }}/jobs/{{ nomad_passbolt.job_name }}/data/jwt_volume/jwt.pem"
     owner: root
     group: root

@@ -1,0 +1,6 @@
+# vim
+
+#- merge all js7_... variables into one
+
+js7:  "{{ lookup('community.general.merge_variables', 'cnf_js7_', pattern_type='prefix', override='ignore') }}"
+

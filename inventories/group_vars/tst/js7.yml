@@ -1,0 +1,8 @@
+cnf_js7_tst:
+  public_ip: 192.168.121.23
+  
+  host: js7.test.smg-air-conso.com
+  smtp:
+    host: 192.168.121.21
+  db:
+    host: 192.168.121.1 ## your local windows development machine!!

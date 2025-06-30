@@ -9,39 +9,41 @@
 
 - name: Create application volume and dirs {{ nomad_js7.job_name }}
   file:
-    path: "{{ vault.app_volume }}/data/{{ item }}"
+    path: "{{ js7.app_volume }}/data/{{ item }}"
     state: directory
-    owner: 1
-    group: 1
-    mode: "0775"
+    owner: 1000
+    group: 1000
+    mode: "0777"
     recurse: yes
   loop:
-    - logs
-    - certs
+    - log-joc
+    - log-controller
+    - controller-primary
     - config
+    - certs
 
-- name: vault Create global-server-nomad.pem
+- name: js7 Create global-server-nomad.pem
   copy:
     src: "{{nomad_certs}}.certs/global-server-nomad.pem"
-    dest: "{{ vault.app_volume }}/data/certs/server.pem"
+    dest: "{{ js7.app_volume }}/data/certs/server.pem"
     owner: nomad
     group: nomad
     mode: '0775'
   become: true
 
-- name: vault Create config
+- name: js7 Create config
   template:
-    src: nomad-files/vault/config.hcl.j2
-    dest: "{{ vault.app_volume }}/data/config/config.hcl"
+    src: nomad-files/js7/config.hcl.j2
+    dest: "{{ js7.app_volume }}/data/config/config.hcl"
     owner: nomad
     group: nomad
     mode: '0775'
   become: true
 
-- name: vault Create global-server-nomad-key.pem
+- name: js7 Create global-server-nomad-key.pem
   copy:
     src: "{{nomad_certs}}.certs/global-server-nomad-key.pem"
-    dest: "{{ vault.app_volume }}/data/certs/server-key.pem"
+    dest: "{{ js7.app_volume }}/data/certs/server-key.pem"
     owner: nomad
     group: nomad
     mode: '0775'
@@ -49,7 +51,7 @@
 
 - name: Manage Nomad job file {{ nomad_js7.job_name }}
   template:
-    src: nomad-files/vault/vault.nomad.j2
+    src: nomad-files/js7/js7.nomad.j2
     dest: "{{ nomad_data_dir }}/jobs/{{ nomad_js7.job_name }}.nomad"
     owner: nomad
     group: nomad
@@ -68,22 +70,22 @@
     management_token: "{{ nomad_acl_management_token }}"
     state: present
     namespace: default
-    hcl_spec: "{{ lookup('template', 'nomad-files/vault/vault.nomad.j2') }}"
+    hcl_spec: "{{ lookup('template', 'nomad-files/js7/js7.nomad.j2') }}"
   vars:
     job_name: "{{ nomad_js7.job_name }}"
     datacenter: "{{ nomad_datacenter }}"
     hostname: "{{ ansible_hostname }}"
     config_dir: "{{ nomad_data_dir }}/jobs/{{ nomad_js7.job_name }}"
-  register: vault_nomad_file_changed
+  register: js7_nomad_file_changed
 
-- name: "Check vault service status http//{{ nomad_advertise_address }}:{{ vault.external_ui_port }}/"
+- name: "Check js7 service status http//{{ nomad_advertise_address }}:{{ js7.external_ui_port }}/"
   uri:
-    url: "http//{{ nomad_advertise_address }}:{{ vault.external_ui_port }}/"
+    url: "http//{{ nomad_advertise_address }}:{{ js7.external_ui_port }}/"
     method: GET
     status_code: 200
     validate_certs: no
   ignore_errors: true
-  until: vault_status.status == 200
+  until: js7_status.status == 200
   retries: 2
   delay: 10
-  register: vault_status
+  register: js7_status

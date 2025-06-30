@@ -2,13 +2,10 @@
 # Setzt den Ubuntu APT Mirror auf scaleuptech und kommentiert alte URIs aus
 - name: Setze Ubuntu APT Mirror auf scaleuptech und kommentiere alte URIs aus
   block:
-    - name: Kommentiere archive.ubuntu.com/ubuntu aus, falls nicht bereits auskommentiert
-      lineinfile:
+    - name: Check if /etc/apt/sources.list.d/ubuntu.sources exists
+      stat:
         path: /etc/apt/sources.list.d/ubuntu.sources
-        regexp: '^(?!#)(.*http://archive\\.ubuntu\\.com/ubuntu/)'
-        line: '#\1'
-        backrefs: yes
-      when: ansible_facts['distribution'] == 'Ubuntu'
+      register: ubuntu_sources_file
 
     - name: Kommentiere security.ubuntu.com/ubuntu aus, falls nicht bereits auskommentiert
       lineinfile:
@@ -16,7 +13,10 @@
         regexp: '^(?!#)(.*http://security\\.ubuntu\\.com/ubuntu/)'
         line: '#\1'
         backrefs: yes
-      when: ansible_facts['distribution'] == 'Ubuntu'
+      when: 
+        - ansible_facts['distribution'] == 'Ubuntu'
+        - ubuntu_sources_file.stat.exists
+
 
     - name: Füge scaleuptech archive Mirror hinzu, falls nicht vorhanden
       lineinfile:
@@ -24,7 +24,9 @@
         line: 'URIs: http://mirror.scaleuptech.com/ubuntu/'
         insertafter: EOF
         state: present
-      when: ansible_facts['distribution'] == 'Ubuntu'
+      when: 
+        - ansible_facts['distribution'] == 'Ubuntu'
+        - ubuntu_sources_file.stat.exists
 
     - name: Füge scaleuptech security Mirror hinzu, falls nicht vorhanden
       lineinfile:
@@ -32,5 +34,8 @@
         line: 'URIs: http://mirror.scaleuptech.com/ubuntu/'
         insertafter: EOF
         state: present
-      when: ansible_facts['distribution'] == 'Ubuntu'
+      when: 
+        - ansible_facts['distribution'] == 'Ubuntu'
+        - ubuntu_sources_file.stat.exists
+        
   when: ansible_facts['distribution'] == 'Ubuntu'

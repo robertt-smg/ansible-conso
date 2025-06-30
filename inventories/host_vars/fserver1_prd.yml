@@ -7,4 +7,10 @@ policy_settings_registry_windows_rdp_server:
     - policytype: "Machine"
       keyvaluename: "Software\\Policies\\Microsoft\\Windows NT\\Terminal Services\\LicenseServers"
       type: "String"
-      data: "SMG-SCA-F01"
+      data: "t01.smg-air-conso.com"
+
+#https://gpsearch.azurewebsites.net/Default.aspx?PolicyID=2513#2488
+    - policytype: "Machine"
+      keyvaluename: "Software\\Policies\\Microsoft\\Windows NT\\Terminal Services\\LicensingMode"
+      type: "Dword"
+      data: 4

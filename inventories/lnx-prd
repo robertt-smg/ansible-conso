@@ -22,11 +22,11 @@ hetzner1_prd ansible_host=148.251.12.68 ansible_ssh_port=31222 ansible_ssh_user=
 
 ## -- FTI Liquidation
 [fti1]
-fti1.prd ansible_host=212.227.100.30 ansible_ssh_port=31222 ansible_ssh_user=ansible ansible_ssh_private_key_file=/mnt/c/users/robertt/.ssh/id_gitlab
+fti1.prd ansible_host=212.227.100.30 ansible_ssh_port=22 ansible_ssh_user=ansible ansible_ssh_private_key_file=/mnt/c/users/robertt/.ssh/id_gitlab
 
 [fti_app1]
 # app01.fti-ticketshop.ovh.euvia-cloud.de via ssh-fti-jmp
-fti_app1.prd ansible_host=192.168.121.1 ansible_ssh_port=2222 ansible_ssh_user=root ansible_ssh_private_key_file=/mnt/c/users/robertt/.ssh/id_gitlab
+fti_app1_prd ansible_host=192.168.121.1 ansible_ssh_port=2222 ansible_ssh_user=root ansible_ssh_private_key_file=/mnt/c/users/robertt/.ssh/id_gitlab
 
 ## ----- SERVER GROUPS
 

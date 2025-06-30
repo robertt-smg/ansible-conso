@@ -29,6 +29,7 @@ suitecrm_server
 
 [passbolt_server:children]
 lserver1
+fti_app1
 
 [passbolt_server_secrets:children]
 passbolt_server
@@ -66,3 +67,9 @@ mitmproxy_server
 
 [wireguard_server:children]
 hetzner1
+
+[js7_server:children]
+lserver3
+
+[js7_server_secrets:children]
+js7_server

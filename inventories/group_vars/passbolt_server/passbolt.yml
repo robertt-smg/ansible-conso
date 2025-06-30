@@ -1,6 +1,6 @@
-passbolt_server:
+passbolt_server_default:
   enabled: true
-  db_server: "{{ ansible_hostname }}"
+  #db_server: "{{ ansible_hostname }}"
   db_server_port: "3306"
   db_server_admin: "root"
   db_name: "passbolt"

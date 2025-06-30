@@ -1,0 +1,7 @@
+cnf_js7_scaleUp:
+  public_ip: l03.smg-air-conso.com
+  
+  smtp:
+    host: mail.smg-air-conso.com # L01
+  db:
+    host: 10.6.2.20 # PROD DB

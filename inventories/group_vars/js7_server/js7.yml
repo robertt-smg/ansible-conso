@@ -1,0 +1,11 @@
+cnf_js7_server_all:
+  app_volume: /var/lib/js7
+  joc_external_port: 4446
+  controller_external_port: 4444
+  db:
+    name: js7db
+    port: 3306
+
+nomad_js7:
+  enabled: true
+  job_name: "js7-server"

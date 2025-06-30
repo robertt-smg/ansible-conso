@@ -16,11 +16,11 @@ hetzner1_tst ansible_host=192.168.121.61 ansible_ssh_port=31222 ansible_ssh_user
 
 # alte fti welt
 [fti1]
-fti1.tst ansible_host=192.168.121.8 ansible_ssh_port=31222 ansible_ssh_user=ansible
+fti1.tst ansible_host=192.168.121.8 ansible_ssh_port=22 ansible_ssh_user=ansible
 
-# fti website / dokuwiki
+# fti neue fti welt
 [fti_app1]
-fti_app1.tst ansible_host=192.168.121.242 ansible_ssh_port=22 ansible_ssh_user=ansible
+fti_app1_tst ansible_host=192.168.121.242 ansible_ssh_port=22 ansible_ssh_user=ansible
 
 ## ----- SERVER GROUPS
 

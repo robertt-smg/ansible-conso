@@ -81,4 +81,12 @@
 #- js7
 - name: Include tasks nomad-js7 if nomad_js7.enabled is defined
   include_tasks: tasks/nomad/js7.yml
-  when: nomad_js7.enabled is defined and nomad_js.enabled is true
+  when: nomad_js7.enabled is defined and nomad_js7.enabled is true
+
+- name: Print all variables
+  debug:
+    var: hostvars[inventory_hostname]
+
+- name: Display all groups the server is in
+  debug:
+    msg: "The server is in the following groups: {{ group_names }}"    

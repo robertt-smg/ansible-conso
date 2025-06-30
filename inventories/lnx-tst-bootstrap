@@ -18,9 +18,9 @@ hetzner1_tst ansible_host=192.168.121.61 ansible_ssh_port=22 ansible_ssh_user=ad
 [fti1]
 fti1.tst ansible_host=192.168.121.8 ansible_ssh_port=22 ansible_ssh_user=admin
 
-# fti website / dokuwiki
+# neue fti welt
 [fti_app1]
-fti_app1.tst ansible_host=192.168.121.242 ansible_ssh_port=22 ansible_ssh_user=admin
+fti_app1_tst ansible_host=192.168.121.242 ansible_ssh_port=22 ansible_ssh_user=admin
 
 ## ----- SERVER GROUPS
 

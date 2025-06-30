@@ -1,9 +1,9 @@
-cnf_vault_default:
+cnf_js7_default:
   enabled: true
-  port: 8200
   cpu: 512
-  memory: 1024
+  memory: 4096
   memory_hard_limit: 37570
-  app_volume: /var/lib/vault
+  app_volume: /var/lib/js7
   
-  image_version: "vault:latest"
+  image_version_joc: "js7-joc:joc-2-7-4"
+  image_version_controller: "js7-controller:controller-2-7-4-1"
