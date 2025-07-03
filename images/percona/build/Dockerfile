@@ -15,14 +15,16 @@ RUN date && \
 
 COPY ./files/healthweb.sh  /var/www/html/
 COPY ./files/00-healthweb.conf /etc/lighttpd/conf-enabled/
-    
+COPY ./files/docker-entrypoint.sh /docker-entrypoint.sh
+
 #USER mysql
 #EXPOSE 3306 33060
 #CMD ["mysqld"]
 #ENTRYPOINT ["/docker-entrypoint.sh"]
 
-EXPOSE 3306
+EXPOSE 3306 8000
 USER 1001
-ENTRYPOINT [ "/opt/bitnami/scripts/mysql/entrypoint.sh" ]
+## ENTRYPOINT [ "/opt/bitnami/scripts/mysql/entrypoint.sh" ]
+ENTRYPOINT [ "/docker-entrypoint.sh" ]
 CMD [ "/opt/bitnami/scripts/mysql/run.sh" ]
 

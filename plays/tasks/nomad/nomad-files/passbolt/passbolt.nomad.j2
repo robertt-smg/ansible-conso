@@ -61,8 +61,8 @@ job "{{ job_name }}" {
         {% set image_version= passbolt.image_version %}
         {% include "nomad-files/github_registry.j2" %}
         
-        hostname = "passbolt.la-cuna.icu"
-        extra_hosts = [ "api.la-cuna.icu:{{ passbolt.api_external_host_ip }}" ]
+        hostname = "passbolt.inhouse.fti-ticketshop.de" #"passbolt.la-cuna.icu"
+        extra_hosts = [ "api.fti-ticketshop.com:{{ passbolt.api_external_host_ip }}" ]
          
         ports = [ "passbolt" ]
         volumes = [
@@ -74,6 +74,7 @@ job "{{ job_name }}" {
             "{{ nomad_data_dir }}/jobs/{{ job_name }}/data/gpg_volume:/gpg",
             "{{ nomad_data_dir }}/jobs/{{ job_name }}/data/jwt_volume:/jwt",
             "{{ nomad_data_dir }}/jobs/{{ job_name }}/data/:/data",
+            "{{ nomad_data_dir }}/jobs/{{ job_name }}/data/tmp_volume:/var/lib/passbolt/tmp",
             "{{ nomad_log_dir }}/{{ job_name }}/nginx:/var/log/nginx"
 
         ]  
@@ -103,8 +104,8 @@ job "{{ job_name }}" {
          max_file_size = 15
       }
       resources {
-        cpu = 2048
-        memory = 2048
+        cpu = 1024
+        memory = 1024
 
       }   
     }

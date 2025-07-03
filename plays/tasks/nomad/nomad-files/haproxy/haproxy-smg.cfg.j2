@@ -62,6 +62,10 @@ frontend ft_http_api
         acl is_neocore hdr(host) -i neocore.smg-air-conso.com
         use_backend neocore if is_neocore_test or is_neocore
 
+        acl is_js7_test hdr(host) -i js7.test.smg-air-conso.com
+        acl is_js7 hdr(host) -i js7.smg-air-conso.com
+        use_backend js7_joc if is_js7_test or is_js7
+
         mode http
 
         # use_backend passbolt if passbolt
@@ -98,5 +102,12 @@ backend neocore
     mode http
     balance roundrobin
     server neocore_server  {{neocore.public_ip}}:{{ neocore.external_port }} check
+
+
+backend js7_joc
+    mode http
+    balance roundrobin
+    server js7_server  {{js7.public_ip}}:{{ js7.joc_external_port }} check 
+
 
 #eof - haproxy need empty LF

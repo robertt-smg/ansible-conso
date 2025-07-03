@@ -1,6 +1,0 @@
-
-lego_acme_lserver1:
-  image_version: lego_acme:v4.22
-  email: robert.thurnreiter@schmetterling.de
-  domains: test.smg-air-conso.com,passbolt.smg-air-conso.com,neocore.smg-air-conso.com,airna.smg-air-conso.com,passbolt.test.smg-air-conso.com,neocore.test.smg-air-conso.com,airna.test.smg-air-conso.com,l1.test.smg-air-conso.com,l2.test.smg-air-conso.com,l1.smg-air-conso.com,l2.smg-air-conso.com
-  use_staging: 1

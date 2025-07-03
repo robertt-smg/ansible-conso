@@ -15,6 +15,9 @@ lserver1_prd ansible_host=10.6.1.158 ansible_ssh_port=31222 ansible_ssh_user=ans
 [lserver2]
 lserver2_prd ansible_host=10.6.1.168 ansible_ssh_port=31222 ansible_ssh_user=ansible connection_timeout=240
 
+[lserver3]
+lserver3_prd ansible_host=10.6.1.91 ansible_ssh_port=31222 ansible_ssh_user=ansible connection_timeout=240
+
 # ---- SMG Intl - Hetzner
 # fw+ project
 [hetzner1]
@@ -38,18 +41,20 @@ fti_app1
 dbserver1
 lserver1
 lserver2
+lserver3
 
 [lsmg:children]
 dbserver1
 lserver1
 lserver2
+lserver3
 
-[hetzner:children]
+[hetzner_prd:children]
 hetzner1
 
 [prd:children]
 fti
 lsmg
-hetzner
+hetzner_prd
 
 

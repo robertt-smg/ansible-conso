@@ -1,0 +1,11 @@
+- hosts: all
+  become: true
+  gather_facts: true
+
+  vars_files:
+  - main/vars.yml
+
+  tasks:
+  - name: Include tasks nomad-js7 if nomad_js7.enabled is defined
+    include_tasks: ../tasks/nomad/js7.yml
+    when: nomad_js7.enabled is defined and nomad_js7.enabled is true

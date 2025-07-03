@@ -2,4 +2,6 @@ certbot_prd:
   staging: false
 
 lego_acme_prd:
+  image_version: lego_acme:v4.22
+  email: robert.thurnreiter@schmetterling.de
   use_staging: 0

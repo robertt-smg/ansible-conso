@@ -105,7 +105,7 @@ job "{{ job_name }}" {
         volume_driver = "local"
         {% endif %}
          
-        ports = [ "percona_port" ]
+        ports = [ "percona_port", "percona_health_port" ]
       }
       service {
         name = "{{ job_name }}"

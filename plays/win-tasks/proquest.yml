@@ -14,8 +14,8 @@
   ansible.windows.win_package:
     path: c:\windows\temp\proquestDLLSetup.msi
     log_path: c:\windows\temp\proquestDLLSetup.log
-    
-    product_id: '{DCD1066B-79CC-4108-90CD-91822DAFA94B}'  # Replace with actual product ID from the MSI
+    # Computer\HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall\
+    product_id: '{279CB4DC-B7DE-4307-9EE5-FD43EDB9BF3A}' # alt 2.0.1 '{DCD1066B-79CC-4108-90CD-91822DAFA94B}'  # Replace with actual product ID from the MSI
   register: install_result
   ignore_errors: true
 

@@ -7,6 +7,9 @@ export TZ=Europe/Berlin
 rm -rf  /tmp/* /var/tmp/*  
 echo "Build date: $(date)" > /version.txt
 
+mkdir -p /var/log/lighttpd
+chown 1001:1000 /var/log/lighttpd
+
 apt-get update
 apt-get install -y lighttpd
 

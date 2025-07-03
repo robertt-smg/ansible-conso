@@ -1,4 +1,4 @@
 
 extra_apps_list:
   bareos_client:
-    enabled: true
+    enabled: false # manual install and config

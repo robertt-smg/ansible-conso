@@ -1,2 +1,2 @@
 chocoapps_list_wminiaq1:
-  - heidisql
+  # - heidisql # choco install is broken

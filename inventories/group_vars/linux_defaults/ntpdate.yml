@@ -1,2 +1,2 @@
-ntpdate_enabled: true
-curldate_enabled: false
+# ntpdate_enabled: true
+# curldate_enabled: false

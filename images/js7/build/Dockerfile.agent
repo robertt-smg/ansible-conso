@@ -1,0 +1,19 @@
+#FROM percona:8.0.36-28-centos
+FROM sosberlin/js7:agent-2-7-4
+
+ENV TZ=Europe/Berlin 
+
+COPY ./files/setup-agent.sh /tmp/setup.sh
+COPY ./files/docker-entrypoint-agent.sh /docker-entrypoint.sh
+COPY ./files/healthweb-agent.sh  /var/www/html/healthweb.sh
+COPY ./files/00-healthweb.conf /etc/lighttpd/conf-enabled/
+
+USER root
+RUN date &&\
+    chmod +x /tmp/setup.sh /docker-entrypoint.sh
+    
+RUN date -u && \
+    /bin/bash /tmp/setup.sh
+
+ENTRYPOINT [ "/bin/bash" ]
+CMD [ "/docker-entrypoint.sh" ]

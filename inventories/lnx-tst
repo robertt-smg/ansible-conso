@@ -34,10 +34,10 @@ lserver3
 fti1
 fti_app1
 
-[hetzner:children]
+[hetzner_tst:children]
 hetzner1
 
 [tst:children]
 lsmg
 fti
-hetzner
+hetzner_tst

@@ -1,4 +1,16 @@
 nomad_passbolt:
   enabled: true
+  cpu: 1024
+  memory: 1024
   job_name: "passbolt-server"
   template_sub_dir: "fti"
+
+passbolt_server_fti_app1:
+  enabled: true
+  app_full_base_url: https://api.fti-ticketshop.com
+  app_base: /passbolt
+  email_server: "{{ ansible_host }}" 
+  email_from_address: "root@smg-air-conso.de"
+  
+  gpg_server_key_fingerprint: "91083DBFFC1F20E84EEA94C275B4A775EB418005"
+  api_external_host_ip: "{{ ansible_host }}"

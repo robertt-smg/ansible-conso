@@ -1,7 +1,7 @@
 cnf_percona_server1:
     server:
       id: 1234
-    cpu: 4096
+    cpu: 2048
     memory: 8192
 
 ## percona db server

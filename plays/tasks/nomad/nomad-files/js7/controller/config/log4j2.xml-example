@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN" shutdownHook="disable">
+    <Properties>
+        <Property name="TimeZone">${env:JS7_CONTROLLER_TZ:-Etc/UTC}</Property>
+        <Property name="LogDir">${env:JS7_CONTROLLER_LOGS:-logs}</Property>
+        <Property name="LogBasename">${env:JS7_CONTROLLER_APPNAME:-controller}</Property>
+        
+        <Property name="RetainDays">30d</Property>
+        <Property name="MaxSizeOfRolledOverFiles">5GB</Property>
+        <Property name="MaxSizePerFile">100MB</Property>
+        
+        <!-- Log level of the Root Logger. -->
+        <Property name="RootLogLevel">INFO</Property>
+        
+        <!-- Configuration for a 2nd debug log file (OFF|DEBUG|TRACE) 
+             If this value is set to DEBUG or TRACE then the above 
+             RootLogLevel has to have the same value.
+        -->
+        <Property name="LogLevelOfDebugLog">OFF</Property>
+        
+        <!-- Log level of the logger that uses the 'LogNotificationAppender' (OFF|WARN|ERROR)  
+             If this value is set to WARN or ERROR then the 
+             'SysLogHost' property has to be set with the host of the JOC Cockpit
+        -->
+        <Property name="SysLogLevel">OFF</Property>
+        <Property name="SysLogHost">localhost</Property>
+        <Property name="SysLogPort">4245</Property>
+        
+    </Properties>
+    
+    <Appenders>
+        <RollingRandomAccessFile name="fileInfo"
+                fileName="${LogDir}/${LogBasename}.log"
+                filePattern="${LogDir}/${LogBasename}-%d{yyyy-MM-dd}-%i.log.gz"
+                immediateFlush="false">
+            <PatternLayout>
+                <Pattern>%d{ISO8601}{${TimeZone}} %-5level{INFO=info, DEBUG=debug, TRACE=trace} %logger - %message%n</Pattern>
+                <Header>%d{ISO8601}{${TimeZone}} Begin JS7 %X{js7.serverId} · %X{js7.prettyVersion} · %X{js7.system}%n</Header>
+                <Footer>%d{ISO8601}{${TimeZone}} End of logging%n</Footer>
+                <Charset>UTF-8</Charset>
+            </PatternLayout>
+            <Policies>
+                <TimeBasedTriggeringPolicy/>
+                <SizeBasedTriggeringPolicy size="${MaxSizePerFile}"/>
+            </Policies>
+            <DefaultRolloverStrategy fileIndex="nomax">
+                <Delete basePath="${LogDir}/" followLinks="true">
+                    <IfFileName glob="${LogBasename}-*.log.gz" >
+                        <IfAny>
+                            <IfLastModified age="${RetainDays}" />
+                            <IfAccumulatedFileSize exceeds="${MaxSizeOfRolledOverFiles}"/>
+                        </IfAny>
+                    </IfFileName>
+                </Delete>
+            </DefaultRolloverStrategy>
+        </RollingRandomAccessFile>
+        
+        <RollingRandomAccessFile name="fileDebug"
+                fileName="${LogDir}/${LogBasename}-debug.log"
+                filePattern="${LogDir}/${LogBasename}-debug-%d{yyyy-MM-dd}-%i.log.gz"
+                immediateFlush="false">
+            <PatternLayout>
+                <Pattern>%d{ISO8601}{${TimeZone}} %-5level{INFO=info, DEBUG=debug, TRACE=trace} %notEmpty{%X{js7.correlId} }%logger - %message%n</Pattern>
+                <Header>%d{ISO8601}{${TimeZone}} Begin JS7 %X{js7.serverId} · %X{js7.prettyVersion} · %X{js7.system}%n</Header>
+                <Footer>%d{ISO8601}{${TimeZone}} End of logging%n</Footer>
+                <Charset>UTF-8</Charset>
+            </PatternLayout>
+            <Policies>
+                <TimeBasedTriggeringPolicy/>
+                <SizeBasedTriggeringPolicy size="${MaxSizePerFile}"/>
+            </Policies>
+            <DefaultRolloverStrategy fileIndex="nomax">
+                <Delete basePath="${LogDir}/" followLinks="true">
+                    <IfFileName glob="${LogBasename}-*.log.gz" >
+                        <IfAny>
+                            <IfLastModified age="${RetainDays}" />
+                            <IfAccumulatedFileSize exceeds="${MaxSizeOfRolledOverFiles}"/>
+                        </IfAny>
+                    </IfFileName>
+                </Delete>
+            </DefaultRolloverStrategy>
+        </RollingRandomAccessFile>
+        
+        <Syslog name="logNotificationAppender" format="RFC5424" host="${SysLogHost}" port="${SysLogPort}" protocol="UDP">
+            <ThresholdFilter level="WARN"/>
+            <PatternLayout charset="UTF-8" pattern="&lt;134&gt;1 %d{yyyy-MM-dd'T'HH:mm:ss.SSS}{Etc/UTC}Z ${hostName} Controller {
+&quot;controllerId&quot;:&quot;%X{js7.serverId}&quot;,
+&quot;instanceId&quot;:&quot;%X{js7.clusterNodeId}&quot;,
+&quot;level&quot;:&quot;%p&quot;,
+&quot;logger&quot;:&quot;%c{1}&quot;,
+&quot;message&quot;:&quot;%enc{%m}{JSON}&quot;,
+&quot;thrown&quot;:&quot;%enc{%throwable{10}}{JSON}&quot;}"/>
+        </Syslog>
+        
+    </Appenders>
+    
+    <Loggers>
+        <Logger name="spray" level="INFO"/>
+        <Logger name="org.apache.pekko" level="INFO"/>
+        <Logger name="org.apache.pekko.event.slf4j.Slf4jLogger" level="WARN"/>
+        <Logger name="org.apache.pekko.actor.CoordinatedShutdown" level="WARN"/>
+        <Root level="${RootLogLevel}">
+            <AppenderRef ref="fileInfo" level="INFO"/>
+            <AppenderRef ref="fileDebug" level="${LogLevelOfDebugLog}"/>
+            <AppenderRef ref="logNotificationAppender" level="${SysLogLevel}"/>
+        </Root>
+    </Loggers>
+</Configuration>

@@ -8,3 +8,4 @@ cnf_vault_default:
   
   image_version_joc: "js7-joc:joc-2-7-4"
   image_version_controller: "js7-controller:controller-2-7-4-1"
+  image_version_agent: "js7-controller:agent-2-7-4"

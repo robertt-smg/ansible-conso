@@ -74,6 +74,30 @@ services:
 
     restart: "no"
 
+  js7-agent-primary:
+    #image: sosberlin/js7:agent-2-7-3
+    image: ghcr.io/robertt-smg/js7-agent:agent-2-7-4
+    depends_on:
+      - db
+      - js7-joc-primary
+      - js7-controller-primary
+
+    hostname: js7-agent-primary
+    ports:
+      - "127.0.0.218:4445:4445"
+    volumes:
+      - ./agent-primary:/var/sos-berlin.com/js7/agent/var_4445
+
+    networks:
+      salt-vm:
+        ipv4_address: 192.168.11.219
+
+    environment:
+      RUN_JS_JAVA_OPTIONS: -Xmx256m
+      RUN_JS_USER_ID: "1000:0"
+
+    restart: "no"
+
 networks:
   salt-vm:
      external: true

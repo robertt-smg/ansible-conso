@@ -33,10 +33,22 @@ job "{{ job_name }}" {
         static = {{ js7.joc_external_port }} 
         to = 4446 
       }
+      port "agent_external_port" { 
+        static = {{ js7.agent_external_port }} 
+        to = 4445 
+      } 
+      port "agent_health_port" { 
+        static ={{ js7.agent_health_port }} 
+        to = 8000
+      }
       port "controller_external_port" { 
         static = {{ js7.controller_external_port }} 
         to = 4444 
       } 
+      port "controller_health_port" { 
+        static ={{ js7.controller_health_port }} 
+        to = 8000
+      }
 
       mode = "host"
     }
@@ -72,13 +84,15 @@ job "{{ job_name }}" {
         labels {
           group = "js7-scheduler"
         }
+        # debug - entrypoint = [ "tail", "-f", "/dev/null",	]
+
         extra_hosts = [
           "mail.smg-air-conso.com:{{ js7.smtp.host }}",
           "js7_mail_server:{{ js7.smtp.host }}",
           "joc_db_server:{{ js7.db.host }}",
         ]
         volumes = [
-            "{{ js7.app_volume }}/data/config:/var/sos-berlin.com/js7/joc/resources/joc",
+            "{{ js7.app_volume }}/data/config/joc:/var/sos-berlin.com/js7/joc/resources/joc",
             "{{ js7.app_volume }}/data/log-joc:/var/sos-berlin.com/js7/joc/logs",
         ]
         {% if nomad_config_driver_is_docker is defined and nomad_config_driver_is_docker %}
@@ -143,17 +157,17 @@ job "{{ job_name }}" {
         volume_driver = "local"
         {% endif %}
          
-        ports = [ "controller_external_port" ]
+        ports = [ "controller_external_port", "controller_health_port" ]
         
       }
       service {
         name = "{{ job_name }}-controller"
-        port = "controller_external_port"
+        port = "controller_health_port"
         provider = "nomad"
         check {
           type     = "http"
-          port     = "controller_external_port"
-          path = "/"
+          port     = "controller_health_port"
+          path = "/healthweb.sh"
           interval = "120s"
           timeout  = "30s"
           protocol = "http"
@@ -170,5 +184,65 @@ job "{{ job_name }}" {
         memory = {{ js7.memory }}
       }
     }    
+
+
+
+        task "js7-agent" {
+      {% if nomad_config_driver_is_docker is defined and nomad_config_driver_is_docker %}
+      driver = "docker"
+      {% else %}
+      driver = "podman"
+      {% endif %}
+      env {  
+          RUN_JS_JAVA_OPTIONS="-Xmx256m"
+          RUN_JS_USER_ID="1000:0"
+      }
+      config {
+        {% set image_version= js7.image_version_agent %}
+        {% include "nomad-files/github_registry.j2" %}
+        hostname = " js7-agent-primary"
+        labels {
+          group = "js7-scheduler"
+        }
+        extra_hosts = [
+          "mail.smg-air-conso.com:{{ js7.smtp.host }}",
+          "js7_mail_server:{{ js7.smtp.host }}",
+          "joc_db_server:{{ js7.db.host }}",
+        ]
+        volumes = [
+            "{{ js7.app_volume }}/data/agent-primary:/var/sos-berlin.com/js7/agent/var_4445",
+        ]
+        {% if nomad_config_driver_is_docker is defined and nomad_config_driver_is_docker %}
+        volume_driver = "local"
+        {% endif %}
+         
+        ports = [ "agent_external_port", "agent_health_port" ]
+        
+      }
+      service {
+        name = "{{ job_name }}-agent"
+        port = "agent_health_port"
+        provider = "nomad"
+        check {
+          type     = "http"
+          port     = "agent_health_port"
+          path = "/healthweb.sh"
+          interval = "120s"
+          timeout  = "30s"
+          protocol = "http"
+          tls_skip_verify = true
+        }
+      }
+      logs {
+         max_files     = 2
+         max_file_size = 15
+      }
+ 
+      resources {
+        cpu = {{ js7.cpu }}
+        memory = {{ js7.memory }}
+      }
+    }    
+
   }
 }

@@ -5,6 +5,9 @@ ENV TZ=Europe/Berlin
 
 COPY ./files/setup-controller.sh /tmp/setup.sh
 COPY ./files/docker-entrypoint-controller.sh /docker-entrypoint.sh
+COPY ./files/healthweb.sh  /var/www/html/
+COPY ./files/00-healthweb.conf /etc/lighttpd/conf-enabled/
+
 
 USER root
 RUN date &&\

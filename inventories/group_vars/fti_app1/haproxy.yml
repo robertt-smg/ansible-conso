@@ -3,9 +3,9 @@ nomad_haproxy:
   enabled: true
   use_certbot: false
   use_lego_acme: true
-  job_name: "smg-conso-haproxy"
+  job_name: "fti-inso-haproxy"
   server_pem: server.pem
-  cfg_template: "haproxy-smg"
+  cfg_template: "haproxy-fti"
   haproxy:
     domain_list: "test.smg-air-conso.com,passbolt.smg-air-conso.com,neocore.smg-air-conso.com,crm.smg-air-conso.com,kim.test.smg-air-conso.com,l1.test.smg-air-conso.com,l2.test.smg-air-conso.com"
     cookie_domain: "{{ ansible_fqdn }}"

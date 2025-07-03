@@ -1,6 +1,3 @@
 
 lego_acme_lserver3:
-  image_version: lego_acme:v4.22
-  email: robert.thurnreiter@schmetterling.de
-  domains: airna.smg-air-conso.com,l3.smg-air-conso.com
-  use_staging: 1
+  domains: js7.smg-air-conso.com,l3.smg-air-conso.com,js7.test.smg-air-conso.com,l3.test.smg-air-conso.com

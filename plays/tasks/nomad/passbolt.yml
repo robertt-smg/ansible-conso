@@ -96,6 +96,7 @@
   loop:
     - gpg
     - jwt
+    - tmp
 
 - name: Manage serverkey.asc file {{ nomad_passbolt.job_name }}
   copy:

@@ -16,7 +16,7 @@ lserver1_prd ansible_host=10.6.1.158 ansible_ssh_port=22 ansible_ssh_user=ubuntu
 lserver2_prd ansible_host=10.6.1.168 ansible_ssh_port=22 ansible_ssh_user=ubuntu
 
 [lserver3]
-lserver3_prd ansible_host=10.6.1.168 ansible_ssh_port=22 ansible_ssh_user=ubuntu
+lserver3_prd ansible_host=10.6.1.91 ansible_ssh_port=22 ansible_ssh_user=ubuntu
 
 # ---- SMG Intl - Hetzner
 # fw+ project
@@ -43,11 +43,13 @@ lserver1
 lserver1_strato
 lserver2
 lserver2_strato
+lserver3
 
 [scaleUp:children]
 dbserver1
 lserver1
 lserver2
+lserver3
 
 [hetzner:children]
 hetzner1

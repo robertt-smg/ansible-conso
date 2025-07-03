@@ -2,9 +2,9 @@
   file:
     path: "{{ nomad_log_dir }}/{{ nomad_js7.job_name }}"
     state: directory
-    owner: www-data
-    group: www-data
-    mode: "0775"
+    owner: 1000
+    group: 1000
+    mode: "0777"
     recurse: yes
 
 - name: Create application volume and dirs {{ nomad_js7.job_name }}
@@ -19,6 +19,7 @@
     - log-joc
     - log-controller
     - controller-primary
+    - agent-primary
     - config
     - certs
 
@@ -26,17 +27,35 @@
   copy:
     src: "{{nomad_certs}}.certs/global-server-nomad.pem"
     dest: "{{ js7.app_volume }}/data/certs/server.pem"
-    owner: nomad
-    group: nomad
+    owner: 1000
+    group: 1000
+    mode: '0775'
+  become: true
+
+- name: js7 copy joc config
+  copy:
+    src: nomad-files/js7/joc/config/
+    dest: "{{ js7.app_volume }}/data/config/joc/"
+    owner: 1000
+    group: 1000
     mode: '0775'
   become: true
 
 - name: js7 Create config
   template:
-    src: nomad-files/js7/config.hcl.j2
-    dest: "{{ js7.app_volume }}/data/config/config.hcl"
-    owner: nomad
-    group: nomad
+    src: nomad-files/js7/joc/config/hibernate.cfg.xml
+    dest: "{{ js7.app_volume }}/data/config/joc/hibernate.cfg.xml"
+    owner: 1000
+    group: 1000
+    mode: '0775'
+  become: true
+
+- name: js7 copy controller config
+  copy:
+    src: nomad-files/js7/controller/
+    dest: "{{ js7.app_volume }}/data/controller-primary/"
+    owner: 1000
+    group: 1000
     mode: '0775'
   become: true
 
@@ -44,8 +63,8 @@
   copy:
     src: "{{nomad_certs}}.certs/global-server-nomad-key.pem"
     dest: "{{ js7.app_volume }}/data/certs/server-key.pem"
-    owner: nomad
-    group: nomad
+    owner: 1000
+    group: 1000
     mode: '0775'
   become: true
 
@@ -53,8 +72,8 @@
   template:
     src: nomad-files/js7/js7.nomad.j2
     dest: "{{ nomad_data_dir }}/jobs/{{ nomad_js7.job_name }}.nomad"
-    owner: nomad
-    group: nomad
+    owner: 1000
+    group: 1000
     mode: "0644"
   vars:
     job_name: "{{ nomad_js7.job_name }}"
@@ -78,14 +97,14 @@
     config_dir: "{{ nomad_data_dir }}/jobs/{{ nomad_js7.job_name }}"
   register: js7_nomad_file_changed
 
-- name: "Check js7 service status http//{{ nomad_advertise_address }}:{{ js7.external_ui_port }}/"
+- name: "Check js7 service status http//{{ nomad_advertise_address }}:{{ js7.controller_health_port }}/"
   uri:
-    url: "http//{{ nomad_advertise_address }}:{{ js7.external_ui_port }}/"
+    url: "http//{{ nomad_advertise_address }}:{{ js7.controller_health_port }}/"
     method: GET
     status_code: 200
     validate_certs: no
   ignore_errors: true
   until: js7_status.status == 200
-  retries: 2
-  delay: 10
+  retries: 3
+  delay: 20
   register: js7_status

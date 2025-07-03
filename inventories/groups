@@ -1,9 +1,7 @@
-
-
 [linux_defaults:children]
 lsmg
 fti
-hetzner
+hetzner1
  
 [linux_defaults_secrets:children]
 linux_defaults
