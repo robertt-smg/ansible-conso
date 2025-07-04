@@ -1,0 +1,59 @@
+---
+# Ansible tasks to manage a new domain, add servers, groups, and users (idempotent)
+# Uses microsoft.ad collection
+
+- name: Check if domain exists
+  microsoft.ad.object_info:
+    identity: "DC={{ ad_domain_name | default('example') }},DC={{ ad_domain_suffix | default('local') }}"
+  register: ad_domain_info
+  ignore_errors: true
+
+- name: Create domain if not exists
+  microsoft.ad.domain:
+    dns_domain_name: "{{ ad_domain_name | default('example') }}.{{ ad_domain_suffix | default('local') }}"
+    safe_mode_password: "{{ ad_domain_safe_mode_password }}"
+  when: ad_domain_info.objects is not defined or ad_domain_info.objects | length == 0
+  register: ad_domain_create
+
+# Gather all unique groups from winusers_list_default
+- name: Gather all unique groups from winusers_list_default
+  set_fact:
+    ad_all_groups: "{{ winusers_list_default | dict2items | map(attribute='value.groups') | select('defined') | sum(start=[]) | unique }}"
+
+- name: Ensure all groups exist in AD
+  microsoft.ad.group:
+    name: "{{ item }}"
+    scope: global
+    state: present
+  loop: "{{ ad_all_groups }}"
+
+- name: Ensure users exist and are configured
+  microsoft.ad.user:
+    identity: "{{ item.key }}"
+    password: "{{ item.value.password | default(omit) }}"
+    password_never_expires: "{{ item.value.password_never_expires | default(false) }}"
+    update_password: "{{ item.value.update_password | default('on_create') }}"
+    enabled: true
+    groups:
+      add: "{{ item.value.groups | default([]) }}"
+    state: present
+  loop: "{{ winusers_list_default | dict2items }}"
+
+# Add servers to domain
+- name: Ensure computer objects exist in AD
+  microsoft.ad.computer:
+    name: "{{ item }}"
+    state: present
+  loop: "{{ ad_servers_list | default([]) }}"
+
+- name: Join servers to domain (run on each server)
+  microsoft.ad.membership:
+    dns_domain_name: "{{ ad_domain_name | default('example') }}.{{ ad_domain_suffix | default('local') }}"
+    domain_admin_user: "{{ ad_domain_admin_user }}"
+    domain_admin_password: "{{ ad_domain_admin_password }}"
+    state: domain
+  delegate_to: "{{ item }}"
+  loop: "{{ ad_servers_list | default([]) }}"
+  when: ad_servers_list is defined and ad_servers_list | length > 0
+
+# Optionally, you can add a task to verify users, groups, and computers exist as expected

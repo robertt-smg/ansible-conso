@@ -17,22 +17,7 @@
     mode: "0777"
     recurse: yes
 
-- name: Manage HAProxy configuration file
-  template:
-    src: nomad-files/haproxy/{{nomad_haproxy.cfg_template}}.cfg.j2
-    dest: "{{ nomad_data_dir }}/jobs/{{ nomad_haproxy.job_name }}/haproxy.cfg"
-    owner: root
-    group: root
-    mode: "0644"
-  vars:
-    job_name: "{{ nomad_haproxy.job_name }}"
-    public_ip: "{{ nomad_advertise_address }}"
-    job_dir: "{{ nomad_data_dir }}/jobs/{{ nomad_haproxy.job_name }}"
-    domain_list: "{{ nomad_haproxy.domain_list }}"
-    cookie_domain: "{{ nomad_haproxy.cookie_domain }}"
-    maxconn: "{{ nomad_haproxy.haproxy.maxconn }}"
-
-- name: Manage HAProxy configuration file
+- name: Manage HAProxy configuration file {{nomad_haproxy.cfg_template}}.cfg.j2
   template:
     src: nomad-files/haproxy/{{nomad_haproxy.cfg_template}}.cfg.j2
     dest: "{{ nomad_data_dir }}/jobs/{{ nomad_haproxy.job_name }}/haproxy.cfg"

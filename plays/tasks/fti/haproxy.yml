@@ -17,7 +17,7 @@
     mode: "0644"
     force: no
 
-- name: Manage HAProxy configuration file
+- name: Manage HAProxy configuration file haproxy-fti.cfg.j2
   template:
     src: files/haproxy-fti.cfg.j2
     dest: "/etc/haproxy/haproxy.cfg"
@@ -30,15 +30,7 @@
     path: "/etc/haproxy/certbot"
     state: directory
     mode: '0755'  # Set the desired permissions
-
-- name: Manage HAProxy configuration file
-  template:
-    src: files/certbot.env.j2
-    dest: "/etc/haproxy/certbot/.env"
-    owner: root
-    group: root
-    mode: "0644"
-  notify: Restart HAProxy
+ 
 
 - name: Manage certbot scripts
   copy:

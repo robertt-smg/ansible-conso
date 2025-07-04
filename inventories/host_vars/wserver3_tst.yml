@@ -1,4 +1,4 @@
-win_hostname: SMG-TST-W02
+win_hostname: SMG-TST-W03
 
 policy_settings_registry_windows_rdp_wserver2:
 ## --------------------------------------------

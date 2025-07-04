@@ -6,6 +6,7 @@
     login_password: "{{ passbolt.db_server_admin_password }}"
     name: "{{ passbolt.db_name }}"
     state: present
+  when: passbolt.create_db_enabled is defined and passbolt.create_db_enabled is true
 
 - name: Create database user {{ passbolt.db_user }}
   mysql_user:
@@ -22,6 +23,7 @@
     state: present
     priv: 
       'passbolt.*': 'ALL,GRANT'
+  when: passbolt.create_db_user is defined and passbolt.create_db_user is true
 
 - name: Create log directory {{ nomad_passbolt.job_name }}
   file:

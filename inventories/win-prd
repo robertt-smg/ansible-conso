@@ -47,12 +47,14 @@ strato2_stg
 fserver1
 wserver1
 wserver2
+wserver3
 tserver1
 
 [scaleUp_secrets:children]
 fserver1
 wserver1
 wserver2
+wserver3
 
 [tserver1_prd_secrets:children]
 tserver1

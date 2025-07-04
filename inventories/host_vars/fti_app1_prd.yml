@@ -1,0 +1,22 @@
+passbolt_server_fti_app1_prd:
+  enabled: true
+  db_server: "10.220.6.18"
+  public_ip: "10.220.6.18"
+  db_server_port: "3306"
+  db_server_admin: "root"
+  db_name: "passbolt_fti"
+  db_user: "passbolt"
+  db_password: "yrT1a5Cr7kNGS5nHLJEA"
+  fti_app_1: true
+
+cnf_neocore_prd:
+  public_ip: "10.220.6.18"
+  external_port: 2080
+  external_admin_port: 2990
+  neocore_db_server: "10.220.6.18"
+
+lego_acme_fti_prd:
+  use_staging: 1 # we can't get real ssl for FTI anyway
+
+passbolt_server_prd_fti:
+  app_full_base_url: https://api.fti-ticketshop.com
