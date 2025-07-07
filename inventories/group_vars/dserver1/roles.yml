@@ -5,8 +5,8 @@ winserver_roles_enabled_wserver3:
   port_sharing: true
   rdpserver: false
   defender: true
-  ad-domain-services: true
+  ad_domain_services: true
   dns: true
-  rsat-adds: true
-  rsat-dns-server: true
+  rsat_adds: true
+  rsat_dns_server: true
   gpmc: true

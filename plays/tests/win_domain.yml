@@ -1,0 +1,22 @@
+- hosts: all
+  become: true
+  become_method: runas
+  become_user: Administrator
+  gather_facts: false
+
+  vars_files:
+  - main/vars.yml
+
+  tasks:
+
+  - name: Enable server roles
+    include_tasks: ../win-tasks/roles.yml
+    when: winserver_roles_enabled is defined
+
+  - name: Create AD domain
+    include_tasks: ../win-tasks/ad-domain.yml
+    when: ad_create_domain is defined and ad_create_domain is true
+
+  - name: Add server to domain
+    include_tasks: ../win-tasks/ad-domain-server.yml
+    when: ad_servers_list is defined and ad_servers_list | length > 0

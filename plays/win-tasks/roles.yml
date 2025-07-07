@@ -96,16 +96,109 @@
     state: present
   register: windows_defender_check 
   when: winserver_roles_enabled.defender is defined and winserver_roles_enabled.defender
-  
+
 - name: Enable Windows-Defender
   ansible.windows.win_feature:
     name:
       - Windows-Defender
     state: present
     include_sub_features: true
-    
   register: win_feature_windows_defender
   when: winserver_roles_enabled.defender is defined and winserver_roles_enabled.defender and (windows_defender_check is not defined or windows_defender_check != 'installed')
+
+# --- Active Directory Domain Controller / AD roles ---
+
+- name: Check if ad_domain_services is installed
+  ansible.windows.win_feature:
+    name: "AD-Domain-Services"
+    state: present
+  register: ad_domain_services_check
+  when: winserver_roles_enabled.ad_domain_services is defined and winserver_roles_enabled.ad_domain_services
+
+- name: Enable server ad_domain_services
+  ansible.windows.win_feature:
+    name:
+      - "AD-Domain-Services"
+    state: present
+    include_sub_features: true
+    include_management_tools: true
+  register: win_feature_ad_domain_services
+  when: winserver_roles_enabled.ad_domain_services is defined and winserver_roles_enabled.ad_domain_services and (ad_domain_services_check is not defined or ad_domain_services_check != 'installed')
+
+## if we have to install AD, we need reboot, regardless what ansible.windows.win_feature reports
+
+- name: Check if Reboot is required for ad_domain_services
+  set_fact:
+    role_reboot_required: true
+  when: winserver_roles_enabled.ad_domain_services is defined and winserver_roles_enabled.ad_domain_services and (ad_domain_services_check is not defined or ad_domain_services_check != 'installed')
+
+
+- name: Check if DNS is installed
+  ansible.windows.win_feature:
+    name: DNS
+    state: present
+  register: dns_check
+  when: winserver_roles_enabled.dns is defined and winserver_roles_enabled.dns
+
+- name: Enable server DNS
+  ansible.windows.win_feature:
+    name:
+      - DNS
+    state: present
+    include_management_tools: true
+  register: win_feature_dns
+  when: winserver_roles_enabled.dns is defined and winserver_roles_enabled.dns and (dns_check is not defined or dns_check != 'installed')
+
+- name: Check if RSAT-ADDS is installed
+  ansible.windows.win_feature:
+    name: RSAT-ADDS
+    state: present
+  register: rsat_adds_check
+  when: winserver_roles_enabled.rsat_adds is defined and winserver_roles_enabled.rsat_adds
+
+- name: Enable server RSAT-ADDS
+  ansible.windows.win_feature:
+    name:
+      - RSAT-ADDS
+    state: present
+    include_management_tools: true
+  register: win_feature_rsat_adds
+  when: winserver_roles_enabled.rsat_adds is defined and winserver_roles_enabled.rsat_adds and (rsat_adds_check is not defined or rsat_adds_check != 'installed')
+
+- name: Check if rsat_dns_server is installed
+  ansible.windows.win_feature:
+    name: "RSAT-DNS-Server"
+    state: present
+  register: rsat_dns_server_check
+  when: winserver_roles_enabled.rsat_dns_server is defined and winserver_roles_enabled.rsat_dns_server
+
+- name: Enable server rsat_dns_server
+  ansible.windows.win_feature:
+    name:
+      - "RSAT-DNS-Server"
+    state: present
+    include_management_tools: true
+  register: win_feature_rsat_dns_server
+  when: winserver_roles_enabled.rsat_dns_server is defined and winserver_roles_enabled.rsat_dns_server and (rsat_dns_server_check is not defined or rsat_dns_server_check != 'installed')
+
+- name: Check if GPMC is installed
+  ansible.windows.win_feature:
+    name: GPMC
+    state: present
+  register: gpmc_check
+  when: winserver_roles_enabled.gpmc is defined and winserver_roles_enabled.gpmc
+
+- name: Enable server GPMC
+  ansible.windows.win_feature:
+    name:
+      - GPMC
+    state: present
+    include_management_tools: true
+  register: win_feature_gpmc
+  when: winserver_roles_enabled.gpmc is defined and winserver_roles_enabled.gpmc and (gpmc_check is not defined or gpmc_check != 'installed')
+
+# --- End AD/DC roles ---
+
 
 - name: Check if Reboot is required for RDS-RD-Server
   set_fact:
@@ -137,7 +230,35 @@
     role_reboot_required: win_feature_windows_defender.reboot_required
   when: win_feature_windows_defender.reboot_required
 
+- name: Check if Reboot is required for ad_domain_services
+  set_fact:
+    role_reboot_required: win_feature_ad_domain_services.reboot_required
+  when: win_feature_ad_domain_services is defined and win_feature_ad_domain_services.reboot_required
+
+- name: Check if Reboot is required for DNS
+  set_fact:
+    role_reboot_required: win_feature_dns.reboot_required
+  when: win_feature_dns is defined and win_feature_dns.reboot_required
+
+- name: Check if Reboot is required for RSAT-ADDS
+  set_fact:
+    role_reboot_required: win_feature_rsat_adds.reboot_required
+  when: win_feature_rsat_adds is defined and win_feature_rsat_adds.reboot_required
+
+- name: Check if Reboot is required for rsat_dns_server
+  set_fact:
+    role_reboot_required: win_feature_rsat_dns_server.reboot_required
+  when: win_feature_rsat_dns_server is defined and win_feature_rsat_dns_server.reboot_required
+
+- name: Check if Reboot is required for GPMC
+  set_fact:
+    role_reboot_required: win_feature_gpmc.reboot_required
+  when: win_feature_gpmc is defined and win_feature_gpmc.reboot_required
+
 - name: Reboot if installed feature requires it
   ansible.windows.win_reboot:
   when: role_reboot_required is defined and role_reboot_required
 
+- name: Wait for system to become reachable over WinRM
+  wait_for_connection:
+      timeout: 900

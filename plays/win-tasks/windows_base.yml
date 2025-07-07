@@ -90,3 +90,13 @@
 - name: Install RemoteApp Tool
   include_tasks: win-tasks/remoteApp.yml
   when: airquest_defaults.airQuestTS is defined and airquest_defaults.airQuestTS
+
+- name: Create AD domain
+  include_tasks: win-tasks/ad-domain.yml
+  when: ad_create_domain is defined and ad_create_domain is true
+
+- name: Add server to domain
+  include_tasks: win-tasks/ad-domain-server.yml
+  when: ad_servers_list is defined and ad_servers_list | length > 0
+
+

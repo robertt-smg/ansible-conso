@@ -8,6 +8,8 @@ passbolt_server_fti_app1_prd:
   db_user: "passbolt"
   db_password: "yrT1a5Cr7kNGS5nHLJEA"
   fti_app_1: true
+  email_server: "10.220.6.18"
+  app_full_base_url: https://api.fti-ticketshop.com
 
 cnf_neocore_prd:
   public_ip: "10.220.6.18"
@@ -18,5 +20,4 @@ cnf_neocore_prd:
 lego_acme_fti_prd:
   use_staging: 1 # we can't get real ssl for FTI anyway
 
-passbolt_server_prd_fti:
-  app_full_base_url: https://api.fti-ticketshop.com
+
