@@ -1,12 +1,3 @@
-winusers_list_wserver2:
-  SA_AQUSER1:
-    enabled: true
-
-  SA_AQUSER2:
-    enabled: true
-
-  SA_AQUSER3:
-    enabled: true
-
-  RA_AQUSER1:
-    enabled: true
+#winusers_list_wserver2:
+#  # we use now domain users
+#

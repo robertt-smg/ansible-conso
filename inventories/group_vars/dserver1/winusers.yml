@@ -1,4 +1,4 @@
-winusers_list_wserver3:
+winusers_list_services:
   SA_AQUSER1:
     enabled: true
 

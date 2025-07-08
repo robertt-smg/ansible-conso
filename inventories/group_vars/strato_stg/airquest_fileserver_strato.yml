@@ -9,7 +9,7 @@ airquest_defaults_prd:
   drive_letter: Q
   share: proquest
   local_path: "d:\\proquest"
-  user: SMG-STRATO-STG\q_lw
+  user: q_lw
   host_dev: SMG-STRATO-STG
   host_name_dev: 172.16.115.1
   drive_letter_dev: S

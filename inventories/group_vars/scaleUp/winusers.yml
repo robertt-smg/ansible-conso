@@ -1,13 +1,2 @@
-winusers_list_scaleUp_prd:
-
-  SA_AQUSER1:
-    enabled: true
-
-  SA_AQUSER2:
-    enabled: true
-
-  SA_AQUSER3:
-    enabled: true
-
-  RA_AQUSER1:
-    enabled: true
+# winusers_list_scaleUp_prd:
+#  we use now domain users

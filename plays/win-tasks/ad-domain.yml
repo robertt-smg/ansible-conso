@@ -19,10 +19,10 @@
   register: ad_domain_create
 
 # Gather all unique groups from winusers_list_default
-- name: Gather all unique groups from winusers_list_default
+- name: Gather all unique groups from winusers_list
   delegate_to: dserver1_dc
   set_fact:
-    ad_all_groups: "{{ winusers_list_default | dict2items | map(attribute='value.groups') | select('defined') | sum(start=[]) | unique }}"
+    ad_all_groups: "{{ winusers_list | dict2items | map(attribute='value.groups') | select('defined') | sum(start=[]) | unique }}"
 
 - name: Ensure all groups exist in AD
   microsoft.ad.group:
@@ -30,6 +30,16 @@
     scope: domainlocal
     state: present
   loop: "{{ ad_all_groups }}"
+  register: ad_group_result
+  failed_when: >
+    ad_group_result.failed and
+    'The specified local group already exists' not in (ad_group_result.msg | default('')) and
+    'The request is not supported' not in (ad_group_result.msg | default(''))
+
+- name: "DEBUG: Show password for user creation"
+  debug:
+    msg: "User: {{ item.key }}, Password: {{ item.value.password | default('omit') }}"
+  loop: "{{ winusers_list | dict2items }}"
 
 - name: Ensure users exist and are configured
   microsoft.ad.user:
@@ -41,7 +51,7 @@
     groups:
       add: "{{ item.value.groups | default([]) }}"
     state: present
-  loop: "{{ winusers_list_default | dict2items }}"
+  loop: "{{ winusers_list | dict2items }}"
 
 - name: Ensure computer objects exist in AD
   microsoft.ad.computer:
