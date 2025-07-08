@@ -9,7 +9,6 @@ passbolt_server_fti_app1:
   enabled: true
   app_full_base_url: https://api.fti-ticketshop.com
   app_base: /passbolt
-  email_server: "{{ ansible_host }}" 
   email_from_address: "root@smg-air-conso.de"
   
   gpg_server_key_fingerprint: "91083DBFFC1F20E84EEA94C275B4A775EB418005"

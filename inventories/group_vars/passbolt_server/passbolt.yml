@@ -9,7 +9,6 @@ passbolt_server_default:
   image_version: passbolt:4.9.1-1-ce
   #app_full_base_url: ...  defined in tst or prd 
   app_base: /passbolt
-  email_server: "host.containers.internal" 
   email_from_address: "passbolt@la-cuna.de"
   
   external_port: 2443

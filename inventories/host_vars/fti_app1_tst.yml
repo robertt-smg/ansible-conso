@@ -6,5 +6,6 @@ passbolt_server_fti_app1_tst:
   db_server_admin: "root"
   db_name: "passbolt_fti"
   db_user: "passbolt"
+  email_server: "192.168.121.242"
   db_password: "yrT1a5Cr7kNGS5nHLJEA"
   fti_app_1: true

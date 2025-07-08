@@ -130,7 +130,7 @@
 - name: Check if Reboot is required for ad_domain_services
   set_fact:
     role_reboot_required: true
-  when: winserver_roles_enabled.ad_domain_services is defined and winserver_roles_enabled.ad_domain_services and (ad_domain_services_check is not defined or ad_domain_services_check != 'installed')
+  when: winserver_roles_enabled.ad_domain_services is defined and winserver_roles_enabled.ad_domain_services and (win_feature_ad_domain_services.changed is defined and win_feature_ad_domain_services.changed is true)
 
 
 - name: Check if DNS is installed

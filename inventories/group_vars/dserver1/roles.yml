@@ -1,4 +1,4 @@
-winserver_roles_enabled_wserver3:
+winserver_roles_enabled_dserver1:
   net35: true
   net45: true
   net46: true

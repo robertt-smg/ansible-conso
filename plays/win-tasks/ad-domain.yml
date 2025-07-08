@@ -8,12 +8,10 @@
     domain_username: "{{ ad_domain_admin_user }}"
     domain_password: "{{ ad_domain_admin_password }}"
     domain_server: "{{ ad_domain_server }}"
-
   register: ad_domain_info
   ignore_errors: true
 
 - name: Create domain if not exists
-  
   microsoft.ad.domain:
     dns_domain_name: "{{ ad_domain_name | default('example') }}.{{ ad_domain_suffix | default('local') }}"
     safe_mode_password: "{{ ad_domain_safe_mode_password }}"
@@ -27,15 +25,13 @@
     ad_all_groups: "{{ winusers_list_default | dict2items | map(attribute='value.groups') | select('defined') | sum(start=[]) | unique }}"
 
 - name: Ensure all groups exist in AD
-  
   microsoft.ad.group:
     name: "{{ item }}"
-    scope: global
+    scope: domainlocal
     state: present
   loop: "{{ ad_all_groups }}"
 
 - name: Ensure users exist and are configured
-  
   microsoft.ad.user:
     identity: "{{ item.key }}"
     password: "{{ item.value.password | default(omit) }}"
@@ -47,12 +43,9 @@
     state: present
   loop: "{{ winusers_list_default | dict2items }}"
 
-# Add servers to domain
 - name: Ensure computer objects exist in AD
-  
   microsoft.ad.computer:
     name: "{{ item }}"
     state: present
   loop: "{{ ad_servers_list | default([]) }}"
 
-# Optionally, you can add a task to verify users, groups, and computers exist as expected

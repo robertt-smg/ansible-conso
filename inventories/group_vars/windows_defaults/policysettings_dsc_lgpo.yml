@@ -2,7 +2,7 @@
   # https://gpsearch.azurewebsites.net/
   # https://www.microsoft.com/en-us/download/details.aspx?id=104005 
 
-policy_settings_lgpo_cAdministrativeTemplateSetting_aaa:
+policy_settings_lgpo_cAdministrativeTemplateSetting_all:
     cAdministrativeTemplateSetting:
     - policytype: "Machine"
       keyvaluename: "Software\\Policies\\Microsoft\\Windows\\Server\\ServerManager\\DoNotOpenAtLogon"
@@ -18,6 +18,12 @@ policy_settings_lgpo_cAdministrativeTemplateSetting_aaa:
       keyvaluename: "Software\\Policies\\Microsoft\\Windows\\Windows Search\\AllowCortana"
       data: "0"
       type: "Dword"
+
+# https://gpsearch.azurewebsites.net/Default.aspx?PolicyID=2513#2773
+    - policytype: "Machine"
+      keyvaluename: "Software\\Policies\\Microsoft\\Windows\\WinRM\\Service\\AllowBasic"
+      type: "Dword"
+      data: "1"
 
 # -------------------------------------------
 # HKCU\Software\Policies\Microsoft\Windows\CurrentVersion\Internet Settings\ListBox_Support_ZoneMapKey
@@ -75,3 +81,4 @@ policy_settings_lgpo_cAdministrativeTemplateSetting_aaa:
       vname: "UNCAsIntranet"
       vtype: "Dword"
       vdata: "1"
+

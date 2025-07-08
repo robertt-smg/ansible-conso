@@ -19,4 +19,4 @@
 
   - name: Add server to domain
     include_tasks: ../win-tasks/ad-domain-server.yml
-    when: ad_servers_list is defined and ad_servers_list | length > 0
+    when: ad_servers_list is defined and ad_servers_list | length > 0 and ( ad_create_domain is not defined or ad_create_domain is false)
