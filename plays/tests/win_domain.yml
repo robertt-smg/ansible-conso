@@ -13,7 +13,7 @@
     include_tasks: ../win-tasks/roles.yml
     when: winserver_roles_enabled is defined
 
-  - name: Create AD domain
+  - name: Setup AD domain tasks
     include_tasks: ../win-tasks/ad-domain.yml
     when: ad_create_domain is defined and ad_create_domain is true
 

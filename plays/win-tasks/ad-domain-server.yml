@@ -2,7 +2,12 @@
 # Ansible tasks to manage a new domain, add servers, groups, and users (idempotent)
 # Uses microsoft.ad collection
 
-- name: Join servers to domain (run on each server)
+- name: Set DNS Servers on adapter named Ethernet
+  ansible.windows.win_dns_client:
+    adapter_names: Ethernet
+    dns_servers: "{{ ad_domain_dns_server_list }}"
+
+- name: Join servers to domain ({{ ad_domain_admin_user }}/ **ad_domain_admin_password**/{{ad_domain_server}})
   microsoft.ad.membership:
     dns_domain_name: "{{ ad_domain_name | default('example') }}.{{ ad_domain_suffix | default('local') }}"
     domain_admin_user: "{{ ad_domain_admin_user }}"
@@ -15,4 +20,4 @@
   loop: "{{ ad_servers_list | default([]) }}"
   when: ad_servers_list is defined and ad_servers_list | length > 0
 
-# Optionally, you can add a task to verify users, groups, and computers exist as expected
+

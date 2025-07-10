@@ -127,7 +127,7 @@
 
 ## if we have to install AD, we need reboot, regardless what ansible.windows.win_feature reports
 
-- name: Check if Reboot is required for ad_domain_services
+- name: Check if Reboot is required for ad_domain_services has changed
   set_fact:
     role_reboot_required: true
   when: winserver_roles_enabled.ad_domain_services is defined and winserver_roles_enabled.ad_domain_services and (win_feature_ad_domain_services.changed is defined and win_feature_ad_domain_services.changed is true)
@@ -233,32 +233,32 @@
 - name: Check if Reboot is required for ad_domain_services
   set_fact:
     role_reboot_required: win_feature_ad_domain_services.reboot_required
-  when: win_feature_ad_domain_services is defined and win_feature_ad_domain_services.reboot_required
+  when: win_feature_ad_domain_services is defined and win_feature_ad_domain_services.reboot_required is defined and win_feature_ad_domain_services.reboot_required
 
 - name: Check if Reboot is required for DNS
   set_fact:
     role_reboot_required: win_feature_dns.reboot_required
-  when: win_feature_dns is defined and win_feature_dns.reboot_required
+  when: win_feature_dns is defined and win_feature_dns.reboot_required is defined and win_feature_dns.reboot_required
 
 - name: Check if Reboot is required for RSAT-ADDS
   set_fact:
     role_reboot_required: win_feature_rsat_adds.reboot_required
-  when: win_feature_rsat_adds is defined and win_feature_rsat_adds.reboot_required
+  when: win_feature_rsat_adds is defined and win_feature_rsat_adds.reboot_required is defined and win_feature_rsat_adds.reboot_required
 
 - name: Check if Reboot is required for rsat_dns_server
   set_fact:
     role_reboot_required: win_feature_rsat_dns_server.reboot_required
-  when: win_feature_rsat_dns_server is defined and win_feature_rsat_dns_server.reboot_required
+  when: win_feature_rsat_dns_server is defined and win_feature_rsat_dns_server.reboot_required is defined and win_feature_rsat_dns_server.reboot_required
 
 - name: Check if Reboot is required for GPMC
   set_fact:
     role_reboot_required: win_feature_gpmc.reboot_required
-  when: win_feature_gpmc is defined and win_feature_gpmc.reboot_required
+  when: win_feature_gpmc is defined and win_feature_gpmc.reboot_required is defined and win_feature_gpmc.reboot_required
 
 - name: Reboot if installed feature requires it
   ansible.windows.win_reboot:
   when: role_reboot_required is defined and role_reboot_required
 
-- name: Wait for system to become reachable over WinRM
+- name: Wait for system to become reachable again ...
   wait_for_connection:
       timeout: 900

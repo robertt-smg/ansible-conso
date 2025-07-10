@@ -11,10 +11,10 @@ wserver2_tst ansible_host=192.168.121.52 ansible_user=Administrator ansible_conn
 wserver3_tst ansible_host=192.168.121.53 ansible_user=Administrator ansible_connection=ssh ansible_shell_type=cmd become_method=runas pipelining=false connection_timeout=240
 
 [dserver1]
-dserver1_tst ansible_host=192.168.121.91 ansible_user=Administrator@SMG-AIRCONSO ansible_connection=ssh ansible_shell_type=cmd become_method=runas pipelining=false connection_timeout=240
+dserver1_tst ansible_host=192.168.121.91 ansible_user=Administrator ansible_connection=ssh ansible_shell_type=cmd become_method=runas pipelining=false connection_timeout=240
 
-[dserver1_dc]
-dserver1_tst ansible_host=192.168.121.91 ansible_user=Administrator@SMG-AIRCONSO ansible_connection=winrm ansible_winrm_server_cert_validation=ignore connection_timeout=240
+#[dserver1_dc]
+#dserver1_tst_dc ansible_host=192.168.121.91 ansible_user=Administrator@SMG-AIRCONSO ansible_connection=winrm ansible_winrm_server_cert_validation=ignore connection_timeout=240
 
 [tserver1]
 tserver1_tst ansible_host=192.168.121.121 ansible_user=Administrator ansible_connection=ssh ansible_shell_type=cmd become_method=runas pipelining=false connection_timeout=240
@@ -26,22 +26,22 @@ wminiaq1_tst ansible_host=192.168.121.80 ansible_user=Administrator ansible_conn
 fti_app2.tst ansible_host=192.168.121.243 ansible_user=Administrator ansible_connection=ssh ansible_shell_type=cmd become_method=runas pipelining=false connection_timeout=240
 
 [wsmg:children]
+dserver1
+#dserver1_dc
 fserver1
 wserver1
 wserver2
 wserver3
-dserver1
-dserver1_dc
 tserver1
 wminiaq1
 
 [win_tst:children]
+dserver1
+#dserver1_dc
 fserver1
 wserver1
 wserver2
 wserver3
-dserver1
-dserver1_dc
 tserver1
 wminiaq1
 fti_app2_w

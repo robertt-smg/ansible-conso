@@ -7,7 +7,7 @@ winusers_list_air_conso:
     groups_action: "add"
     groups:
         - Users
-        - Power Users
+        - Domain Users
         - Remote Desktop Users
 
   alexandrarab:
@@ -17,7 +17,7 @@ winusers_list_air_conso:
     groups_action: "add"
     groups:
         - Users
-        - Power Users
+        - Domain Users
         - Remote Desktop Users
 
   guidoa:
@@ -27,7 +27,7 @@ winusers_list_air_conso:
     groups_action: "add"
     groups:
         - Users
-        - Power Users
+        - Domain Users
         - Remote Desktop Users
 
   sandrakr:
@@ -37,7 +37,7 @@ winusers_list_air_conso:
     groups_action: "add"
     groups:
         - Users
-        - Power Users
+        - Domain Users
         - Remote Desktop Users
 
   patrickde:
@@ -47,7 +47,7 @@ winusers_list_air_conso:
     groups_action: "add"
     groups:
         - Users
-        - Power Users
+        - Domain Users
         - Remote Desktop Users
 
   stefankr:
@@ -57,7 +57,7 @@ winusers_list_air_conso:
     groups_action: "add"
     groups:
         - Users
-        - Power Users
+        - Domain Users
         - Remote Desktop Users
 
   sarahb:
@@ -67,7 +67,7 @@ winusers_list_air_conso:
     groups_action: "add"
     groups:
         - Users
-        - Power Users
+        - Domain Users
         - Remote Desktop Users
 
   malter:
@@ -77,7 +77,7 @@ winusers_list_air_conso:
     groups_action: "add"
     groups:
         - Users
-        - Power Users
+        - Domain Users
         - Remote Desktop Users
 
   Biancag:
@@ -87,7 +87,7 @@ winusers_list_air_conso:
     groups_action: "add"
     groups:
         - Users
-        - Power Users
+        - Domain Users
         - Remote Desktop Users
 
   manuelat:
@@ -97,7 +97,7 @@ winusers_list_air_conso:
     groups_action: "add"
     groups:
         - Users
-        - Power Users
+        - Domain Users
         - Remote Desktop Users
 
   markussc:
@@ -107,7 +107,7 @@ winusers_list_air_conso:
     groups_action: "add"
     groups:
         - Users
-        - Power Users
+        - Domain Users
         - Remote Desktop Users
 
   annad:
@@ -117,7 +117,7 @@ winusers_list_air_conso:
     groups_action: "add"
     groups:
         - Users
-        - Power Users
+        - Domain Users
         - Remote Desktop Users
 
   hannelorese:
@@ -127,5 +127,5 @@ winusers_list_air_conso:
     groups_action: "add"
     groups:
         - Users
-        - Power Users
+        - Domain Users
         - Remote Desktop Users

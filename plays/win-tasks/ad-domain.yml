@@ -18,6 +18,14 @@
   when: ad_domain_info.objects is not defined or ad_domain_info.objects | length == 0
   register: ad_domain_create
 
+- name: Reboot if domain created
+  ansible.windows.win_reboot:
+  when: ad_domain_create is defined and ad_domain_create.reboot_required is defined and ad_domain_create.reboot_required
+
+- name: Wait for system to become reachable again ...
+  wait_for_connection:
+      timeout: 900
+
 # Gather all unique groups from winusers_list_default
 - name: Gather all unique groups from winusers_list
   delegate_to: dserver1_dc
@@ -34,6 +42,8 @@
   failed_when: >
     ad_group_result.failed and
     'The specified local group already exists' not in (ad_group_result.msg | default('')) and
+    'The specified local group already exists' not in (ad_group_result.msg | default('')) and
+    'Cannot perform this operation on built-in accounts' not in (ad_group_result.msg | default('')) and
     'The request is not supported' not in (ad_group_result.msg | default(''))
 
 - name: "DEBUG: Show password for user creation"
@@ -57,5 +67,9 @@
   microsoft.ad.computer:
     name: "{{ item }}"
     state: present
-  loop: "{{ ad_servers_list | default([]) }}"
+  register: ad_computer_result
+  failed_when: >
+    ad_computer_result.failed and
+    'The specified account already exists' not in (ad_computer_result.msg | default(''))
+  loop: "{{ ad_servers_list_register | default([]) }}"
 

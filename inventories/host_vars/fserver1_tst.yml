@@ -14,3 +14,8 @@ policy_settings_registry_windows_rdp_fserver1:
       keyvaluename: "Software\\Policies\\Microsoft\\Windows NT\\Terminal Services\\LicensingMode"
       type: "Dword"
       data: 4
+
+ad_servers_list:
+  - SMG-TST-F01
+
+ad_domain_server: SMG-TST-D01 #d01.test.smg-air-conso.com

@@ -1,6 +1,6 @@
-win_hostname: SMG-TST-W01
+win_hostname: SMG-TST-D01
 
-policy_settings_registry_windows_rdp_wserver1:
+policy_settings_registry_windows_rdp_wserver2:
 ## --------------------------------------------
     cAdministrativeTemplateSetting:
 
@@ -16,4 +16,11 @@ policy_settings_registry_windows_rdp_wserver1:
       data: 4
 
 ad_servers_list:
-  - SMG-TST-W01
+  - SMG-SCA-B01
+  - SMG-SCA-D01
+  - SMG-SCA-F01
+  - SMG-SCA-W01
+  - SMG-SCA-W02
+  - SMG-SCA-W03
+
+ad_domain_server: d01.smg-air-conso.com

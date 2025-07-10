@@ -3,7 +3,7 @@ winserver_roles_enabled_dserver1:
   net45: true
   net46: true
   port_sharing: true
-  rdpserver: false
+  rdpserver: true
   defender: true
   ad_domain_services: true
   dns: true

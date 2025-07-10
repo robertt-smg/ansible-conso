@@ -1,0 +1,4 @@
+airquest_defaults_dserver1:
+  wallpaper:
+    enabled: true
+  advantage_oldedb: false

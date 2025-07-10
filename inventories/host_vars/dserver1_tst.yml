@@ -14,3 +14,10 @@ policy_settings_registry_windows_rdp_wserver2:
       keyvaluename: "Software\\Policies\\Microsoft\\Windows NT\\Terminal Services\\LicensingMode"
       type: "Dword"
       data: 4
+
+ad_servers_list_register:
+  - SMG-TST-B01
+  - SMG-TST-D01
+  - SMG-TST-F01
+  - SMG-TST-W01
+  - SMG-TST-W02

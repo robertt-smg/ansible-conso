@@ -16,3 +16,14 @@ policy_settings_registry_windows_rdp_tserver1_policy:
       keyvaluename: "Software\\Policies\\Microsoft\\Windows NT\\Terminal Services\\fDisableCdm"
       type: "Dword"
       data: "0"
+# NoLockScreen - https://www.howtogeek.com/134620/how-to-disable-the-lock-screen-on-windows-8-without-using-group-policy/
+    - policytype: "Machine"
+      keyvaluename: "Software\\Policies\\Microsoft\\Windows\\Personalization\\NoLockScreen"
+      type: "Dword"
+      data: "1"
+
+# HKLM\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services
+    - policytype: "Machine"
+      keyvaluename: "Software\\Policies\\Microsoft\\Windows NT\\Terminal Services\\RemoteAppLogoffTimeLimit"
+      type: "Dword"
+      data: "28800000"

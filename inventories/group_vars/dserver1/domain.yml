@@ -1,5 +1,1 @@
 ad_create_domain: true
-ad_servers_list:
-  - SMG-TST-D01
-
-ad_domain_server: 192.168.121.91

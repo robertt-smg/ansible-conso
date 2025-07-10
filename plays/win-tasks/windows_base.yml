@@ -7,10 +7,6 @@
 - name: Include update Locale Settings
   include_tasks: win-tasks/locale.yml
 
-- name: Include windows user create task if winusers_list is defined
-  include_tasks: win-tasks/create_users.yml
-  when: winusers_list is defined and winusers_list
-
 - name: Include choco app install task if chocoapps_list is defined
   include_tasks: win-tasks/choco.yml
   when: chocoapps_list is defined and chocoapps_list
@@ -18,6 +14,14 @@
 - name: Enable server roles
   include_tasks: win-tasks/roles.yml
   when: winserver_roles_enabled is defined
+
+- name: Setup AD domain tasks
+  include_tasks: win-tasks/ad-domain.yml
+  when: ad_create_domain is defined and ad_create_domain is true
+
+- name: Include windows user create task if winusers_list is defined
+  include_tasks: win-tasks/create_users.yml
+  when: winusers_list is defined and winusers_list
 
 - name: Check if CloudSOE hardening has already been applied
   win_stat:
@@ -90,10 +94,6 @@
 - name: Install RemoteApp Tool
   include_tasks: win-tasks/remoteApp.yml
   when: airquest_defaults.airQuestTS is defined and airquest_defaults.airQuestTS
-
-- name: Create AD domain
-  include_tasks: win-tasks/ad-domain.yml
-  when: ad_create_domain is defined and ad_create_domain is true
 
 - name: Add server to domain
   include_tasks: win-tasks/ad-domain-server.yml

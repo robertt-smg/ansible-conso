@@ -1,0 +1,9 @@
+ad_domain_name: "smg-airconso"
+ad_domain_suffix: "com"
+ad_domain_admin_user: "Administrator@SMG-AIR-CONSO"
+
+ad_domain_dns_server_list:
+  - 10.6.1.98
+  - 85.158.4.230
+  - 85.158.7.30
+  - 1.1.1.1
