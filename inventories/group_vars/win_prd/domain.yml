@@ -3,7 +3,8 @@ ad_domain_suffix: "com"
 ad_domain_admin_user: "Administrator@SMG-AIR-CONSO"
 
 ad_domain_dns_server_list:
-  - 10.6.1.98
-  - 85.158.4.230
-  - 85.158.7.30
-  - 1.1.1.1
+  - 10.6.1.98 # d01.smg-air-conso.com
+  - 85.158.4.230 # ScaleUP DNS
+  - 85.158.7.30 # ScaleUP DNS
+  - 1.1.1.1 # Cloudflare DNS
+  - 8.8.8.8 # Google DNS

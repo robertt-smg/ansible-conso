@@ -5,12 +5,12 @@ airquest_defaults_q_drive_tst:
   enabled: true
   automount: false
   host: LT-SMG4446
-  host_name: "f01.local.smg-air-conso.com"
+  host_name: "f01.test.smg-air-conso.com"
   drive_letter: Q
   share: proquest.sca
   local_path: "d:\\proquest"
   user: quh
-  host_name_dev: "f01.local.smg-air-conso.com"
-  db_server: "f01.local.smg-air-conso.com"
+  host_name_dev: "f01.test.smg-air-conso.com"
+  db_server: "f01.test.smg-air-conso.com"
   drive_letter_dev: S
   share_dev: proquest.dev

@@ -1,6 +1,5 @@
 airquest_fileserver_default:
-  
-  host_name: "{{ airquest_defaults.host_name }}"
+  host: "{{ airquest_defaults.host }}"
   host_name_dev: "{{ airquest_defaults.host_name_dev }}"
   drive_letter: "{{ airquest_defaults.drive_letter }}" 
   drive_letter_dev: "{{ airquest_defaults.drive_letter_dev }}" 
@@ -87,7 +86,7 @@ airquest_fileserver_default:
     - key: "HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Environment"
       vname: "AQ_FILE_SERVER_HOST" 
       vtype: "String"
-      vdata: "{{ airquest_defaults.host_name }}"
+      vdata: "{{ airquest_defaults.host }}"
 
     - key: "HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Environment"
       vname: "AQ_FILE_SERVER_SHARE" 

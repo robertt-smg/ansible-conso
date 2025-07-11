@@ -8,7 +8,7 @@ policy_settings_registry_windows_rdp_wserver2:
     - policytype: "Machine"
       keyvaluename: "Software\\Policies\\Microsoft\\Windows NT\\Terminal Services\\LicenseServers"
       type: "String"
-      data: "SMG-TST-T01"
+      data: "SMG-TST-D01"
 #https://gpsearch.azurewebsites.net/Default.aspx?PolicyID=2513#2488
     - policytype: "Machine"
       keyvaluename: "Software\\Policies\\Microsoft\\Windows NT\\Terminal Services\\LicensingMode"
@@ -19,5 +19,7 @@ ad_servers_list_register:
   - SMG-TST-B01
   - SMG-TST-D01
   - SMG-TST-F01
+  - SMG-TST-T01
   - SMG-TST-W01
   - SMG-TST-W02
+  - SMG-TST-W03

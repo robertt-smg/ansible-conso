@@ -15,6 +15,9 @@ strato2_stg_prd ansible_host=217.154.205.36 ansible_user=Administrator ansible_c
 wserver2_prd ansible_host=172.16.115.52 ansible_user=Administrator ansible_connection=winrm ansible_winrm_server_cert_validation=ignore connection_timeout=240
 
 # ---- ScaleUp PROD Servers
+[dserver1]
+dserver1_prd ansible_host=d01.smg-air-conso.com ansible_user=Administrator ansible_connection=winrm ansible_winrm_server_cert_validation=ignore connection_timeout=240
+
 [fserver1]
 fserver1_prd ansible_host=f01.smg-air-conso.com ansible_user=Administrator ansible_connection=winrm ansible_winrm_server_cert_validation=ignore connection_timeout=240
 
@@ -23,6 +26,9 @@ wserver1_prd ansible_host=w01.smg-air-conso.com ansible_user=Administrator ansib
 
 [wserver2]
 wserver2_prd ansible_host=w02.smg-air-conso.com ansible_user=Administrator ansible_connection=winrm ansible_winrm_server_cert_validation=ignore connection_timeout=240
+
+[wserver3]
+wserver3_prd ansible_host=w03.smg-air-conso.com ansible_user=Administrator ansible_connection=winrm ansible_winrm_server_cert_validation=ignore connection_timeout=240
 
 [tserver1]
 tserver1_prd ansible_host=t01.smg-air-conso.com ansible_user=Administrator ansible_connection=winrm ansible_winrm_server_cert_validation=ignore connection_timeout=240
@@ -43,31 +49,39 @@ strato1_stg
 strato2_stg
 
 [scaleUp:children]
+dserver1
 fserver1
 wserver1
 wserver2
+wserver3
 tserver1
 
 [scaleUp_secrets:children]
+dserver1
 fserver1
 wserver1
 wserver2
+wserver3
 
 [tserver1_prd_secrets:children]
 tserver1
 
 [wsmg:children]
+dserver1
 fserver1
 wserver1
 wserver2
+wserver3
 wminiaq1
 scaleUp
 strato_stg
 
 [win_prd:children]
+dserver1
 fserver1
 wserver1
 wserver2
+wserver3
 tserver1
 
 wminiaq1
