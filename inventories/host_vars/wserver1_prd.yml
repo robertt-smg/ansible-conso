@@ -14,3 +14,8 @@ policy_settings_registry_windows_rdp_wserver1:
       keyvaluename: "Software\\Policies\\Microsoft\\Windows NT\\Terminal Services\\LicensingMode"
       type: "Dword"
       data: 4
+
+ad_servers_list:
+  - SMG-SCA-W01
+
+ad_domain_server: SMG-SCA-D01 #d01.smg-air-conso.com

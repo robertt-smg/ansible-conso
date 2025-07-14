@@ -28,7 +28,7 @@
 
 # Gather all unique groups from winusers_list_default
 - name: Gather all unique groups from winusers_list
-  delegate_to: dserver1_dc
+  # delegate_to: dserver1_dc
   set_fact:
     ad_all_groups: "{{ winusers_list | dict2items | map(attribute='value.groups') | select('defined') | sum(start=[]) | unique }}"
 
@@ -37,12 +37,16 @@
     name: "{{ item }}"
     scope: domainlocal
     state: present
+    domain_username: "{{ ad_domain_admin_user }}"
+    domain_password: "{{ ad_domain_admin_password }}"
+    domain_server: "{{ ad_domain_server }}"
   loop: "{{ ad_all_groups }}"
   register: ad_group_result
   failed_when: >
     ad_group_result.failed and
     'The specified local group already exists' not in (ad_group_result.msg | default('')) and
-    'The specified local group already exists' not in (ad_group_result.msg | default('')) and
+    'Die angegebene lokale Gruppe ist bereits vorhanden' not in (ad_group_result.msg | default('')) and
+    'Dieser Vorgang kann nicht mit vordefinierten Konten durchgeführt werden' not in (ad_group_result.msg | default('')) and
     'Cannot perform this operation on built-in accounts' not in (ad_group_result.msg | default('')) and
     'The request is not supported' not in (ad_group_result.msg | default(''))
 
@@ -57,6 +61,9 @@
     password: "{{ item.value.password | default(omit) }}"
     password_never_expires: "{{ item.value.password_never_expires | default(false) }}"
     update_password: "{{ item.value.update_password | default('on_create') }}"
+    domain_username: "{{ ad_domain_admin_user }}"
+    domain_password: "{{ ad_domain_admin_password }}"
+    domain_server: "{{ ad_domain_server }}"
     enabled: true
     groups:
       add: "{{ item.value.groups | default([]) }}"

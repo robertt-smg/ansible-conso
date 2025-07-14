@@ -1,3 +1,3 @@
 cnf_mitmproxy_hetzner:
-  excon_host: fwproxy.smg-airconso.com
+  excon_host: fwproxy.smg-air-conso.com
   excon_host_ip: 10.8.0.1

@@ -1,6 +1,2 @@
-winusers_list_fserver1:
-  q_lw:
-    enabled: true
-
-  RA_AQUSER1:
-    enabled: true
+#winusers_list_fserver1:
+  # we use now domain users

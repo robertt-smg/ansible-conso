@@ -2,12 +2,74 @@
 # Ansible tasks to manage a new domain, add servers, groups, and users (idempotent)
 # Uses microsoft.ad collection
 
-- name: Set DNS Servers on adapter named Ethernet
-  ansible.windows.win_dns_client:
-    adapter_names: Ethernet
-    dns_servers: "{{ ad_domain_dns_server_list }}"
+- name: Gather network interface information via PowerShell
+  ansible.windows.win_shell: |
+    @(Get-NetIPAddress -AddressFamily IPv4 | Where-Object { $_.IPAddress -ne '127.0.0.1' } | Select-Object IPAddress, InterfaceAlias) | ConvertTo-Json
+  register: ipconfig_result
 
-- name: Join servers to domain ({{ ad_domain_admin_user }}/ **ad_domain_admin_password**/{{ad_domain_server}})
+- name: Parse ipconfig JSON
+  set_fact:
+    _ipconfig_json: "{{ ipconfig_result.stdout | from_json }}"
+
+- name: Ensure _ipconfig_list is always a list
+  set_fact:
+    _ipconfig_list: "{{ [_ipconfig_json] if _ipconfig_json is mapping else _ipconfig_json }}"
+
+- name: Debug ansible_host and _ipconfig_list
+  debug:
+    msg:
+      - "ansible_host: {{ ansible_host }}"
+      - "_ipconfig_list: {{ _ipconfig_list }}"
+
+- name: Check if ansible_host is already an IP
+  set_fact:
+    resolved_ansible_host_ip: "{{ ansible_host | trim }}"
+  when: (ansible_host | trim) is match('^\d{1,3}(?:\.\d{1,3}){3}$')
+
+- name: Resolve ansible_host to IP address (if hostname)
+  ansible.windows.win_shell: |
+    [System.Net.Dns]::GetHostAddresses('{{ ansible_host | trim }}') | Where-Object { $_.AddressFamily -eq 'InterNetwork' } | Select-Object -First 1 -ExpandProperty IPAddressToString
+  register: resolved_ip_shell
+  when: (ansible_host | trim) is not match('^\d{1,3}(?:\.\d{1,3}){3}$')
+
+- name: Set resolved IP from shell
+  set_fact:
+    resolved_ansible_host_ip: "{{ resolved_ip_shell.stdout | trim }}"
+  when: (ansible_host | trim) is not match('^\d{1,3}(?:\.\d{1,3}){3}$')
+
+- name: Debug resolved_ansible_host_ip
+  debug:
+    var: resolved_ansible_host_ip
+
+- name: Set adapter name for resolved ansible_host IP
+  set_fact:
+    target_adapter_name: >-
+      {{
+        (_ipconfig_list
+         | selectattr('IPAddress', 'equalto', resolved_ansible_host_ip)
+         | list | first).InterfaceAlias
+         if (_ipconfig_list | selectattr('IPAddress', 'equalto', resolved_ansible_host_ip) | list | length) > 0
+        else ''
+      }}
+
+- name: Fail if adapter name could not be determined
+  fail:
+    msg: "Could not determine network adapter name for ansible_host IP ({{ resolved_ansible_host_ip }}). ipconfig_list={{ _ipconfig_list }}"
+  when: target_adapter_name == ''
+
+- name: Debug print the detected adapter name
+  debug:
+    var: target_adapter_name
+
+- name: Set DNS Servers on the correct adapter
+  ansible.windows.win_dns_client:
+    adapter_names: "{{ target_adapter_name }}"
+    dns_servers: "{{ ad_domain_dns_server_list }}"
+  when: target_adapter_name != ''
+
+
+
+- name: Join servers to domain ({{ ad_domain_admin_user }}/** ad_domain_admin_password **/{{ad_domain_server}})
   microsoft.ad.membership:
     dns_domain_name: "{{ ad_domain_name | default('example') }}.{{ ad_domain_suffix | default('local') }}"
     domain_admin_user: "{{ ad_domain_admin_user }}"
@@ -20,4 +82,12 @@
   loop: "{{ ad_servers_list | default([]) }}"
   when: ad_servers_list is defined and ad_servers_list | length > 0
 
-
+- name: Add a domain group RDM to local group Remote Desktop Users
+  ansible.windows.win_group_membership:
+    name: Remote Desktop Users
+    domain_admin_user: "{{ ad_domain_admin_user }}"
+    domain_admin_password: "{{ ad_domain_admin_password }}"
+    domain_server: "{{ ad_domain_server }}"
+    members:
+      - "{{ad_domain_rdm_sid}}"
+    state: present

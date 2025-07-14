@@ -1,5 +1,6 @@
 airquest_fileserver_default:
   host: "{{ airquest_defaults.host }}"
+  host_name: "{{ airquest_defaults.host_name }}"
   host_name_dev: "{{ airquest_defaults.host_name_dev }}"
   drive_letter: "{{ airquest_defaults.drive_letter }}" 
   drive_letter_dev: "{{ airquest_defaults.drive_letter_dev }}" 

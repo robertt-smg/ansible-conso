@@ -9,6 +9,7 @@ winusers_list_air_conso:
         - Users
         - Domain Users
         - Remote Desktop Users
+        - "S-1-5-21-495975362-3643332021-752935216-1128"
 
   alexandrarab:
     enabled: true
@@ -19,6 +20,7 @@ winusers_list_air_conso:
         - Users
         - Domain Users
         - Remote Desktop Users
+        - "S-1-5-21-495975362-3643332021-752935216-1128"
 
   guidoa:
     enabled: true
@@ -29,6 +31,7 @@ winusers_list_air_conso:
         - Users
         - Domain Users
         - Remote Desktop Users
+        - "S-1-5-21-495975362-3643332021-752935216-1128"
 
   sandrakr:
     enabled: true
@@ -39,6 +42,7 @@ winusers_list_air_conso:
         - Users
         - Domain Users
         - Remote Desktop Users
+        - "S-1-5-21-495975362-3643332021-752935216-1128"
 
   patrickde:
     enabled: true
@@ -49,6 +53,7 @@ winusers_list_air_conso:
         - Users
         - Domain Users
         - Remote Desktop Users
+        - "S-1-5-21-495975362-3643332021-752935216-1128"
 
   stefankr:
     enabled: true
@@ -59,6 +64,7 @@ winusers_list_air_conso:
         - Users
         - Domain Users
         - Remote Desktop Users
+        - "S-1-5-21-495975362-3643332021-752935216-1128"
 
   sarahb:
     enabled: true
@@ -69,6 +75,7 @@ winusers_list_air_conso:
         - Users
         - Domain Users
         - Remote Desktop Users
+        - "S-1-5-21-495975362-3643332021-752935216-1128"
 
   malter:
     enabled: true
@@ -79,6 +86,7 @@ winusers_list_air_conso:
         - Users
         - Domain Users
         - Remote Desktop Users
+        - "S-1-5-21-495975362-3643332021-752935216-1128"
 
   Biancag:
     enabled: true
@@ -89,9 +97,10 @@ winusers_list_air_conso:
         - Users
         - Domain Users
         - Remote Desktop Users
+        - "S-1-5-21-495975362-3643332021-752935216-1128"
 
   manuelat:
-    enabled: true
+    enabled: false
     password_never_expires: true
     update_password: "on_create"
     groups_action: "add"
@@ -99,6 +108,7 @@ winusers_list_air_conso:
         - Users
         - Domain Users
         - Remote Desktop Users
+        - "S-1-5-21-495975362-3643332021-752935216-1128"
 
   markussc:
     enabled: true
@@ -109,6 +119,7 @@ winusers_list_air_conso:
         - Users
         - Domain Users
         - Remote Desktop Users
+        - "S-1-5-21-495975362-3643332021-752935216-1128"
 
   annad:
     enabled: true
@@ -119,6 +130,7 @@ winusers_list_air_conso:
         - Users
         - Domain Users
         - Remote Desktop Users
+        - "S-1-5-21-495975362-3643332021-752935216-1128"
 
   hannelorese:
     enabled: true
@@ -129,3 +141,46 @@ winusers_list_air_conso:
         - Users
         - Domain Users
         - Remote Desktop Users
+        - "S-1-5-21-495975362-3643332021-752935216-1128"
+
+  q_lw:
+    password_never_expires: true
+    update_password: "on_create"
+    groups_action: "add"
+
+    groups:
+        - Users
+
+  SA_AQUSER1:
+    password_never_expires: true
+    update_password: "on_create"
+    groups_action: "add"
+    groups:
+        - Users
+        - "S-1-5-21-495975362-3643332021-752935216-1128"
+
+  SA_AQUSER2:
+    password_never_expires: true
+    update_password: "on_create"
+    groups_action: "add"
+    groups:
+        - Users
+        - "S-1-5-21-495975362-3643332021-752935216-1128"
+
+
+  SA_AQUSER3:
+    password_never_expires: true
+    update_password: "on_create"
+    groups_action: "add"
+    groups:
+        - Users
+        - "S-1-5-21-495975362-3643332021-752935216-1128"
+
+  RA_AQUSER1:
+    password_never_expires: true
+    update_password: "on_create"
+    groups_action: "add"
+    groups:
+        - Users
+        - Administrators
+        - "S-1-5-21-495975362-3643332021-752935216-1128"
