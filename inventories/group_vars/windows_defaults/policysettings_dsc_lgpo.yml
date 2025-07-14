@@ -48,6 +48,21 @@ policy_settings_lgpo_cAdministrativeTemplateSetting_all:
       data: 1
 
     - policytype: "Machine"
+      keyvaluename: "Software\\Policies\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\\ZoneMap\\Ranges\\Range10001\\file"
+      type: "Dword"
+      data: 1
+
+    - policytype: "Machine"
+      keyvaluename: "Software\\Policies\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\\ZoneMap\\Ranges\\Range10001\\:Range"
+      type: "String"
+      data: "d:"
+
+    - policytype: "Machine"
+      keyvaluename: "Software\\Policies\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\\ZoneMapKey\\file://d:"
+      type: "String"
+      data: 1
+
+    - policytype: "Machine"
       keyvaluename: "Software\\Policies\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\\ZoneMap\\UNCAsIntranet"
       type: "Dword"
       data: 1

@@ -91,3 +91,26 @@
     members:
       - "{{ad_domain_rdm_sid}}"
     state: present
+
+- name: Add Terminal Server to License Servers group if requested
+  win_shell: |
+    Add-ADGroupMember -Identity \"Terminal Server License Servers\" -Members \"{{ ad_domain_ts_server }}$\"
+    Add-ADGroupMember -Identity \"RDS Endpoint Servers\" -Members \"{{ ad_domain_ts_server }}$\"
+  args:
+    executable: powershell.exe
+  when: ad_domain_ts_server is defined
+  register: add_ts_license_group_result
+
+- name: Debug TS License group add result
+  debug:
+    var: add_ts_license_group_result
+  when: ad_domain_ts_server is defined
+
+- name: Add other servers to RDS Endpoint Servers group if requested
+  win_shell: |
+    Add-ADGroupMember -Identity \"RDS Endpoint Servers\" -Members \"{{ item }}$\"
+  args:
+    executable: powershell.exe
+
+  loop: "{{ ad_servers_list_register | default([]) }}"
+  when: ad_servers_list_register is defined and ad_servers_list_register | length > 0

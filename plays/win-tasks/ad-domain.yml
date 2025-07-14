@@ -26,7 +26,8 @@
   wait_for_connection:
       timeout: 900
 
-# Gather all unique groups from winusers_list_default
+# Post Install and reboot tasks
+
 - name: Gather all unique groups from winusers_list
   # delegate_to: dserver1_dc
   set_fact:

@@ -49,10 +49,15 @@ policy_settings_registry_windows_rdp_defaults:
       type: "Dword"
       data: "0"
 
-#      'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows NT\\Terminal Services' -Name MaxIdleTime -Value 780000 -Type 'DWord'"
+#'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows NT\\Terminal Services' -Name MaxIdleTime -Value 780000 -Type 'DWord'"
 
     - policytype: "Machine"
       keyvaluename: "Software\\Policies\\Microsoft\\Windows\\Terminal Services\\MaxIdleTime"
       type: "Dword"
       data: "7200000" # 2 Stunden (von 780000)
+# https://superuser.com/questions/1765685/how-to-use-regedit-to-adjust-machine-inactivity-limit-in-windows-11
+    - policytype: "Machine"
+      keyvaluename: "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System\\InactivityTimeoutSecs"
+      type: "Dword"
+      data: "7200000" # 2 Stunden (von 900)
 
