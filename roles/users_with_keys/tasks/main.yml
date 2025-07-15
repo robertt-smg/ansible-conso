@@ -1,0 +1,27 @@
+---
+# Wrapper role to create users and set authorized_keys
+
+- name: Prepare users_list for arillso.system.users (remove authorized_keys)
+  set_fact:
+    users_list_for_arillso: >-
+      {{
+        users_list | map('dict2items')
+                   | map('rejectattr', 'key', 'equalto', 'authorized_keys')
+                   | map('items2dict')
+                   | list
+      }}
+
+- name: Create users using arillso.system.users
+  include_role:
+    name: arillso.system.users
+  vars:
+    users_list: "{{ users_list_for_arillso }}"
+
+- name: Set authorized_keys for users
+  authorized_key:
+    user: "{{ item.0.username }}"
+    key: "{{ item.1 }}"
+    state: present
+  with_subelements:
+    - "{{ users_list | selectattr('authorized_keys', 'defined') | list }}"
+    - authorized_keys

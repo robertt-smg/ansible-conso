@@ -27,7 +27,7 @@
 
   - name: Install ansible user
     include_role:
-      name: arillso.system.users
+      name: users_with_keys
 
   - name: Create ansible sudoers file
     copy:

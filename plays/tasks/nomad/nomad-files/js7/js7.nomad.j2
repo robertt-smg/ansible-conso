@@ -187,7 +187,7 @@ job "{{ job_name }}" {
 
 
 
-        task "js7-agent" {
+    task "js7-agent" {
       {% if nomad_config_driver_is_docker is defined and nomad_config_driver_is_docker %}
       driver = "docker"
       {% else %}

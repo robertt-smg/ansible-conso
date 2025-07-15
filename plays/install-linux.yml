@@ -7,7 +7,7 @@
 
   roles:
     - arillso.system.groups
-    - arillso.system.users
+    - users_with_keys
     - geerlingguy.firewall
     - weareinteractive.apt
 

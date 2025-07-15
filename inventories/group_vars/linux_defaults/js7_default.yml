@@ -1,0 +1,7 @@
+cnf_js7_server_default:
+  joc_external_port: 4446
+  controller_external_port: 4444
+  agent_external_port: 4445
+  controller_health_port: 8000
+  agent_health_port: 8001
+  public_ip: l03.smg-air-conso.com
