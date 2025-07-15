@@ -20,3 +20,4 @@ ad_servers_list:
 
 ad_domain_server: SMG-SCA-D01 #d01.smg-air-conso.com
 ad_domain_server_ip: 10.6.1.98
+

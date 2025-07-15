@@ -4,9 +4,9 @@ groups_list_mysql_mariadb:
     state: present
 
 users_list_mysql_mariadb:
-  - name: mysql
-    authorized_keys:
-    username: mysql
+  - username: mysql
+    #authorized_keys:
+    #username: mysql
     shell: /usr/sbin/nologin
     group: mysql
     groups:

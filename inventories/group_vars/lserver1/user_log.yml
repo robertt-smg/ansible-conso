@@ -1,0 +1,18 @@
+groups_list_log_daemon:
+  - name: log-daemon
+    system: true
+    state: present
+
+users_list_log_daemon:
+  - username: log-daemon
+    authorized_keys:
+      - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDEm0iUEqGejQUYcaV8L5XfzjCRaL/FBkE9eC0/0IQFAzb1T2YXcOMI7Bqw2KMHzkXHTcVatDlTXT+Y2teRxuQtPHsl5E2Cxp25bWLxKkn13lZ2CYaBtzswpQz3VXt2b8d1YtbfmSq3tjyQ86OpuSKAsWtCgEAuJchH/2e6gqPHNoo5O7LPDJGxHu2Cu4krzRZB+pn3ZPJnMkpSfxtF0oCSiEEp1jKWo/uZUaWzwnLNLpnI0em4s9I4RfMBNBOk8nFtQaGRcZs4HnQLizBToxJ3rZzC/qQddD9m5gZII6wN6iWVowZS3szqELRk8r5vXC1r/4qttkCeCSw7xp1AA+Ij SMG Github robertt
+      - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDIabn6/bfDQEC1rX/wtXNd3+om5OukXswKp19mV6djRAxhNsOO3h/xKifDGr7Gw8jH7HvBfHGhMCb+22Rbhv9AfOM1C+1kcf7PCO5btwP+Jj3C+p7qAgZIUULkXUSbo2b0VpupeMj4k2vrgUv/JBX1Aiwc9IZ5Sd38wsEQa+IX9/eCFaM6vmeD9S1crz+JhogakqPEWfUGWiqZg30tBsIx2/VZS5h8MacCVbxQpBk9ucDl3C4BlRmja2hZfdUfl9r1+bUJAe5+Bp1Z24W+zCadRyM0zK9MUiNKMxoj8vV4+xDpiHeB5sNCQB0IT2de+nmpmQxpL5WCdyN00fHgrXi4wHwy4kOTylFf3heE9aRPL2bsKd2OTvKjTK/XhDX5deZeaEnyZ3MlPHRRPxNmnt64/u4VYzPjx2trZU30NZT/w8XKNBFAUQ4MkXVJuzdQzcI7dKvLTKlxjcx4jK1OASTkZSZRm+63nxrWJ06i3QMXoUYUMZ8L4Ps7QwMEg5qX2DnyFVV8FQuuHjC7vm6c5OEch7dZetPlAN8jTdUhQWmBzoVvhIbVxJQA+O3+L2g6wF6UYENDa9Vd/qBZGNZN3tdUqyBfquKOyfn67YOCIoa7FWiFu/C5niYTgrYpjhdpIjInjUl1MhHEC1QBw1GVItV0Wn4PGnlgLLo3fU1f5OQWMQ== ScaleUp root@server12083 DB
+    #username: log-daemon
+    shell: /bin/bash
+    group: log-daemon
+    groups:
+      - log-daemon
+      - daemon
+      - www-data
+    

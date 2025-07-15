@@ -20,3 +20,24 @@
     name: sshd
     state: restarted
         
+# Create SSH Authroized Keys for JS7 Job User
+- name: "Ensure .ssh directory exists for {{ js7_jobssh_user_dir }} user"
+  ansible.windows.win_file:
+    path: "C:\\Users\\{{ js7_jobssh_user_dir }}\\.ssh"
+    state: directory
+  when: js7_jobssh_user_dir is defined and js7_jobssh_pub_key is defined
+
+- name: "Add SSH public key to authorized_keys for {{ js7_jobssh_user_dir }} user"
+  win_lineinfile:
+    path: "C:\\Users\\{{ js7_jobssh_user_dir }}\\.ssh\\authorized_keys"
+    line: "{{ js7_jobssh_pub_key }}"
+    create: yes
+  when: js7_jobssh_user_dir is defined and js7_jobssh_pub_key is defined
+
+- name: Ensure AllowUsers {{ js7_jobssh_user_allow }} is enabled in sshd_config
+  win_lineinfile:
+    path: 'C:\ProgramData\ssh\sshd_config'
+    regexp: '^#?AllowUsers {{ js7_jobssh_user_allow | regex_escape }}\s+.*'
+    line: 'AllowUsers {{ js7_jobssh_user_allow }}'
+    backup: yes
+  when: js7_jobssh_user_allow is defined

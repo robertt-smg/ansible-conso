@@ -4,9 +4,9 @@ groups_list_jboss:
     state: present
 
 users_list_jboss:
-  - name: jboss
-    authorized_keys:
-    username: jboss
+  - username: jboss
+    #authorized_keys:
+    #: jboss
     shell: /usr/sbin/nologin
     group: jboss
     groups:

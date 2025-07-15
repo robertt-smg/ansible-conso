@@ -4,10 +4,10 @@ groups_list_ansible:
     state: present
 
 users_list_ansible:
-  - name: ansible
+  - username: ansible
     authorized_keys:
       - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDEm0iUEqGejQUYcaV8L5XfzjCRaL/FBkE9eC0/0IQFAzb1T2YXcOMI7Bqw2KMHzkXHTcVatDlTXT+Y2teRxuQtPHsl5E2Cxp25bWLxKkn13lZ2CYaBtzswpQz3VXt2b8d1YtbfmSq3tjyQ86OpuSKAsWtCgEAuJchH/2e6gqPHNoo5O7LPDJGxHu2Cu4krzRZB+pn3ZPJnMkpSfxtF0oCSiEEp1jKWo/uZUaWzwnLNLpnI0em4s9I4RfMBNBOk8nFtQaGRcZs4HnQLizBToxJ3rZzC/qQddD9m5gZII6wN6iWVowZS3szqELRk8r5vXC1r/4qttkCeCSw7xp1AA+Ij SMG Github robertt
-    username: ansible
+    #username: ansible
     shell: /bin/bash
     group: ansible
     groups:

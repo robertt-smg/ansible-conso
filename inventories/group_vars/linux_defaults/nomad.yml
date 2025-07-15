@@ -5,9 +5,9 @@ groups_list_nomad:
     state: present
 
 users_list_nomad:
-  - name: nomad
-    authorized_keys:
-    username: nomad
+  - username: nomad
+    #authorized_keys:
+    #username: nomad
     shell: /usr/sbin/nologin
     group: nomad
 

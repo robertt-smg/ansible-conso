@@ -21,3 +21,7 @@ ad_servers_list:
 
 ad_domain_server: SMG-TST-D01 #d01.test.smg-air-conso.com
 ad_domain_server_ip: 192.168.121.91
+
+js7_jobssh_user_dir: RA_AQUSER1
+js7_jobssh_user_allow: RA_AQUSER1
+js7_jobssh_pub_key: "ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBIaR88s1+JtgEBc8C3IvfF3BICPaff8NuNrknm/fLCMb9wKsVJN2B0SVnKHgCvV7hZmBEF4Dvq9RFTgvz4kwYXg="
