@@ -1,0 +1,25 @@
+- hosts: all
+  become: true
+  gather_facts: true
+
+  vars_files:
+  - main/vars.yml
+  roles:
+    - arillso.system.groups
+ 
+  tasks:
+  - name: Hallo
+    debug:
+      msg: "Hallo {{ users_list }}"
+ 
+  - name: Debug authorized_keys_users_list before setting authorized_keys
+    debug:
+        var: users_list
+
+  - name: Install Linux groups
+    include_role:
+      name: arillso.system.groups
+
+  - name: Install Linux users
+    include_role:
+      name: users_with_keys

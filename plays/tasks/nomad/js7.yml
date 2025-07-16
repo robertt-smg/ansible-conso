@@ -59,6 +59,16 @@
     mode: '0775'
   become: true
 
+- name: js7 copy agent ssh key
+  copy:
+    src: nomad-files/js7/id_ra_aquser_job.key
+    dest: "{{ js7.app_volume }}/data/agent-primary/id_ra_aquser_job"
+    owner: 1000
+    group: 1000
+    mode: '0775'
+  become: true
+
+
 - name: js7 Create global-server-nomad-key.pem
   copy:
     src: "{{nomad_certs}}.certs/global-server-nomad-key.pem"

@@ -6,10 +6,19 @@
 
   tasks:
 
+  - name: Get current hostname
+    ansible.windows.win_shell: echo %COMPUTERNAME%
+    register: current_hostname_raw
+
+  - name: Set current hostname fact
+    set_fact:
+      current_hostname: "{{ current_hostname_raw.stdout | trim }}"
+
   - name: "Change the hostname to {{ win_hostname}}"
     ansible.windows.win_hostname:
       name: "{{ win_hostname }}"
     register: res
+    when: current_hostname != win_hostname
 
   - import_tasks: win-tasks/sshd.yml
  

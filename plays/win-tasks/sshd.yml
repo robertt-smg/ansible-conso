@@ -20,7 +20,7 @@
     name: sshd
     state: restarted
         
-# Create SSH Authroized Keys for JS7 Job User
+## Create SSH Authroized Keys for JS7 Job User
 - name: "Ensure .ssh directory exists for {{ js7_jobssh_user_dir }} user"
   ansible.windows.win_file:
     path: "C:\\Users\\{{ js7_jobssh_user_dir }}\\.ssh"

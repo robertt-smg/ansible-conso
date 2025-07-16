@@ -6,8 +6,6 @@
   - main/vars.yml
 
   roles:
-    - arillso.system.groups
-    - users_with_keys
     - geerlingguy.firewall
     - weareinteractive.apt
 
@@ -49,6 +47,14 @@
       name: geerlingguy.firewall
       tasks_from: main.yml
     when: geerlingguy_firewall_enabled is defined and geerlingguy_firewall_enabled == true
+
+  - name: Install Linux groups
+    include_role:
+      name: arillso.system.groups
+
+  - name: Install Linux users
+    include_role:
+      name: users_with_keys
 
   - import_tasks: tasks/default_user.yml
 
