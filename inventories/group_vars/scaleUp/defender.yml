@@ -1,0 +1,23 @@
+defender_list_scaleUp:
+  ExclusionProcess:
+     - aqstart.exe
+     - aqreader.exe
+
+  ExclusionExtension:
+     - .dbf
+     - .cdx
+     - .fpt
+     - .rq
+     - .rq2
+     - .mem
+
+  ExclusionPath:
+      - 'd:\data\aq-temp\'
+      - 'd:\data\aq-temp\*'
+      - 'd:\proquest\*'
+      - 'd:\proquest\'
+      - 'c:\Users\'
+      - 'q:\airquest\'
+      - 'q:\airquest\*'
+      - '\\f01.smg-air-conso.com\proquest\'
+      - '\\f01.smg-air-conso.com\proquest\*'
