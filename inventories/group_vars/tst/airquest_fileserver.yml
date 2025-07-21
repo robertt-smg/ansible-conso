@@ -1,0 +1,17 @@
+## See https://stackoverflow.com/questions/16221250/add-a-key-to-hkey-current-user-for-all-users
+## to add registry setting per user once
+
+airquest_defaults_q_drive_tst:
+  enabled: true
+  automount: false
+  host: LT-SMG4446
+  host_name: "f01.local.smg-air-conso.com"
+  drive_letter: Q
+  share: proquest.sca
+  local_path: "d:\\proquest"
+  user: quh
+  host_name_dev: "f01.test.smg-air-conso.com"
+  db_server: "f01.test.smg-air-conso.com"
+  drive_letter_dev: S
+  mount_point: /mnt/airquest
+  share_dev: proquest.dev

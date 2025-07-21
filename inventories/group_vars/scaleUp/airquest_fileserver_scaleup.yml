@@ -14,5 +14,5 @@ airquest_defaults_prd_scaleup:
   host_name_dev: "f01.smg-air-conso.com"
   drive_letter_dev: S
   share_dev: proquest.dev
-
+  mount_point: /mnt/airquest
   prod_ip_range: "10.1.0.0-10.6.255.255"

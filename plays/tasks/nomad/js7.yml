@@ -20,6 +20,7 @@
     - log-controller
     - controller-primary
     - agent-primary
+    - agent-secondary
     - config
     - certs
 
@@ -53,21 +54,38 @@
 - name: js7 copy controller config
   copy:
     src: nomad-files/js7/controller/
-    dest: "{{ js7.app_volume }}/data/controller-primary/"
+    dest: "{{ js7.app_volume }}/data/controller-{{ item }}/"
     owner: 1000
     group: 1000
     mode: '0775'
+  loop:
+    - primary
+    - secondary
   become: true
 
 - name: js7 copy agent ssh key
   copy:
-    src: nomad-files/js7/id_ra_aquser_job.key
-    dest: "{{ js7.app_volume }}/data/agent-primary/id_ra_aquser_job"
+    src: nomad-files/js7/data/id_ra_aquser_job.key
+    dest: "{{ js7.app_volume }}/data/agent-{{ item }}/id_ra_aquser_job"
     owner: 1000
     group: 1000
     mode: '0775'
+  loop:
+    - primary
+    - secondary
   become: true
 
+- name: js7 copy win_job_template.cmd
+  copy:
+    src: nomad-files/js7/data/win_job_template.cmd
+    dest: "{{ js7.app_volume }}/data/agent-{{ item }}/win_job_template.cmd"
+    owner: 1000
+    group: 1000
+    mode: '0775'
+  loop:
+    - primary
+    - secondary
+  become: true
 
 - name: js7 Create global-server-nomad-key.pem
   copy:
@@ -107,9 +125,9 @@
     config_dir: "{{ nomad_data_dir }}/jobs/{{ nomad_js7.job_name }}"
   register: js7_nomad_file_changed
 
-- name: "Check js7 service status http//{{ nomad_advertise_address }}:{{ js7.controller_health_port }}/"
+- name: "Check js7 service status http://{{ nomad_advertise_address }}:{{ js7.controller_health_port }}/"
   uri:
-    url: "http//{{ nomad_advertise_address }}:{{ js7.controller_health_port }}/"
+    url: "http://{{ nomad_advertise_address }}:{{ js7.controller_health_port }}/"
     method: GET
     status_code: 200
     validate_certs: no

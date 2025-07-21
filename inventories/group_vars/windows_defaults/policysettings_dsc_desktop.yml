@@ -17,3 +17,5 @@ policy_settings_lgpo_all_windows:
       keyvaluename: "Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\System\\WallpaperStyle"
       type: "Dword"
       data: "2"
+
+

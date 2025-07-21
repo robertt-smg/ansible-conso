@@ -1,0 +1,30 @@
+- name: Ensure cifs-utils is installed
+  package:
+    name: cifs-utils
+    state: present
+
+- name: Create SMB credentials file for Airquest Q
+  copy:
+    dest: "{{ credentials_file }}"
+    content: |
+      username={{ airquest_defaults.user }}
+      password={{ airquest_defaults.password }}
+    owner: root
+    group: root
+    mode: '0600'
+
+- name: Ensure mount point exists
+  file:
+    path: "{{ airquest_defaults.mount_point }}"
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: "Ensure Airquest Q: drive is present in /etc/fstab"
+  mount:
+    path: "{{ airquest_defaults.mount_point }}"
+    src: "//{{ airquest_defaults.host_name }}/{{ airquest_defaults.share }}"
+    fstype: cifs
+    opts: "credentials={{ credentials_file }},iocharset=utf8,file_mode=0777,dir_mode=0777"
+    state: mounted

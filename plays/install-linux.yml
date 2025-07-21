@@ -84,4 +84,7 @@
   - import_tasks: tasks/rinetd.yml
     when: port_forwarding.enabled is defined and port_forwarding.enabled == true
 
+  - import_tasks: tasks/mount_q.yml
+    when: airquest_defaults.enabled is defined and airquest_defaults.enabled == true
+ 
 

@@ -41,6 +41,14 @@ job "{{ job_name }}" {
         static ={{ js7.agent_health_port }} 
         to = 8000
       }
+      port "agent_external_port_secondary" { 
+        static = {{ js7.agent_external_port_secondary }} 
+        to = 4445 
+      } 
+      port "agent_health_port_secondary" { 
+        static ={{ js7.agent_health_port_secondary }} 
+        to = 8000
+      }
       port "controller_external_port" { 
         static = {{ js7.controller_external_port }} 
         to = 4444 
@@ -211,6 +219,7 @@ job "{{ job_name }}" {
         ]
         volumes = [
             "{{ js7.app_volume }}/data/agent-primary:/var/sos-berlin.com/js7/agent/var_4445",
+            "/mnt/airquest:/mnt/airquest",
         ]
         {% if nomad_config_driver_is_docker is defined and nomad_config_driver_is_docker %}
         volume_driver = "local"
@@ -226,6 +235,63 @@ job "{{ job_name }}" {
         check {
           type     = "http"
           port     = "agent_health_port"
+          path = "/healthweb.sh"
+          interval = "120s"
+          timeout  = "30s"
+          protocol = "http"
+          tls_skip_verify = true
+        }
+      }
+      logs {
+         max_files     = 2
+         max_file_size = 15
+      }
+ 
+      resources {
+        cpu = {{ js7.cpu }}
+        memory = {{ js7.memory }}
+      }
+    }    
+    task "js7-agent-secondary" {
+      {% if nomad_config_driver_is_docker is defined and nomad_config_driver_is_docker %}
+      driver = "docker"
+      {% else %}
+      driver = "podman"
+      {% endif %}
+      env {  
+          RUN_JS_JAVA_OPTIONS="-Xmx256m"
+          RUN_JS_USER_ID="1000:0"
+      }
+      config {
+        {% set image_version= js7.image_version_agent %}
+        {% include "nomad-files/github_registry.j2" %}
+        hostname = " js7-agent-secondary"
+        labels {
+          group = "js7-scheduler"
+        }
+        extra_hosts = [
+          "mail.smg-air-conso.com:{{ js7.smtp.host }}",
+          "js7_mail_server:{{ js7.smtp.host }}",
+          "joc_db_server:{{ js7.db.host }}",
+        ]
+        volumes = [
+            "{{ js7.app_volume }}/data/agent-secondary:/var/sos-berlin.com/js7/agent/var_4445",
+            "/mnt/airquest:/mnt/airquest",
+        ]
+        {% if nomad_config_driver_is_docker is defined and nomad_config_driver_is_docker %}
+        volume_driver = "local"
+        {% endif %}
+         
+        ports = [ "agent_external_port_secondary", "agent_health_port_secondary" ]
+        
+      }
+      service {
+        name = "{{ job_name }}-agent"
+        port = "agent_health_port_secondary"
+        provider = "nomad"
+        check {
+          type     = "http"
+          port     = "agent_health_port_secondary"
           path = "/healthweb.sh"
           interval = "120s"
           timeout  = "30s"

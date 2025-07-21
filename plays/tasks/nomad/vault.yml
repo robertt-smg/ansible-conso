@@ -76,9 +76,9 @@
     config_dir: "{{ nomad_data_dir }}/jobs/{{ nomad_vault.job_name }}"
   register: vault_nomad_file_changed
 
-- name: "Check vault service status http//{{ nomad_advertise_address }}:{{ vault.external_ui_port }}/"
+- name: "Check vault service status http://{{ nomad_advertise_address }}:{{ vault.external_ui_port }}/"
   uri:
-    url: "http//{{ nomad_advertise_address }}:{{ vault.external_ui_port }}/"
+    url: "http://{{ nomad_advertise_address }}:{{ vault.external_ui_port }}/"
     method: GET
     status_code: 200
     validate_certs: no

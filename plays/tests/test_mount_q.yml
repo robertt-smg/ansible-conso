@@ -1,0 +1,11 @@
+- hosts: all
+  become: true
+  gather_facts: true
+
+  vars_files:
+  - main/vars.yml
+
+  tasks:
+
+  - import_tasks: ../tasks/mount_q.yml
+    when: airquest_defaults.enabled is defined and airquest_defaults.enabled == true
