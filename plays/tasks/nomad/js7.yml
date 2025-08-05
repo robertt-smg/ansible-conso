@@ -129,7 +129,7 @@
   uri:
     url: "http://{{ nomad_advertise_address }}:{{ js7.controller_health_port }}/"
     method: GET
-    status_code: 200
+    status_code: 403
     validate_certs: no
   ignore_errors: true
   until: js7_status.status == 200

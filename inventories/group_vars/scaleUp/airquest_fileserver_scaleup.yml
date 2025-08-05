@@ -9,7 +9,7 @@ airquest_defaults_prd_scaleup:
   drive_letter: Q
   share: proquest
   local_path: "d:\\proquest"
-  user: SMG-AIRCONSO.COM\q_lw
+  user: q_lw@SMG-AIRCONSO
   host_dev: SMG-SCA-F01
   host_name_dev: "f01.smg-air-conso.com"
   drive_letter_dev: S

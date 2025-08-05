@@ -1,6 +1,6 @@
 ad_domain_name: "test.smg-airconso"
 ad_domain_suffix: "com"
-ad_domain_admin_user: "Administrator@TEST"
+ad_domain_admin_user: "Administrator"
 
 ad_domain_dns_server_list:
   - 192.168.121.91

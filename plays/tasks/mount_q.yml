@@ -26,5 +26,5 @@
     path: "{{ airquest_defaults.mount_point }}"
     src: "//{{ airquest_defaults.host_name }}/{{ airquest_defaults.share }}"
     fstype: cifs
-    opts: "credentials={{ credentials_file }},iocharset=utf8,file_mode=0777,dir_mode=0777"
+    opts: "credentials={{ credentials_file }},file_mode=0777,dir_mode=0777"
     state: mounted

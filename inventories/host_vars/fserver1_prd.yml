@@ -15,6 +15,32 @@ policy_settings_registry_windows_rdp_server:
       type: "Dword"
       data: 4
 
+policy_settings_registry_windows_file_server:
+    cAdministrativeTemplateSetting:
+# GPT: Diese Einstellung deaktiviert die Bandbreiten-Drosselung für bestimmte Systemdienste, insbesondere für SMB (Server Message Block). Sie kann helfen, die Netzwerkleistung bei Dateiübertragungen zu verbessern.
+    - policytype: "Machine"
+      keyvaluename: "Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\System\\DisableBandwidthThrottling"
+      type: "Dword"
+      data: 1
+
+# GPT: Aktiviert einen größeren Dateisystem-Cache im RAM. Dies kann die Performance von Dateioperationen auf einem dedizierten Fileserver deutlich verbessern.
+    - policytype: "Machine"
+      keyvaluename: "System\\CurrentControlSet\\Control\\Session Manager\\Memory Management\\LargeSystemCache"
+      type: "Dword"
+      data: 1
+
+# GPT: Bestimmt, wie viele gleichzeitige I/O-Anforderungen (Input/Output Request Packets) der Server verarbeiten kann. Ein zu niedriger Wert kann zu Fehlern wie „Not enough server storage is available to process this command“ führen.
+    - policytype: "Machine"
+      keyvaluename: "System\\CurrentControlSet\\Services\\LanmanServer\\Parameters\\IRPStackSize"
+      type: "Dword"
+      data: 25
+#https://learn.microsoft.com/de-de/windows-server/administration/performance-tuning/role/file-server/smb-file-server
+    - policytype: "Machine"
+      keyvaluename: "System\\CurrentControlSet\\Control\\Session Manager\\Executive\\AdditionalCriticalWorkerThreads"
+      type: "Dword"
+      data: 64
+
+
 ad_servers_list:
   - SMG-SCA-F01
 

@@ -80,7 +80,7 @@
   uri:
     url: "http://{{ nomad_advertise_address }}:{{ vault.external_ui_port }}/"
     method: GET
-    status_code: 200
+    status_code: 403
     validate_certs: no
   ignore_errors: true
   until: vault_status.status == 200
