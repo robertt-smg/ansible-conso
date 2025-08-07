@@ -1,0 +1,21 @@
+
+- name: Copy SumatraPDF 9.0 Installer
+  win_copy:
+    src: files/SumatraPDF-3.5.2-install.exe
+    dest: c:\\windows\\temp\\SumatraPDF-3.5.2-install.exe
+
+- name: Check if SumatraPDF is already installed
+  ansible.windows.win_stat:
+    path: 'C:\Program Files (x86)\SumatraPDF\SumatraPDF.exe'
+  register: acrobatrd_stat
+
+- name: Install SumatraPDF silently for all users
+  ansible.windows.win_command: 'c:\\windows\\temp\\SumatraPDF-3.5.2-install.exe /s /all-users'
+  when: not acrobatrd_stat.stat.exists
+ 
+- name: Associate .pdf files with Sumatra.PDF
+  ansible.windows.win_command: 'cmd /c ASSOC .pdf=Sumatra.PDF'
+  #when: not freeopener_stat.stat.exists
+
+- name: Set FTYPE for SumatraPDF to use SumatraPDF
+  ansible.windows.win_command: 'cmd /c FTYPE Sumatra.PDF="C:\Program Files (x86)\SumatraPDF\SumatraPDF.exe" %%1'

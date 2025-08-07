@@ -23,3 +23,6 @@ ad_servers_list_register:
   - SMG-TST-W01
   - SMG-TST-W02
   - SMG-TST-W03
+ad_domain_server: SMG-TST-D01 #d01.smg-air-conso.com
+ad_domain_server_ip: 192.168.121.91
+ad_domain_ts_server: SMG-TST-T01

@@ -47,7 +47,7 @@ services:
       - SUITECRM_SMTP_NOTIFY_ADDRESS="technology@smg-air-conso.de"
       - SUITECRM_SMTP_NOTIFY_NAME="Technology SMG Air Conso"    
     volumes:
-      - suitecrm_data:/bitnami/suitecrm
+      - ./suitecrm_data:/bitnami/suitecrm
 
     depends_on:
       - mariadb

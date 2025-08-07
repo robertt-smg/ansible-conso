@@ -20,12 +20,3 @@
 - name: Set FTYPE for OutlookMailMsg to use FreeOpener
   ansible.windows.win_command: 'cmd /c FTYPE OutlookMailMsg="C:\Program Files\Free Opener\FreeOpener.exe" %%1'
   #when: not freeopener_stat.stat.exists
-
-- name: Associate .pdf files with FreeOpener.PDF
-  ansible.windows.win_command: 'cmd /c ASSOC .pdf=FreeOpener.PDF'
-  #when: not freeopener_stat.stat.exists
-
-- name: Set FTYPE for FreeOpener.PDF to use FreeOpener
-  ansible.windows.win_command: 'cmd /c FTYPE FreeOpener.PDF="C:\Program Files\Free Opener\FreeOpener.exe" %%1'
-  #when: not freeopener_stat.stat.exists
-

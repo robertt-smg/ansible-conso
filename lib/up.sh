@@ -145,6 +145,8 @@ function hyper_v_build() {
 			-NameServers \"${VMDefaultGateway},1.1.1.1,8.8.4.4\" \
 			-DomainName \"smg-air-conso.de\" \
 			-VMMachine_StoragePath \"\$env:ProgramData\hyperv-vm-provisioning\""
+
+		echo "Hyper-V Linux VM $VMName created - you can run ansible ... --bootstrap now, or login as user: admin"
 	fi
 }
 function usage() {

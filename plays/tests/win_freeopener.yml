@@ -8,6 +8,11 @@
   - main/vars.yml
 
   tasks:
+
+    - name: Install SumatraPDF
+      include_tasks: ../win-tasks/sumatrapdf.yml
+      when: airquest_defaults.enabled is defined and airquest_defaults.enabled
+
     - name: Install Free Opener
       include_tasks: ../win-tasks/freeopener.yml
       when: airquest_defaults.enabled is defined and airquest_defaults.enabled

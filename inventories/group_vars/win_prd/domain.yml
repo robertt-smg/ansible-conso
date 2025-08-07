@@ -1,6 +1,7 @@
 ad_domain_name: "smg-airconso"
 ad_domain_suffix: "com"
 ad_domain_admin_user: "Administrator@SMG-AIRCONSO"
+# create group in AD manually and get with powershell (Get-ADGroup "RDM").SID
 ad_domain_rdm_sid: "S-1-5-21-495975362-3643332021-752935216-1128"
 
 ad_domain_dns_server_list:

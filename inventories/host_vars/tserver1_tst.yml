@@ -17,5 +17,5 @@ policy_settings_registry_windows_rdp_tserver1:
 ad_servers_list:
   - SMG-TST-T01
 
-ad_domain_server: SMG-TST-D01 #d01.test.smg-air-conso.com
+ad_domain_server: smg-tst-d01.test.smg-airconso.com #d01.test.smg-airconso.com
 ad_domain_server_ip: 192.168.121.91
