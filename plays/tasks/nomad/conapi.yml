@@ -61,13 +61,20 @@
   register: conapi_nomad_file_changed
 
 - name: "Check conapi service status https://{{ nomad_advertise_address }}:{{ conapi.external_port }}/"
-  uri:
-    url: "https://{{ nomad_advertise_address }}:{{ conapi.external_port }}/"
-    method: GET
-    status_code: 200
-    validate_certs: no
+  command:  timeout 5s curl -k -v https://{{ nomad_advertise_address }}:{{ conapi.external_port }}/
   ignore_errors: true
-  until: conapi_status.status == 200
-  retries: 2
-  delay: 10
+  until: conapi_status.rc == 0
+  retries: 4
+  delay: 5
   register: conapi_status
+
+#  uri:
+#    url: "https://{{ nomad_advertise_address }}:{{ conapi.external_port }}/"
+#    method: GET
+#    status_code: 200
+#    validate_certs: no
+#  ignore_errors: true
+#  until: conapi_status.status == 200
+#  retries: 2
+#  delay: 10
+#  register: conapi_status

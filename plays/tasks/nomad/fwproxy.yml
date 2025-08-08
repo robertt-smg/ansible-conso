@@ -48,13 +48,19 @@
   register: fwproxy_nomad_file_changed
 
 - name: "Check fwproxy service status https://{{ nomad_advertise_address }}:{{ fwproxy.external_port }}/"
-  uri:
-    url: "https://{{ nomad_advertise_address }}:{{ fwproxy.external_port }}/"
-    method: GET
-    status_code: 200
-    validate_certs: no
+  command:  timeout 5s curl -k -v https://{{ nomad_advertise_address }}:{{ fwproxy.external_port }}/
   ignore_errors: true
-  until: fwproxy_status.status == 200
-  retries: 2
-  delay: 10
+  until: fwproxy_status.rc == 0
+  retries: 4
+  delay: 5
+
+#  uri:
+#    url: "https://{{ nomad_advertise_address }}:{{ fwproxy.external_port }}/"
+#    method: GET
+#    status_code: 200
+#    validate_certs: no
+#  ignore_errors: true
+#  until: fwproxy_status.status == 200
+ # retries: 2
+#  delay: 10
   register: fwproxy_status

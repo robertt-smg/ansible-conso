@@ -124,7 +124,7 @@
   register: mariadb_nomad_file_changed
 
 - name: Check MariaDB server status
-  command:  timeout 30s mysqladmin --protocol tcp status
+  command:  timeout 5s mysqladmin --protocol tcp status
   ignore_errors: true
   until: mysql_status.rc == 0
   retries: 4

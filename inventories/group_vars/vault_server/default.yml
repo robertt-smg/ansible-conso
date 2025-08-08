@@ -4,8 +4,6 @@ cnf_vault_default:
   cpu: 512
   memory: 1024
   memory_hard_limit: 37570
-  app_volume: /var/lib/js7
+  app_volume: /var/lib/vault
   
-  image_version_joc: "js7-joc:joc-2-7-4"
-  image_version_controller: "js7-controller:controller-2-7-4-1"
-  image_version_agent: "js7-controller:agent-2-7-4"
+  image_version: "vault:latest"

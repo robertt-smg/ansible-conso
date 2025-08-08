@@ -63,8 +63,8 @@ job "{{ job_name }}" {
         check {
           type     = "http"
           name     = "haproxy http check"
-          path     = "/?status"
-          port     = "haproxy"
+          path     = "/stats"
+          port     = "hastatus"
           interval = "60s"
           timeout  = "30s"
           

@@ -75,6 +75,9 @@
 #- name: Install Acrobat Reader
 #  include_tasks: win-tasks/acrobatpdf90.yml
 #  when: airquest_defaults.enabled is defined and airquest_defaults.enabled
+- name: Install SumatraPDF
+  include_tasks: win-tasks/sumatrapdf.yml
+  when: airquest_defaults.enabled is defined and airquest_defaults.enabled
 
 - name: Ensure destination directory for wallpaper exists
   win_file:
