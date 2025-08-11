@@ -1,21 +1,61 @@
 
-- name: Copy SumatraPDF 9.0 Installer
-  win_copy:
-    src: files/SumatraPDF-3.5.2-install.exe
-    dest: c:\\windows\\temp\\SumatraPDF-3.5.2-install.exe
 
 - name: Check if SumatraPDF is already installed
   ansible.windows.win_stat:
     path: 'C:\Program Files (x86)\SumatraPDF\SumatraPDF.exe'
-  register: acrobatrd_stat
+  register: sumatra_stat
+
+- name: Copy SumatraPDF 9.0 Installer
+  win_copy:
+    src: files/SumatraPDF-3.5.2-install.exe
+    dest: c:\\windows\\temp\\SumatraPDF-3.5.2-install.exe
+  when: not sumatra_stat.stat.exists
 
 - name: Install SumatraPDF silently for all users
   ansible.windows.win_command: 'c:\\windows\\temp\\SumatraPDF-3.5.2-install.exe /s /all-users'
-  when: not acrobatrd_stat.stat.exists
+  when: not sumatra_stat.stat.exists
  
 - name: Associate .pdf files with Sumatra.PDF
-  ansible.windows.win_command: 'cmd /c ASSOC .pdf=Sumatra.PDF'
-  #when: not freeopener_stat.stat.exists
+  ansible.windows.win_command: 'cmd /c ASSOC .pdf=Sumatra.pdf'
 
-- name: Set FTYPE for SumatraPDF to use SumatraPDF
-  ansible.windows.win_command: 'cmd /c FTYPE Sumatra.PDF="C:\Program Files (x86)\SumatraPDF\SumatraPDF.exe" %%1'
+- name: Remove Edge PDF handler from OpenWithProgids for .pdf
+  ansible.windows.win_regedit:
+    path: "HKLM:\\Software\\Classes\\.pdf\\OpenWithProgids"
+    name: MSEdgePDF
+    state: absent
+### Madness of MS on .pdf
+# https://kolbi.cz/blog/2024/04/03/userchoice-protection-driver-ucpd-sys/
+
+- name: Make Sumatra PDF handler the Default for .pdf
+  ansible.windows.win_regedit:
+    path: "HKLM:\\Software\\Classes\\.pdf"
+    name: ""
+    data: Sumatra.pdf
+    state: present
+
+# Copy Stub  
+- name: Copy Acrobat Reader Stub to start SumatraPDF
+  win_copy:
+    src: files/acrord32.exe
+    dest: C:\\Program Files (x86)\\SumatraPDF\\acrord32.exe
+  when: not sumatra_stat.stat.exists
+
+# Add Exception for Stub
+- name: Add ExclusionProcess to Windows Defender exclusion list for SumatraPDF/AcroRd.exe
+  win_shell: powershell.exe -ExecutionPolicy ByPass -Command "Add-MpPreference -ExclusionProcess 'C:\Program Files (x86)\SumatraPDF\acrord32.exe' -Force"
+  ignore_errors: yes
+
+- name: Add ExclusionPath to Windows Defender exclusion list for SumatraPDF
+  win_shell: powershell.exe -ExecutionPolicy ByPass -Command "Add-MpPreference -ExclusionPath 'C:\Program Files (x86)\SumatraPDF' -Force"
+  ignore_errors: yes  
+
+# Fake registry AcroRd
+# HKEY_CLASSES_ROOT\SOFTWARE\Adobe\Acrobat\Exe
+
+- name: Point Acrobat Exe registry to SumatraPDF.exe (HKCR)
+  ansible.windows.win_regedit:
+    path: "HKLM:\\Software\\Classes\\Software\\Adobe\\Acrobat\\Exe"
+    data: "C:\\Program Files (x86)\\SumatraPDF\\SumatraPDF.exe"
+    type: string
+    state: present
+

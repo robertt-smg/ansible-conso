@@ -14,11 +14,15 @@ wireguard_unmanaged_peers:
         allowed_ips: 10.8.0.5
         persistent_keepalive: 30
 
-    vl_stkr:
+    smg_stkr:
         public_key: HILvDevHJtSvRlHbOBuw7Hcdt+mxHFZWlltUHMDx0io=
         allowed_ips: 10.8.0.6
         persistent_keepalive: 30
 
+    vl_chandra:
+        public_key: 2q+/JMmyNjhvcrdzG/L5jktdlvwJ1iJG/q2yaIgS2E4=
+        allowed_ips: 10.8.0.7
+        persistent_keepalive: 30
 
 wireguard_address: 10.8.0.1/24
 wireguard_port: 51820

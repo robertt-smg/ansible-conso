@@ -1,13 +1,15 @@
 
-- name: Copy FreeOpener Installer
-  win_copy:
-    src: files/freeopener_setup.exe
-    dest: c:\\windows\\temp\\freeopener_setup.exe
 
 - name: Check if FreeOpener is already installed
   ansible.windows.win_stat:
     path: 'C:\Program Files\Free Opener\FreeOpener.exe'
   register: freeopener_stat
+ 
+- name: Copy FreeOpener Installer
+  win_copy:
+    src: files/freeopener_setup.exe
+    dest: c:\\windows\\temp\\freeopener_setup.exe
+  when: not freeopener_stat.stat.exists
 
 - name: Install FreeOpener silently for all users
   ansible.windows.win_command: 'c:\windows\temp\freeopener_setup.exe /silent /allusers'

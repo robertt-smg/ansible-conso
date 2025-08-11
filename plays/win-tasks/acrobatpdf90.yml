@@ -1,13 +1,15 @@
 
-- name: Copy AcrobatReader 9.0 Installer
-  win_copy:
-    src: files/9.0_AdbeRdr90_en_US.exe
-    dest: c:\\windows\\temp\\9.0_AdbeRdr90_en_US.exe
 
 - name: Check if AcrobatReader is already installed
   ansible.windows.win_stat:
     path: 'C:\Program Files (x86)\Adobe\Reader 9.0\Reader\AcroRd32.exe'
   register: acrobatrd_stat
+
+- name: Copy AcrobatReader 9.0 Installer
+  win_copy:
+    src: files/9.0_AdbeRdr90_en_US.exe
+    dest: c:\\windows\\temp\\9.0_AdbeRdr90_en_US.exe
+  when: not acrobatrd_stat.stat.exists
 
 - name: Install AcrobatReader silently for all users
   ansible.windows.win_command: 'c:\\windows\\temp\\9.0_AdbeRdr90_en_US.exe /sAll'
