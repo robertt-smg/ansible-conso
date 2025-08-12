@@ -1,1 +1,13 @@
-./test/suitecrm_data
+# Ignore SuiteCRM test data and transient artifacts
+/test/suitecrm_data/
+# Angular cache and build artifacts
+**/.angular/
+**/.angular/cache/
+# Node-related
+**/node_modules/
+**/dist/
+**/build/
+**/coverage/
+# Generic caches
+**/.cache/
+**/.parcel-cache/
