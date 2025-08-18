@@ -24,5 +24,10 @@ wireguard_unmanaged_peers:
         allowed_ips: 10.8.0.7
         persistent_keepalive: 30
 
+    vl_prashant:
+        public_key: dLJxE+fjJCMKPoJE+shkD/GUC2UggOFjvVv/DVsbY3c=
+        allowed_ips: 10.8.0.7
+        persistent_keepalive: 30
+
 wireguard_address: 10.8.0.1/24
 wireguard_port: 51820
