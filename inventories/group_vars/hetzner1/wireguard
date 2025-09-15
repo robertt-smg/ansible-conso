@@ -26,7 +26,13 @@ wireguard_unmanaged_peers:
 
     vl_prashant:
         public_key: dLJxE+fjJCMKPoJE+shkD/GUC2UggOFjvVv/DVsbY3c=
-        allowed_ips: 10.8.0.7
+        allowed_ips: 10.8.0.8
+        persistent_keepalive: 30
+
+        
+    vl_rahul:
+        public_key: 4mWFuQO7j/3WmbncL1UcxN8+FhIlO3ZIT4/yIbkfvnM=
+        allowed_ips: 10.8.0.9
         persistent_keepalive: 30
 
 wireguard_address: 10.8.0.1/24

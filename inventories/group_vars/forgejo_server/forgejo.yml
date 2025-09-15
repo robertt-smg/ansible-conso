@@ -1,6 +1,7 @@
 cnf_forgejo_server:
   app_volume: /var/lib/forgejo
-  external_ssh_port: 3322
+  #external_ssh_port: 3322
+  external_ssh_port: 2222
   external_port: 2085
 
   email: technology@smg-air-conso.de
